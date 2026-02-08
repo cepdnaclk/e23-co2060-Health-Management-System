@@ -16,35 +16,38 @@ An AI support feature is included to assist doctors by providing suggestions bas
 
 ```
 {
-  "title": "This is the title of the project",
-  "team": [
-    {
-      "name": "Team Member Name 1",
-      "email": "email@eng.pdn.ac.lk",
-      "eNumber": "E/yy/xxx"
-    },
-    {
-      "name": "Team Member Name 2",
-      "email": "email@eng.pdn.ac.lk",
-      "eNumber": "E/yy/xxx"
-    },
-    {
-      "name": "Team Member Name 3",
-      "email": "email@eng.pdn.ac.lk",
-      "eNumber": "E/yy/xxx"
-    }
-  ],
-  "supervisors": [
-    {
-      "name": "Dr. Supervisor 1",
-      "email": "email@eng.pdn.ac.lk"
-    },
-    {
-      "name": "Supervisor 2",
-      "email": "email@eng.pdn.ac.lk"
-    }
-  ],
-  "tags": ["Web", "Software Systems", "CO2060"]
+    "INVEX": [
+        {
+            "name": "Apurwa Fernando",
+            "email": "e23100@eng.pdn.ac.lk",
+            "eNumber": "E/23/100"
+        },
+        {
+            "name": "Ryan Fernando",
+            "email": "e23098@eng.pdn.ac.lk",
+            "eNumber": "E/23/098"
+        },
+        {
+            "name": "Dimal Alagiyawanna",
+            "email": "e23012@eng.pdn.ac.lk",
+            "eNumber": "E/23/012"
+        },
+        {
+            "name": " Kavidu Kalhara",
+            "email": "e23098@eng.pdn.ac.lk",
+            "eNumber": "E/23/093"
+        }
+        
+    ],
+    "supervisors": [
+        {
+            "name": "Kaveesha Madhushan ",
+            "email": "kaveeshamadhushan1776@gmail.com"
+        }
+    ],
+    "tags": ["Web", "Software Systems", "CO2060"],
+    "image":"cover_page.jpg",
+    "thumbnail":"thumbnail.jpg"
 }
 ```
 
