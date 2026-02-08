@@ -1,20 +1,18 @@
 ___
-# DELETE THIS INSTRUCTIONS AND ADD AN INTRODUCTION ABOUT YOUR PROJECT
+# Health Management System
 ___
 
 # eYY-co2060-project-template
 
-This is a sample repository you can use for your Software Systems Design Project. Once you followed these instructions, remove the text and add a brief introduction to here.
+This project is a web-based Health Management System built using the MERN stack (MongoDB, Express, React, and Node.js). It aims to simplify hospital operations by providing a single platform for patients, doctors, lab technicians, and administrators. Each user role has a separate interface with clear permissions to ensure secure and organized access to data.
 
-### Enable GitHub Pages
+Patients can book appointments, view medical records, prescriptions, and lab results. Doctors can manage patient diagnoses, prescriptions, and request lab tests. Lab technicians upload and manage test results, while administrators handle scheduling and overall system management. The backend uses REST APIs with JWT-based authentication and role-based access control to protect sensitive data.
 
-You can put the things to be shown in GitHub pages into the _docs/_ folder. Both html and md file formats are supported. You need to go to settings and enable GitHub pages and select _main_ branch and _docs_ folder from the dropdowns, as shown in the below image.
+An AI support feature is included to assist doctors by providing suggestions based on patient history and symptoms, while all final medical decisions remain with healthcare professionals.
 
-![image](https://user-images.githubusercontent.com/11540782/98789936-028d3600-2429-11eb-84be-aaba665fdc75.png)
 
-### Special Configurations
 
-These projects will be automatically added into [https://projects.ce.pdn.ac.lk](). If you like to show more details about your project on this site, you can fill the parameters in the file, _/docs/index.json_
+
 
 ```
 {
