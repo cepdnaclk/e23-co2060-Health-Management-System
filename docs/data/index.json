@@ -32,6 +32,7 @@
             "email": "e21245@eng.pdn.ac.lk"
         }
     ],
+    "description": "Health Management System"
     "tags": ["Web", "Software Systems", "CO2060"],
     "image":"cover_page.jpg",
     "thumbnail":"thumbnail.jpg"
