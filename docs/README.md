@@ -24,9 +24,10 @@ A HTML template integrated with the given GitHub repository templates, based on 
 ---
 
 ## Team
--  eNumber, Name, [email](mailto:name@email.com)
--  eNumber, Name, [email](mailto:name@email.com)
--  eNumber, Name, [email](mailto:name@email.com)
+-  E/23/100, Apurwa Fernando, [email](e23100@eng.pdn.ac.lk)
+-  E/23/098, Ryan Fernando, [email](e23098@eng.pdn.ac.lk)
+-  E/23/012, Dimal Alagiyawanna , [email](e23012@eng.pdn.ac.lk)
+-  E/23/093, Kavidu Kalhara, [email](e23093@eng.pdn.ac.lk)
 
 <!-- Image (photo/drawing of the final hardware) should be here -->
 
