@@ -41,6 +41,10 @@ An AI support feature is included to assist doctors by providing suggestions bas
     ],
     "supervisors": [
         {
+            "name": "Dr. Asitha Bandaranayake",
+            "email": "asithab@eng.pdn.ac.lk"
+        },
+        {
             "name": "Kaveesha Madhushan ",
             "email": "e21245@eng.pdn.ac.lk"
         }
