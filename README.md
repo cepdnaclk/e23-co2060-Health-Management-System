@@ -42,7 +42,7 @@ An AI support feature is included to assist doctors by providing suggestions bas
     "supervisors": [
         {
             "name": "Kaveesha Madhushan ",
-            "email": "kaveeshamadhushan1776@gmail.com"
+            "email": "e21245@eng.pdn.ac.lk"
         }
     ],
     "tags": ["Web", "Software Systems", "CO2060"],
