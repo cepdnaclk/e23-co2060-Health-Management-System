@@ -13,8 +13,6 @@ An AI support feature is included to assist doctors by providing suggestions bas
 
 
 
-
-
 ```
 {
     "INVEX": [
