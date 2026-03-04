@@ -1,39 +1,42 @@
 {
-    "INVEX": [
-        {
-            "name": "Apurwa Fernando",
-            "email": "e23100@eng.pdn.ac.lk",
-            "eNumber": "E/23/100"
-        },
-        {
-            "name": "Ryan Fernando",
-            "email": "e23098@eng.pdn.ac.lk",
-            "eNumber": "E/23/098"
-        },
-        {
-            "name": "Dimal Alagiyawanna",
-            "email": "e23012@eng.pdn.ac.lk",
-            "eNumber": "E/23/012"
-        },
-        {
-            "name": " Kavidu Kalhara",
-            "email": "e23098@eng.pdn.ac.lk",
-            "eNumber": "E/23/093"
-        }
-        
-    ],
-    "supervisors": [
-        {
-            "name": "Dr. Asitha Bandaranayake",
-            "email": "asithab@eng.pdn.ac.lk"
-        },
-        {
-            "name": "Kaveesha Madhushan",
-            "email": "e21245@eng.pdn.ac.lk"
-        }
-    ],
-    "description": "Health Management System"
-    "tags": ["Web", "Software Systems", "CO2060"],
-    "image":"cover_page.jpg",
-    "thumbnail":"thumbnail.jpg"
+  "INVEX": [
+    {
+      "name": "Apurwa Fernando",
+      "email": "e23100@eng.pdn.ac.lk",
+      "eNumber": "E/23/100"
+    },
+    {
+      "name": "Ryan Fernando",
+      "email": "e23098@eng.pdn.ac.lk",
+      "eNumber": "E/23/098"
+    },
+    {
+      "name": "Dimal Alagiyawanna",
+      "email": "e23012@eng.pdn.ac.lk",
+      "eNumber": "E/23/012"
+    },
+    {
+      "name": " Kavidu Kalhara",
+      "email": "e23098@eng.pdn.ac.lk",
+      "eNumber": "E/23/093"
+    }
+  ],
+  "supervisors": [
+    {
+      "name": "Dr. Asitha Bandaranayake",
+      "email": "asithab@eng.pdn.ac.lk"
+    },
+    {
+      "name": "Kaveesha Madhushan",
+      "email": "e21245@eng.pdn.ac.lk"
+    }
+  ],
+  "description": "Health Management System",
+  "tags": [
+    "Web",
+    "Software Systems",
+    "CO2060"
+  ],
+  "image": "cover_page.jpg",
+  "thumbnail": "thumbnail.jpg"
 }
