@@ -20,18 +20,7 @@
       "email": "e23098@eng.pdn.ac.lk",
       "eNumber": "E/23/093"
     }
-  ],
-  "supervisors": [
-    {
-      "name": "Dr. Asitha Bandaranayake",
-      "email": "asithab@eng.pdn.ac.lk"
-    },
-    {
-      "name": "Kaveesha Madhushan",
-      "email": "e21245@eng.pdn.ac.lk"
-    }
-  ],
-  "description": "Health Management System",
+  ],"description": "Health Management System",
   "tags": [
     "Web",
     "Software Systems",
