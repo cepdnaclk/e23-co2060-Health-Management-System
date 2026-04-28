@@ -1,0 +1,274 @@
+Database initialization failed. Starting API with database-backed routes unavailable.
+Database error: connect ECONNREFUSED 127.0.0.1:3306
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Get profile error: Error: connect ECONNREFUSED 127.0.0.1:3306
+    at PromisePool.query (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at findUserWithProfileById (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/models/patientModel.js:30:29)
+    at getPatientMe (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/controllers/patientController.js:7:23)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:36:49
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\route.js:149:13)
+    at authRequired (file:///C:/Users/ryan/Desktop/invex/website_2/website_2/backend/middlewares/auth.js:28:12)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\invex\website_2\website_2\backend\node_modules\express\lib\router\layer.js:95:5) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}

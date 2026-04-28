@@ -1,0 +1,23 @@
+import { Router } from "express";
+import {
+  completeDoctorAppointment,
+  doctorAppointments,
+  getDoctorMe,
+  getDoctorPatient,
+  listDoctors,
+  updateDoctorMe,
+  updateDoctorPatient
+} from "../controllers/doctorController.js";
+import { authRequired, requireRole } from "../middlewares/auth.js";
+
+const router = Router();
+
+router.get("/api/doctor/me", authRequired, requireRole("doctor"), getDoctorMe);
+router.put("/api/doctor/me", authRequired, requireRole("doctor"), updateDoctorMe);
+router.get("/api/doctors", authRequired, listDoctors);
+router.get("/api/doctor/appointments", authRequired, requireRole("doctor"), doctorAppointments);
+router.put("/api/doctor/appointments/:appointmentId/complete", authRequired, requireRole("doctor"), completeDoctorAppointment);
+router.get("/api/doctor/patients/:patientId", authRequired, requireRole("doctor"), getDoctorPatient);
+router.put("/api/doctor/patients/:patientId", authRequired, requireRole("doctor"), updateDoctorPatient);
+
+export default router;

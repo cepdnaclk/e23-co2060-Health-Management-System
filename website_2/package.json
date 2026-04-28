@@ -1,0 +1,8 @@
+{
+  "name": "invex-website-dev",
+  "private": true,
+  "scripts": {
+    "dev": "powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1",
+    "stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-dev.ps1"
+  }
+}

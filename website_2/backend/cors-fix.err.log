@@ -1,0 +1,132 @@
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)
+Error: CORS blocked for origin: http://127.0.0.1:5173
+    at origin (file:///C:/Users/ryan/Desktop/uni/CO2060/2/website%202/website%202/backend/server.js:63:23)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:219:13
+    at optionsCallback (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:199:9)
+    at corsMiddleware (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\cors\lib\index.js:204:7)
+    at Layer.handle [as handle_request] (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\router\index.js:280:10)
+    at expressInit (C:\Users\ryan\Desktop\uni\CO2060\2\website 2\website 2\backend\node_modules\express\lib\middleware\init.js:40:5)

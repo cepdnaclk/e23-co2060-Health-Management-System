@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: invex_patient_portal_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: patient_portal
+      MYSQL_USER: patient_app
+      MYSQL_PASSWORD: PatientApp@123
+    ports:
+      - "3306:3306"
+    volumes:
+      - invex_patient_portal_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u patient_app -pPatientApp@123 --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  invex_patient_portal_mysql:
