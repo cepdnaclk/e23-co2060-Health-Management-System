@@ -129,6 +129,7 @@ button {
   font-family: "Sora", sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
+  color: white;
 }
 
 .brand-copy {
@@ -277,6 +278,7 @@ h3 {
 .hero-card h1,
 .auth-header h1 {
   font-size: clamp(2.5rem, 4vw, 4.6rem);
+  color: white;
 }
 
 .hero-card p:last-of-type,

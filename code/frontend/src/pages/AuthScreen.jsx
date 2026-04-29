@@ -49,7 +49,6 @@ export default function AuthScreen(props) {
           </button>
 
           <div className="auth-header">
-            <p className="eyebrow">Secure Access</p>
             <h1>{mode === "signup" ? "Sign up" : "Login"}</h1>
           </div>
 
