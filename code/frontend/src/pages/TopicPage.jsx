@@ -18,9 +18,6 @@ export default function TopicPage({ topic, onBackHome, onSelectTopic, onLogin })
           <a href="#support" className="topnav-link">
             Digital Support
           </a>
-          <a href="#requirements" className="topnav-link">
-            SRS Mapping
-          </a>
         </nav>
         <button type="button" className="nav-pill nav-pill-accent" onClick={onLogin}>
           Login
@@ -78,18 +75,6 @@ export default function TopicPage({ topic, onBackHome, onSelectTopic, onLogin })
             </button>
           </Reveal>
         </div>
-      </section>
-
-      <section id="requirements" className="content-section">
-        <Reveal className="topic-card" variant="up">
-          <p className="eyebrow">SRS Mapping</p>
-          <h2>Requirements connected to this topic</h2>
-          <ul className="topic-list">
-            {topic.requirements.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </Reveal>
       </section>
 
       {topic.related?.length ? (
