@@ -2,7 +2,7 @@
   "name": "invex-website-dev",
   "private": true,
   "scripts": {
-    "dev": "powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1",
-    "stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-dev.ps1"
+    "dev": "node ./scripts/run-script.js dev",
+    "stop": "node ./scripts/run-script.js stop-dev"
   }
 }
