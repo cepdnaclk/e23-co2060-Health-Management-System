@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
+import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
-import StatCard from "../components/StatCard";
 import SymptomChecker from "../components/SymptomChecker";
 import { API_BASE, readJson, titleForPatientView } from "../lib/appShared";
 
 const patientNav = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "profile", label: "Profile" },
-  { id: "appointments", label: "Appointments" },
-  { id: "symptom", label: "Symptom Checker" },
-  { id: "reports", label: "Reports" },
-  { id: "settings", label: "Settings" }
+  { id: "dashboard", label: "Dashboard", icon: "D" },
+  { id: "profile", label: "Profile", icon: "P" },
+  { id: "appointments", label: "Appointments", icon: "A" },
+  { id: "symptom", label: "Symptom Checker", icon: "AI" },
+  { id: "reports", label: "Reports", icon: "R" },
+  { id: "settings", label: "Settings", icon: "S" }
 ];
 
 function PatientWorkspace({
@@ -32,44 +32,21 @@ function PatientWorkspace({
 }) {
   return (
     <div className="workspace-layout mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
-      <aside className="workspace-sidebar rounded-3xl p-4">
-        <div className="flex items-center gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
-          {accountForm.profilePhotoUrl ? (
-            <img src={accountForm.profilePhotoUrl} alt="Profile" className="h-12 w-12 rounded-full object-cover" />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 font-bold text-sky-700">{initials}</div>
-          )}
-          <div>
-            <p className="text-sm font-semibold text-slate-900">{session.user?.fullName || "Patient"}</p>
-            <p className="text-xs text-slate-600">{session.user?.email || ""}</p>
-          </div>
-        </div>
-
-        <nav className="mt-4 space-y-1">
-          {patientNav.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveView(item.id)}
-              className={[
-                "w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition",
-                activeView === item.id ? "bg-sky-600 text-white" : "text-slate-700 hover:bg-sky-50"
-              ].join(" ")}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <button type="button" onClick={() => onLogout()} className="btn-secondary mt-5 w-full">
-          Logout
-        </button>
-      </aside>
+      <RoleSidebar
+        title={session.user?.fullName || "Patient"}
+        subtitle={session.user?.email || "Patient account"}
+        initials={initials}
+        photoUrl={accountForm.profilePhotoUrl}
+        navItems={patientNav}
+        activeView={activeView}
+        onSelectView={setActiveView}
+        onLogout={onLogout}
+      />
 
       <section className="workspace-main rounded-3xl p-5 sm:p-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-sky-100 pb-4">
           <h1 className="font-display text-2xl font-bold text-slate-900">{titleForPatientView(activeView)}</h1>
-          {dataLoading ? <span className="text-sm text-slate-600">Loading...</span> : null}
+          {dataLoading ? <LoadingState /> : null}
         </div>
 
         {activeView === "dashboard" ? <DashboardView user={session.user} profile={profileForm} /> : null}
@@ -132,9 +109,9 @@ function DashboardView({ user, profile }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <StatCard label="Welcome" value={user?.fullName || "Patient"} />
-      <StatCard label="Profile Completion" value={`${Math.round((completed / 6) * 100)}%`} />
-      <StatCard label="Blood Group" value={profile.bloodGroup || "Not set"} />
+      <DashboardStat label="Welcome" value={user?.fullName || "Patient"} detail="Your Medicare workspace" />
+      <DashboardStat label="Profile Completion" value={`${Math.round((completed / 6) * 100)}%`} detail={`${completed} of 6 fields completed`} />
+      <DashboardStat label="Blood Group" value={profile.bloodGroup || "Not set"} detail="Used in clinical workflows" />
       <div className="glass col-span-full rounded-2xl p-4">
         <p className="text-sm text-slate-700">Use the left navigation to manage profile details, appointments, reports, and settings.</p>
       </div>
@@ -247,11 +224,11 @@ function AppointmentsView({ token }) {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Upcoming Appointments</h2>
-      {loading ? <p className="text-sm text-slate-600">Loading appointments...</p> : null}
+      {loading ? <LoadingState label="Loading appointments..." /> : null}
       {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
       {paymentError ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{paymentError}</p> : null}
       {paymentSuccess ? <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">{paymentSuccess}</p> : null}
-      {!loading && !appointments.length ? <div className="glass rounded-2xl p-4 text-sm text-slate-600">No appointments yet.</div> : null}
+      {!loading && !appointments.length ? <EmptyState title="No appointments yet" text="Confirmed appointments will appear here with payment status and visit details." /> : null}
       <div className="space-y-2">
         {appointments.map((item) => (
           <div key={item.id} className="glass rounded-2xl p-4 text-sm text-slate-700">
@@ -259,7 +236,7 @@ function AppointmentsView({ token }) {
               {String(item.scheduledAt).replace("T", " ").slice(0, 16)} - Dr. {item.doctorUsername}
             </p>
             <p>Reason: {item.reason}</p>
-            <p className={item.status === "Cancelled" ? "text-rose-700" : "text-sky-700"}>Status: {item.status}</p>
+            <StatusBadge status={item.status} />
             <div className="payment-row">
               <div>
                 <p className="payment-label">Payment</p>
@@ -379,9 +356,9 @@ function ReportsView({ token }) {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Health Reports</h2>
-      {loading ? <p className="text-sm text-slate-600">Loading reports...</p> : null}
+      {loading ? <LoadingState label="Loading reports..." /> : null}
       {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
-      {!loading && !reports.length ? <div className="glass rounded-2xl p-4 text-sm text-slate-600">No reports uploaded yet.</div> : null}
+      {!loading && !reports.length ? <EmptyState title="No reports uploaded yet" text="Released lab reports will appear here as downloadable PDFs." /> : null}
       <div className="space-y-2">
         {reports.map((report) => (
           <div key={report.id} className="glass rounded-2xl p-4 text-sm text-slate-700">
@@ -404,7 +381,7 @@ function SettingsView() {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Settings</h2>
-      <div className="glass rounded-2xl p-4 text-sm text-slate-600">Notification preferences and password change can be added here.</div>
+      <EmptyState title="Settings coming next" text="Notification preferences and password changes can be connected here." />
     </div>
   );
 }

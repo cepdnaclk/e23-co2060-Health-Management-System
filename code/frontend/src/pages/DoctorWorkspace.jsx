@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
-import StatCard from "../components/StatCard";
 import {
   API_BASE,
   makeInitials,
@@ -11,11 +11,11 @@ import {
 } from "../lib/appShared";
 
 const doctorNav = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "profile", label: "Doctor Profile" },
-  { id: "appointments", label: "Appointments" },
-  { id: "diagnosis", label: "Diagnosis" },
-  { id: "prescriptions", label: "Prescriptions" }
+  { id: "dashboard", label: "Dashboard", icon: "D" },
+  { id: "profile", label: "Doctor Profile", icon: "P" },
+  { id: "appointments", label: "Appointments", icon: "A" },
+  { id: "diagnosis", label: "Diagnosis", icon: "Dx" },
+  { id: "prescriptions", label: "Prescriptions", icon: "Rx" }
 ];
 
 function DoctorWorkspace({ doctor, activeView, setActiveView, onLogout, dataLoading, token, onDoctorUpdate }) {
@@ -23,43 +23,20 @@ function DoctorWorkspace({ doctor, activeView, setActiveView, onLogout, dataLoad
 
   return (
     <div className="workspace-layout mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
-      <aside className="workspace-sidebar rounded-3xl p-4">
-        <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 font-bold text-sky-700">{initials}</div>
-            <div>
-              <p className="text-sm font-semibold text-slate-900">{doctor?.fullName || "Doctor"}</p>
-              <p className="text-xs text-slate-600">@{doctor?.username || "doctor"}</p>
-            </div>
-          </div>
-          <p className="text-xs text-slate-600">{doctor?.specialty || "General Practice"}</p>
-        </div>
-
-        <nav className="mt-4 space-y-1">
-          {doctorNav.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveView(item.id)}
-              className={[
-                "w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition",
-                activeView === item.id ? "bg-sky-600 text-white" : "text-slate-700 hover:bg-sky-50"
-              ].join(" ")}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <button type="button" onClick={() => onLogout()} className="btn-secondary mt-5 w-full">
-          Logout
-        </button>
-      </aside>
+      <RoleSidebar
+        title={doctor?.fullName || "Doctor"}
+        subtitle={doctor?.specialty || `@${doctor?.username || "doctor"}`}
+        initials={initials}
+        navItems={doctorNav}
+        activeView={activeView}
+        onSelectView={setActiveView}
+        onLogout={onLogout}
+      />
 
       <section className="workspace-main rounded-3xl p-5 sm:p-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-sky-100 pb-4">
           <h1 className="font-display text-2xl font-bold text-slate-900">{titleForDoctorView(activeView)}</h1>
-          {dataLoading ? <span className="text-sm text-slate-600">Loading...</span> : null}
+          {dataLoading ? <LoadingState /> : null}
         </div>
 
         {activeView === "dashboard" ? <DoctorDashboardView doctor={doctor} /> : null}
@@ -75,9 +52,9 @@ function DoctorWorkspace({ doctor, activeView, setActiveView, onLogout, dataLoad
 function DoctorDashboardView({ doctor }) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <StatCard label="Doctor" value={doctor?.fullName || "Doctor"} />
-      <StatCard label="Specialty" value={doctor?.specialty || "General Practice"} />
-      <StatCard label="Experience" value={`${doctor?.experienceYears || 0} years`} />
+      <DashboardStat label="Doctor" value={doctor?.fullName || "Doctor"} detail={doctor?.registrationId || "Registration pending"} />
+      <DashboardStat label="Specialty" value={doctor?.specialty || "General Practice"} detail={doctor?.qualification || "Qualification not set"} />
+      <DashboardStat label="Experience" value={`${doctor?.experienceYears || 0} years`} detail={doctor?.workingHours || "Hours not set"} />
       <div className="glass col-span-full rounded-2xl p-4 text-sm text-slate-700">
         Keep your profile details up to date so patients and staff always see current information.
       </div>
@@ -471,11 +448,11 @@ function DoctorAppointmentsView({ token, onFinishAppointment }) {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Upcoming Confirmed Appointments</h2>
-      {loading ? <p className="text-sm text-slate-600">Loading appointments...</p> : null}
-      {loadingPatient ? <p className="text-sm text-slate-600">Opening patient profile...</p> : null}
+      {loading ? <LoadingState label="Loading appointments..." /> : null}
+      {loadingPatient ? <LoadingState label="Opening patient profile..." /> : null}
       {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
       {!loading && !appointments.length ? (
-        <div className="glass rounded-2xl p-4 text-sm text-slate-600">No appointments available right now.</div>
+        <EmptyState title="No appointments right now" text="Confirmed patient appointments will appear here for review and completion." />
       ) : null}
       <div className="space-y-2">
         {appointments.map((slot) => (
@@ -489,7 +466,7 @@ function DoctorAppointmentsView({ token, onFinishAppointment }) {
               {slot.time} - {slot.patient?.fullName || "Patient"}
             </p>
             <p>{slot.reason}</p>
-            <p className="text-xs uppercase tracking-[0.14em] text-sky-700">{slot.status}</p>
+            <StatusBadge status={slot.status} />
           </button>
         ))}
       </div>
@@ -501,9 +478,7 @@ function DoctorDiagnosisView() {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Diagnosis</h2>
-      <div className="glass rounded-2xl p-4 text-sm text-slate-600">
-        Diagnosis entries, notes, and next-step recommendations can be connected here.
-      </div>
+      <EmptyState title="Diagnosis tools ready to connect" text="Diagnosis entries, notes, and next-step recommendations can be connected here." />
     </div>
   );
 }
@@ -512,9 +487,7 @@ function DoctorPrescriptionsView() {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Prescriptions</h2>
-      <div className="glass rounded-2xl p-4 text-sm text-slate-600">
-        Prescription creation and pharmacy handoff can be connected here.
-      </div>
+      <EmptyState title="Prescription workflow ready" text="Prescription creation and pharmacy handoff can be connected here." />
     </div>
   );
 }

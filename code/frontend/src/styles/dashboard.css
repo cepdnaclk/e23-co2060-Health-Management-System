@@ -1,0 +1,229 @@
+.role-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.role-profile-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent),
+    var(--surface-strong);
+}
+
+.role-avatar,
+.role-avatar-img {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--teal), #63e6c9);
+  color: var(--accent-ink);
+  font-weight: 900;
+  object-fit: cover;
+}
+
+.role-title {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.role-subtitle {
+  margin: 3px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.role-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.role-nav-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 800;
+  text-align: left;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.role-nav-item:hover,
+.role-nav-item-active {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--ink);
+  transform: translateX(2px);
+}
+
+.role-nav-item span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-size: 0.78rem;
+}
+
+.role-logout {
+  margin-top: auto;
+  width: 100%;
+}
+
+.dashboard-stat {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent),
+    var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+.dashboard-stat p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dashboard-stat strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink);
+  font-family: "Sora", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.35rem);
+}
+
+.dashboard-stat span {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.empty-state-mark {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--button-gradient);
+  color: var(--on-dark);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.empty-state h3,
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state h3 {
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+
+.empty-state p {
+  margin-top: 4px;
+  color: var(--ink-soft);
+}
+
+.status-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-badge-good {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent);
+}
+
+.status-badge-danger {
+  background: color-mix(in srgb, var(--rose) 14%, var(--surface));
+  color: var(--rose);
+}
+
+.status-badge-neutral {
+  background: color-mix(in srgb, var(--sky) 18%, var(--surface));
+  color: var(--ink);
+}
+
+.loading-state {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 850;
+}
+
+.loading-state span {
+  width: 16px;
+  height: 16px;
+  border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 999px;
+  animation: dashboard-spin 800ms linear infinite;
+}
+
+.loading-state p {
+  margin: 0;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 820px) {
+  .empty-state {
+    align-items: flex-start;
+  }
+
+  .empty-state .btn-primary {
+    width: 100%;
+  }
+}

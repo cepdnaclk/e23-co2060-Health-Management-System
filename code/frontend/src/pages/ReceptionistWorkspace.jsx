@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { DashboardStat, EmptyState, LoadingState, StatusBadge } from "../components/DashboardKit";
 import { API_BASE, readJson } from "../lib/appShared";
 
 function toDateOnly(dateText) {
@@ -90,6 +91,8 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
     }
     return grouped;
   }, [overview.appointments, range, date]);
+
+  const confirmedAppointments = (overview.appointments || []).filter((item) => item.status === "Confirmed").length;
 
   useEffect(() => {
     if (!token) return;
@@ -277,7 +280,18 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
           </div>
         </div>
 
-        {loading ? <p className="mt-3 text-sm text-slate-600">Loading schedule...</p> : null}
+        {loading ? (
+          <div className="mt-3">
+            <LoadingState label="Loading schedule..." />
+          </div>
+        ) : null}
+
+        <div className="mt-4 grid gap-4 md:grid-cols-4">
+          <DashboardStat label="Doctors" value={(overview.doctors || []).length} detail="Available profiles" />
+          <DashboardStat label="Patients" value={(overview.patients || []).length} detail="Registered patients" />
+          <DashboardStat label="Confirmed" value={confirmedAppointments} detail={`${range} view`} />
+          <DashboardStat label="Reports" value={reports.length} detail={reportPatientId ? "Selected patient" : "Select a patient"} />
+        </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {(overview.doctors || []).map((doc) => (
@@ -382,7 +396,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
 
             <div className="mt-4 space-y-2">
               <p className="text-sm font-semibold text-slate-900">Uploaded reports for selected patient</p>
-              {!reports.length ? <p className="text-xs text-slate-600">No reports yet.</p> : null}
+              {!reports.length ? <EmptyState title="No reports yet" text="Uploaded reports for the selected patient will appear here." /> : null}
               {reports.map((report) => (
                 <div key={report.id} className="rounded-xl border border-sky-100 bg-white px-3 py-2 text-xs text-slate-700">
                   <p className="font-semibold">{report.file_name}</p>
@@ -398,7 +412,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
           {[...dayBuckets.entries()].map(([dayKey, items]) => (
             <div key={dayKey} className="glass rounded-2xl p-4">
               <p className="mb-3 font-semibold text-slate-900">{dayKey}</p>
-              {!items.length ? <p className="text-sm text-slate-600">No appointments</p> : null}
+              {!items.length ? <EmptyState title="No appointments" text="This date has no confirmed appointments in the selected range." /> : null}
               <div className="space-y-2">
                 {items.map((item) => (
                   <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2">
@@ -407,8 +421,9 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
                         {item.time} - {item.patient.fullName}
                       </p>
                       <p>
-                        Doctor: {item.doctorUsername} | Status: {item.status} | Reason: {item.reason}
+                        Doctor: {item.doctorUsername} | Reason: {item.reason}
                       </p>
+                      <StatusBadge status={item.status} />
                     </div>
                     {item.status !== "Cancelled" ? (
                       <button type="button" className="btn-secondary" onClick={() => cancelAppointment(item.id)}>
