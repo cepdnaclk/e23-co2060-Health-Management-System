@@ -19,6 +19,20 @@
   --radius: 28px;
 }
 
+:root.dark-mode {
+  color-scheme: dark;
+  --bg: #0f1419;
+  --surface: rgba(20, 25, 35, 0.92);
+  --ink: #e8eef5;
+  --ink-soft: #b8c5d6;
+  --navy: #1a2f4a;
+  --navy-deep: #0f1f30;
+  --teal: #4dd5db;
+  --sky: #7aa5e0;
+  --rose: #f85577;
+  --shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -40,6 +54,23 @@ body {
     radial-gradient(circle at top left, rgba(73, 213, 219, 0.2), transparent 24%),
     radial-gradient(circle at top right, rgba(151, 167, 220, 0.22), transparent 28%),
     linear-gradient(180deg, #e7edf0 0%, #f5f7f8 100%);
+}
+
+:root.dark-mode body {
+  background:
+    radial-gradient(circle at top left, rgba(77, 213, 219, 0.05), transparent 24%),
+    radial-gradient(circle at top right, rgba(122, 165, 224, 0.05), transparent 28%),
+    linear-gradient(180deg, #0f1419 0%, #1a2530 100%);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-soft);
+}
+
+:root.dark-mode input::placeholder,
+:root.dark-mode textarea::placeholder {
+  color: rgba(184, 197, 214, 0.7);
 }
 
 a,
@@ -201,6 +232,32 @@ button {
 .nav-pill-accent {
   background: linear-gradient(135deg, var(--teal), #5fd3b5);
   color: var(--navy-deep);
+}
+
+.theme-toggle {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+:root.dark-mode .theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+:root.dark-mode .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .cta-button:hover,
@@ -512,6 +569,12 @@ h3 {
   border: 0;
   text-align: left;
   background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+}
+
+:root.dark-mode .service-card {
+  background: rgba(30, 40, 55, 0.85);
+  color: var(--ink);
 }
 
 .service-icon {
@@ -546,6 +609,15 @@ h3 {
   background: rgba(255, 255, 255, 0.9);
 }
 
+:root.dark-mode .finder-shell,
+:root.dark-mode .module-card,
+:root.dark-mode .nf-card,
+:root.dark-mode .topic-card,
+:root.dark-mode .related-card {
+  background: rgba(30, 40, 55, 0.85);
+  color: var(--ink);
+}
+
 .finder-shell {
   padding: 28px;
   border: 1px solid rgba(160, 193, 219, 0.38);
@@ -572,6 +644,12 @@ h3 {
   border: 1px solid rgba(159, 179, 203, 0.5);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+}
+
+:root.dark-mode .finder-input input {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 50, 65, 0.8);
   color: var(--ink);
 }
 
@@ -724,6 +802,12 @@ h3 {
   box-shadow: var(--shadow);
 }
 
+:root.dark-mode .workspace-sidebar,
+:root.dark-mode .workspace-main {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(20, 28, 38, 0.88);
+}
+
 .auth-page {
   min-height: 100vh;
   display: grid;
@@ -759,6 +843,11 @@ h3 {
   backdrop-filter: blur(14px);
 }
 
+:root.dark-mode .auth-panel {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(20, 28, 38, 0.9);
+}
+
 .auth-visual-panel {
   position: relative;
   min-height: 640px;
@@ -791,7 +880,7 @@ h3 {
 }
 
 .auth-header h1 {
-  color: var(--navy);
+  color: var(--ink);
   font-size: clamp(2.2rem, 4vw, 3.4rem);
 }
 
@@ -816,6 +905,12 @@ h3 {
   color: var(--navy);
   background: rgba(255, 255, 255, 0.68);
   font-weight: 700;
+}
+
+:root.dark-mode .auth-tab {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--ink);
+  background: rgba(30, 40, 50, 0.7);
 }
 
 .auth-tab-active {
@@ -845,12 +940,22 @@ h3 {
 
 .auth-note-error {
   background: rgba(202, 47, 76, 0.18);
-  color: #8f1f39;
+  color: #ef4b67;
+}
+
+:root.dark-mode .auth-note-error {
+  background: rgba(239, 75, 103, 0.2);
+  color: #ff6b87;
 }
 
 .auth-note-success {
   background: rgba(73, 213, 219, 0.18);
-  color: #0f4f69;
+  color: #2d8f8a;
+}
+
+:root.dark-mode .auth-note-success {
+  background: rgba(77, 213, 219, 0.15);
+  color: #5fd3b5;
 }
 
 .topic-page {
@@ -935,6 +1040,13 @@ h3 {
   padding: 0 14px;
   min-height: 52px;
   background: rgba(255, 255, 255, 0.96);
+  color: var(--ink);
+}
+
+:root.dark-mode .field {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 50, 65, 0.8);
+  color: var(--ink);
 }
 
 input,

@@ -1,6 +1,9 @@
 import { navItems } from "../../lib/landingContent";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Navbar({ onLogin, onSignup, onNavigate, isWorkspace = false }) {
+  const { isDarkMode, toggleTheme } = useTheme();
+
   return (
     <header className="topbar">
       <div className="brand-block">
@@ -26,6 +29,9 @@ export default function Navbar({ onLogin, onSignup, onNavigate, isWorkspace = fa
       </nav>
 
       <div className="topbar-actions">
+        <button type="button" className="theme-toggle" onClick={toggleTheme} title={isDarkMode ? "Light Mode" : "Dark Mode"}>
+          {isDarkMode ? "☀️" : "🌙"}
+        </button>
         <button type="button" className="nav-pill" onClick={onLogin}>
           Login
         </button>
