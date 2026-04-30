@@ -365,6 +365,10 @@ h3 {
   background: linear-gradient(180deg, #45c3c6, #3ab1b7);
 }
 
+.section-card-teal .eyebrow {
+  color: #063057;
+}
+
 .network-panel h2,
 .section-heading h2,
 .appointment-card h2,
@@ -738,7 +742,11 @@ h3 {
   box-shadow: var(--shadow);
 }
 
-.appointment-card p:last-of-type {
+.appointment-card h2 {
+  color: #062f57;
+}
+
+.appointment-card p:not(.eyebrow):last-of-type {
   color: var(--ink-soft);
 }
 

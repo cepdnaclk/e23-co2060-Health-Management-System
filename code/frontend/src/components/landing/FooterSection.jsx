@@ -7,9 +7,6 @@ export default function FooterSection() {
       <Reveal className="footer-lead" variant="up">
         <p className="eyebrow">Accreditations</p>
         <h2>Trusted private healthcare with strong patient safety standards.</h2>
-        <p>
-          This footer keeps the reference structure: network details, specialist services, and quick contacts in a dense but readable layout.
-        </p>
       </Reveal>
 
       <div className="footer-grid">

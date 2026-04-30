@@ -8,9 +8,6 @@ export default function NetworkSection({ onSelectTopic }) {
         <Reveal className="network-panel section-card section-card-teal" variant="up">
           <p className="eyebrow">Medicare Health Network</p>
           <h2>Six hospitals, specialist centres, and a connected laboratory network.</h2>
-          <p>
-            A scrollable homepage should still feel structured, so this section mirrors the reference with a strong feature block and clean tile layout.
-          </p>
           <ul className="network-list">
             {networkList.map((item) => (
               <li key={item}>

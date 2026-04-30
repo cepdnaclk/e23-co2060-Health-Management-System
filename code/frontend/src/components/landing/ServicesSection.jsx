@@ -9,7 +9,6 @@ export default function ServicesSection({ onSelectTopic }) {
       <Reveal className="section-heading section-heading-light" variant="up">
         <p className="eyebrow">Online Services</p>
         <h2>Use the convenience of our digital services.</h2>
-        <p>Cards are arranged for easy scanning while you scroll through the homepage.</p>
       </Reveal>
 
       <div className="service-grid">

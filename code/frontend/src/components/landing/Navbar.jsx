@@ -10,7 +10,6 @@ export default function Navbar({ onLogin, onSignup, onNavigate, isWorkspace = fa
         <span className="brand-mark">M</span>
         <div>
           <p className="brand-name">MEDICARE</p>
-          <p className="brand-copy">Smart Hospital Management System</p>
         </div>
       </div>
 

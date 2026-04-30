@@ -10,7 +10,7 @@ export default function HeroSection({ onLogin, onSignup }) {
           <p className="eyebrow">Advanced Clinical Programmes</p>
           <h1>MediCare</h1>
           <p>
-            Find specialists, explore hospitals, review quality metrics, and move to login or signup only when you are ready.
+            Find specialists, explore our centers, review quality metrics, and move to login or signup only when you are ready.
           </p>
           <div className="hero-actions">
             <button type="button" className="cta-button slide-button" onClick={onLogin}>
