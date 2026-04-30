@@ -5,9 +5,7 @@ export default function WorkflowSection({ onSelectTopic }) {
   return (
     <section id="workflows" className="content-section">
       <Reveal className="section-heading">
-        <p className="eyebrow">User Workflows</p>
-        <h2>Patient, receptionist, doctor, and lab technician journeys from the SRS.</h2>
-        <p>Each card opens a themed detail page that explains the role, its responsibilities, and the matching system support.</p>
+        <p className="eyebrow workflow-eyebrow">User Workflows</p>
       </Reveal>
 
       <div className="role-grid">
@@ -23,7 +21,6 @@ export default function WorkflowSection({ onSelectTopic }) {
           >
             <span className="role-icon">{role.icon}</span>
             <div>
-              <p className="card-kind">{role.kind}</p>
               <h3>{role.title}</h3>
               <p>{role.summary}</p>
             </div>
