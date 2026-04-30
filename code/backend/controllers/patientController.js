@@ -1,6 +1,16 @@
 import { findUserById, findUserWithProfileById, updateUserAccount, upsertPatientProfile } from "../models/patientModel.js";
 import { normalizeAuthProfile, normalizeProfile } from "../models/profileModel.js";
-import { listAppointmentsForPatient, listPatientReportsWithData } from "../models/appointmentModel.js";
+import { getPatientAppointmentById, listAppointmentsForPatient, listPatientReportsWithData, markAppointmentPaid } from "../models/appointmentModel.js";
+
+function appointmentPaymentFields(row) {
+  return {
+    paymentStatus: row.payment_status || "Unpaid",
+    paymentAmount: Number(row.payment_amount ?? 2500),
+    paymentCurrency: row.payment_currency || "LKR",
+    paymentReference: row.payment_reference || null,
+    paidAt: row.paid_at || null
+  };
+}
 
 export async function getPatientMe(req, res) {
   try {
@@ -78,12 +88,72 @@ export async function getPatientAppointments(req, res) {
       doctorUsername: row.doctor_username,
       scheduledAt: row.scheduled_at,
       status: row.status,
-      reason: row.reason || "General consultation"
+      reason: row.reason || "General consultation",
+      ...appointmentPaymentFields(row)
     }));
     return res.json({ appointments });
   } catch (error) {
     console.error("Get patient appointments error:", error);
     return res.status(500).json({ error: "Could not fetch appointments" });
+  }
+}
+
+export async function payPatientAppointment(req, res) {
+  const appointmentId = Number(req.params?.appointmentId);
+  const cardNumber = String(req.body?.cardNumber || "").replace(/\D/g, "");
+  const cardName = String(req.body?.cardName || "").trim();
+  const expiry = String(req.body?.expiry || "").trim();
+  const cvv = String(req.body?.cvv || "").trim();
+
+  if (!Number.isFinite(appointmentId) || appointmentId <= 0) {
+    return res.status(400).json({ error: "Valid appointment id is required" });
+  }
+
+  if (!cardName) {
+    return res.status(400).json({ error: "Name on card is required" });
+  }
+
+  if (cardNumber.length < 4) {
+    return res.status(400).json({ error: "Enter at least 4 card number digits for mock payment" });
+  }
+
+  if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+    return res.status(400).json({ error: "Expiry must use MM/YY format" });
+  }
+
+  if (!/^\d{3,4}$/.test(cvv)) {
+    return res.status(400).json({ error: "CVV must be 3 or 4 digits" });
+  }
+
+  try {
+    const appointment = await getPatientAppointmentById(req.userId, appointmentId);
+    if (!appointment) return res.status(404).json({ error: "Appointment not found" });
+    if (appointment.status !== "Confirmed") return res.status(400).json({ error: "Only confirmed appointments can be paid" });
+    if (appointment.payment_status === "Paid") {
+      return res.json({
+        ok: true,
+        paymentStatus: "Paid",
+        paymentReference: appointment.payment_reference,
+        paidAt: appointment.paid_at
+      });
+    }
+
+    const paymentReference = `PAY-${Date.now()}-${appointmentId}`;
+    const paid = await markAppointmentPaid({ patientId: req.userId, appointmentId, paymentReference });
+    if (!paid) return res.status(409).json({ error: "Payment could not be completed" });
+
+    const updated = await getPatientAppointmentById(req.userId, appointmentId);
+    return res.json({
+      ok: true,
+      paymentStatus: updated.payment_status,
+      paymentReference: updated.payment_reference,
+      paidAt: updated.paid_at,
+      paymentAmount: Number(updated.payment_amount ?? 2500),
+      paymentCurrency: updated.payment_currency || "LKR"
+    });
+  } catch (error) {
+    console.error("Payment error:", error);
+    return res.status(500).json({ error: "Payment failed" });
   }
 }
 

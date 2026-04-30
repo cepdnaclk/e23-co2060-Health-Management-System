@@ -17,6 +17,11 @@ export async function listAppointmentsInRange({ startIso, endIso, doctorUsername
         a.scheduled_at,
         a.status,
         a.reason,
+        a.payment_status,
+        a.payment_amount,
+        a.payment_currency,
+        a.payment_reference,
+        a.paid_at,
         u.full_name,
         p.blood_group,
         p.allergies
@@ -102,7 +107,12 @@ export async function listAppointmentsForPatient(patientId, limit = 200) {
         a.doctor_username,
         a.scheduled_at,
         a.status,
-        a.reason
+        a.reason,
+        a.payment_status,
+        a.payment_amount,
+        a.payment_currency,
+        a.payment_reference,
+        a.paid_at
       FROM appointments a
       WHERE a.patient_id = ?
       ORDER BY a.scheduled_at DESC
@@ -111,6 +121,42 @@ export async function listAppointmentsForPatient(patientId, limit = 200) {
     [patientId, limit]
   );
   return rows;
+}
+
+export async function getPatientAppointmentById(patientId, appointmentId) {
+  const [rows] = await pool.query(
+    `
+      SELECT
+        id,
+        patient_id,
+        doctor_username,
+        scheduled_at,
+        status,
+        reason,
+        payment_status,
+        payment_amount,
+        payment_currency,
+        payment_reference,
+        paid_at
+      FROM appointments
+      WHERE patient_id = ? AND id = ?
+      LIMIT 1
+    `,
+    [patientId, appointmentId]
+  );
+  return rows[0] || null;
+}
+
+export async function markAppointmentPaid({ patientId, appointmentId, paymentReference }) {
+  const [result] = await pool.query(
+    `
+      UPDATE appointments
+      SET payment_status = 'Paid', payment_reference = ?, paid_at = NOW()
+      WHERE patient_id = ? AND id = ? AND status = 'Confirmed' AND payment_status <> 'Paid'
+    `,
+    [paymentReference, patientId, appointmentId]
+  );
+  return result.affectedRows > 0;
 }
 
 export async function listPatientReportsWithData(patientId, limit = 100) {

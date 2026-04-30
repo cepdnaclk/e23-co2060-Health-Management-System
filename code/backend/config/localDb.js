@@ -91,6 +91,11 @@ function appointmentView(data, appointment) {
     scheduled_at: appointment.scheduled_at,
     status: appointment.status,
     reason: appointment.reason,
+    payment_status: appointment.payment_status || "Unpaid",
+    payment_amount: appointment.payment_amount ?? 2500,
+    payment_currency: appointment.payment_currency || "LKR",
+    payment_reference: appointment.payment_reference || null,
+    paid_at: appointment.paid_at || null,
     full_name: user?.full_name || "Unknown patient",
     blood_group: profile.blood_group || null,
     allergies: profile.allergies || null
@@ -238,6 +243,11 @@ export async function localQuery(sql, params = []) {
       scheduled_at: scheduledAt,
       status: "Confirmed",
       reason,
+      payment_status: "Unpaid",
+      payment_amount: 2500,
+      payment_currency: "LKR",
+      payment_reference: null,
+      paid_at: null,
       created_by: createdBy,
       created_at: now(),
       updated_at: now()
@@ -291,9 +301,51 @@ export async function localQuery(sql, params = []) {
         doctor_username: item.doctor_username,
         scheduled_at: item.scheduled_at,
         status: item.status,
-        reason: item.reason
+        reason: item.reason,
+        payment_status: item.payment_status || "Unpaid",
+        payment_amount: item.payment_amount ?? 2500,
+        payment_currency: item.payment_currency || "LKR",
+        payment_reference: item.payment_reference || null,
+        paid_at: item.paid_at || null
       }));
     return [rows];
+  }
+
+  if (normalized.includes("from appointments") && normalized.includes("where patient_id = ? and id = ?")) {
+    const [patientId, appointmentId] = params.map(Number);
+    const appointment = data.appointments.find((item) => item.patient_id === patientId && item.id === appointmentId);
+    if (!appointment) return [[]];
+    return [[{
+      id: appointment.id,
+      patient_id: appointment.patient_id,
+      doctor_username: appointment.doctor_username,
+      scheduled_at: appointment.scheduled_at,
+      status: appointment.status,
+      reason: appointment.reason,
+      payment_status: appointment.payment_status || "Unpaid",
+      payment_amount: appointment.payment_amount ?? 2500,
+      payment_currency: appointment.payment_currency || "LKR",
+      payment_reference: appointment.payment_reference || null,
+      paid_at: appointment.paid_at || null
+    }]];
+  }
+
+  if (normalized.startsWith("update appointments set payment_status = 'paid'")) {
+    const [paymentReference, patientId, appointmentId] = params;
+    const appointment = data.appointments.find(
+      (item) =>
+        item.patient_id === Number(patientId) &&
+        item.id === Number(appointmentId) &&
+        item.status === "Confirmed" &&
+        item.payment_status !== "Paid"
+    );
+    if (!appointment) return [{ affectedRows: 0 }];
+    appointment.payment_status = "Paid";
+    appointment.payment_reference = paymentReference;
+    appointment.paid_at = now();
+    appointment.updated_at = now();
+    await writeData(data);
+    return [{ affectedRows: 1 }];
   }
 
   if (normalized.startsWith("insert into patient_reports")) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Field from "../components/Field";
 import StatCard from "../components/StatCard";
+import SymptomChecker from "../components/SymptomChecker";
 import { API_BASE, readJson, titleForPatientView } from "../lib/appShared";
 
 const patientNav = [
@@ -144,7 +145,12 @@ function DashboardView({ user, profile }) {
 function AppointmentsView({ token }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [paying, setPaying] = useState(false);
   const [error, setError] = useState("");
+  const [paymentError, setPaymentError] = useState("");
+  const [paymentSuccess, setPaymentSuccess] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [paymentForm, setPaymentForm] = useState({ cardName: "", cardNumber: "", expiry: "", cvv: "" });
 
   useEffect(() => {
     let cancelled = false;
@@ -172,11 +178,79 @@ function AppointmentsView({ token }) {
     };
   }, [token]);
 
+  async function submitPayment(e) {
+    e.preventDefault();
+    if (!selectedPayment) return;
+
+    const cardNumber = paymentForm.cardNumber.replace(/\D/g, "");
+    if (!paymentForm.cardName.trim()) {
+      setPaymentError("Name on card is required.");
+      return;
+    }
+    if (cardNumber.length < 4) {
+      setPaymentError("Enter at least 4 card number digits for this mock payment.");
+      return;
+    }
+    if (!/^\d{2}\/\d{2}$/.test(paymentForm.expiry.trim())) {
+      setPaymentError("Expiry must be in MM/YY format, for example 01/27.");
+      return;
+    }
+    if (!/^\d{3,4}$/.test(paymentForm.cvv.trim())) {
+      setPaymentError("CVV must be 3 or 4 digits.");
+      return;
+    }
+
+    setPaying(true);
+    setPaymentError("");
+    setPaymentSuccess("");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/patient/appointments/${selectedPayment.id}/pay`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...paymentForm, cardNumber })
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Payment failed");
+
+      setAppointments((items) =>
+        items.map((item) =>
+          item.id === selectedPayment.id
+            ? {
+                ...item,
+                paymentStatus: data.paymentStatus || "Paid",
+                paymentReference: data.paymentReference,
+                paidAt: data.paidAt
+              }
+            : item
+        )
+      );
+      setPaymentSuccess(`Payment completed. Reference: ${data.paymentReference || "Recorded"}`);
+      setPaymentForm({ cardName: "", cardNumber: "", expiry: "", cvv: "" });
+      setSelectedPayment(null);
+    } catch (err) {
+      setPaymentError(err.message || "Payment failed");
+    } finally {
+      setPaying(false);
+    }
+  }
+
+  function openPayment(item) {
+    setSelectedPayment(item);
+    setPaymentError("");
+    setPaymentSuccess("");
+  }
+
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Upcoming Appointments</h2>
       {loading ? <p className="text-sm text-slate-600">Loading appointments...</p> : null}
       {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+      {paymentError ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{paymentError}</p> : null}
+      {paymentSuccess ? <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">{paymentSuccess}</p> : null}
       {!loading && !appointments.length ? <div className="glass rounded-2xl p-4 text-sm text-slate-600">No appointments yet.</div> : null}
       <div className="space-y-2">
         {appointments.map((item) => (
@@ -186,9 +260,87 @@ function AppointmentsView({ token }) {
             </p>
             <p>Reason: {item.reason}</p>
             <p className={item.status === "Cancelled" ? "text-rose-700" : "text-sky-700"}>Status: {item.status}</p>
+            <div className="payment-row">
+              <div>
+                <p className="payment-label">Payment</p>
+                <p className={item.paymentStatus === "Paid" ? "payment-status payment-paid" : "payment-status"}>
+                  {item.paymentStatus || "Unpaid"} · {item.paymentCurrency || "LKR"} {Number(item.paymentAmount || 2500).toFixed(2)}
+                </p>
+                {item.paymentReference ? <p className="payment-reference">Ref: {item.paymentReference}</p> : null}
+              </div>
+              {item.status === "Confirmed" && item.paymentStatus !== "Paid" ? (
+                <button type="button" className="btn-primary payment-button" onClick={() => openPayment(item)}>
+                  Pay Now
+                </button>
+              ) : null}
+            </div>
           </div>
         ))}
       </div>
+
+      {selectedPayment ? (
+        <form className="payment-panel" onSubmit={submitPayment}>
+          <div>
+            <p className="payment-label">Secure Payment</p>
+            <h3>Pay {selectedPayment.paymentCurrency || "LKR"} {Number(selectedPayment.paymentAmount || 2500).toFixed(2)}</h3>
+          </div>
+          <label>
+            <span>Name on card</span>
+            <input
+              className="field"
+              value={paymentForm.cardName}
+              onChange={(e) => setPaymentForm((form) => ({ ...form, cardName: e.target.value }))}
+              placeholder="Apoorwa Fernando"
+              required
+            />
+          </label>
+          <label>
+            <span>Card number</span>
+            <input
+              className="field"
+              inputMode="numeric"
+              maxLength={19}
+              value={paymentForm.cardNumber}
+              onChange={(e) => setPaymentForm((form) => ({ ...form, cardNumber: e.target.value }))}
+              placeholder="4242 4242 4242 4242"
+              required
+            />
+          </label>
+          <div className="payment-card-grid">
+            <label>
+              <span>Expiry</span>
+              <input
+                className="field"
+                maxLength={5}
+                value={paymentForm.expiry}
+                onChange={(e) => setPaymentForm((form) => ({ ...form, expiry: e.target.value }))}
+                placeholder="MM/YY"
+                required
+              />
+            </label>
+            <label>
+              <span>CVV</span>
+              <input
+                className="field"
+                inputMode="numeric"
+                maxLength={4}
+                value={paymentForm.cvv}
+                onChange={(e) => setPaymentForm((form) => ({ ...form, cvv: e.target.value }))}
+                placeholder="123"
+                required
+              />
+            </label>
+          </div>
+          <div className="payment-actions">
+            <button disabled={paying} className="btn-primary" type="submit">
+              {paying ? "Processing..." : "Confirm Payment"}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => setSelectedPayment(null)}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : null}
     </div>
   );
 }
@@ -258,61 +410,11 @@ function SettingsView() {
 }
 
 function SymptomView({ token }) {
-  const [symptoms, setSymptoms] = useState("");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function submit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setResult(null);
-    try {
-      const res = await fetch(`${API_BASE}/api/analyzeSymptoms`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ symptoms })
-      });
-      const data = await readJson(res);
-      if (!res.ok) throw new Error(data.error || "Could not analyze symptoms");
-      setResult(data);
-    } catch (err) {
-      setError(err.message || "Could not analyze symptoms");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <div className="space-y-4">
       <h2 className="text-lg font-semibold text-slate-900">AI Symptom Checker</h2>
-      <label className="block">
-        <span className="mb-1.5 block text-sm font-medium text-slate-700">Describe symptoms</span>
-        <textarea
-          value={symptoms}
-          onChange={(e) => setSymptoms(e.target.value)}
-          rows={5}
-          className="field w-full resize-none"
-          placeholder="Fever, headache for 2 days..."
-        />
-      </label>
-      <button disabled={loading} className="btn-primary" type="submit">
-        {loading ? "Analyzing..." : "Analyze"}
-      </button>
-
-      {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
-      {result ? (
-        <div className="glass rounded-2xl p-4 text-sm text-slate-700">
-          <p>Primary: {result.primarySpecialty || "-"}</p>
-          <p>Secondary: {result.secondarySpecialty || "-"}</p>
-          <p>Reason: {result.reason || "-"}</p>
-        </div>
-      ) : null}
-    </form>
+      <SymptomChecker token={token} />
+    </div>
   );
 }
 

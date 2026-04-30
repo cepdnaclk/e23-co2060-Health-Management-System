@@ -102,6 +102,11 @@ export async function initDb() {
       scheduled_at DATETIME NOT NULL,
       status VARCHAR(32) NOT NULL DEFAULT 'Confirmed',
       reason VARCHAR(255) NULL,
+      payment_status VARCHAR(32) NOT NULL DEFAULT 'Unpaid',
+      payment_amount DECIMAL(10,2) NOT NULL DEFAULT 2500.00,
+      payment_currency VARCHAR(8) NOT NULL DEFAULT 'LKR',
+      payment_reference VARCHAR(80) NULL,
+      paid_at DATETIME NULL,
       created_by VARCHAR(64) NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -113,6 +118,20 @@ export async function initDb() {
       INDEX idx_appointments_patient (patient_id)
     )
   `);
+
+  for (const statement of [
+    "ALTER TABLE appointments ADD COLUMN payment_status VARCHAR(32) NOT NULL DEFAULT 'Unpaid'",
+    "ALTER TABLE appointments ADD COLUMN payment_amount DECIMAL(10,2) NOT NULL DEFAULT 2500.00",
+    "ALTER TABLE appointments ADD COLUMN payment_currency VARCHAR(8) NOT NULL DEFAULT 'LKR'",
+    "ALTER TABLE appointments ADD COLUMN payment_reference VARCHAR(80) NULL",
+    "ALTER TABLE appointments ADD COLUMN paid_at DATETIME NULL"
+  ]) {
+    try {
+      await pool.query(statement);
+    } catch (error) {
+      if (error?.code !== "ER_DUP_FIELDNAME") throw error;
+    }
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS patient_reports (
