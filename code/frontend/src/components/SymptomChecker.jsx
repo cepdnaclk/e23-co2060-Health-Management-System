@@ -64,6 +64,18 @@ export default function SymptomChecker({ token, className = "", submitLabel = "A
             <span>Reason</span>
             {result.reason || "-"}
           </p>
+          {result.recommendedDoctors?.length ? (
+            <div className="recommended-doctors">
+              <span>Recommended Doctors</span>
+              {result.recommendedDoctors.map((doctor) => (
+                <article key={doctor.username} className="recommended-doctor-card">
+                  <strong>{doctor.fullName}</strong>
+                  <p>{doctor.specialty} · {doctor.qualification}</p>
+                  <p>{doctor.availableDays?.join(", ")} · {doctor.workingHours}</p>
+                </article>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </form>

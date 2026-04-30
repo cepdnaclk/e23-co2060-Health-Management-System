@@ -1,5 +1,6 @@
 import ExplorerSection from "../components/landing/ExplorerSection";
 import AppointmentSection from "../components/landing/AppointmentSection";
+import DoctorsSection from "../components/landing/DoctorsSection";
 import FooterSection from "../components/landing/FooterSection";
 import HeroSection from "../components/landing/HeroSection";
 import Navbar from "../components/landing/Navbar";
@@ -9,7 +10,7 @@ import ServicesSection from "../components/landing/ServicesSection";
 import SymptomSection from "../components/landing/SymptomSection";
 import WorkflowSection from "../components/landing/WorkflowSection";
 
-export default function LandingPage({ onLogin, onSignup, onSelectTopic }) {
+export default function LandingPage({ onLogin, onSignup, onSelectTopic, onSelectDoctor }) {
   return (
     <div className="landing-page">
       <Navbar onLogin={onLogin} onSignup={onSignup} />
@@ -17,6 +18,7 @@ export default function LandingPage({ onLogin, onSignup, onSelectTopic }) {
       <SymptomSection />
       <ExplorerSection onSelectTopic={onSelectTopic} />
       <NetworkSection onSelectTopic={onSelectTopic} />
+      <DoctorsSection onSelectDoctor={onSelectDoctor} />
       <QualitySection />
       <WorkflowSection onSelectTopic={onSelectTopic} />
       <ServicesSection onSelectTopic={onSelectTopic} />

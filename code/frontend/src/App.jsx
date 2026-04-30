@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import DoctorWorkspace from "./pages/DoctorWorkspace";
 import PatientWorkspace from "./pages/PatientWorkspace";
 import AuthScreen from "./pages/AuthScreen";
+import DoctorProfilePage from "./pages/DoctorProfilePage";
 import LandingPage from "./pages/LandingPage";
 import TopicPage from "./pages/TopicPage";
 import Navbar from "./components/landing/Navbar";
@@ -38,6 +39,7 @@ export default function App() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [patientLoginForm, setPatientLoginForm] = useState(initialPatientLogin);
   const [doctorLoginForm, setDoctorLoginForm] = useState(initialDoctorLogin);
@@ -384,12 +386,21 @@ export default function App() {
     const topic = getTopicBySlug(slug);
     if (!topic) return;
     setSelectedTopic(topic);
+    setSelectedDoctor(null);
     setScreen("topic");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function openDoctor(doctor) {
+    setSelectedDoctor(doctor);
+    setSelectedTopic(null);
+    setScreen("doctor");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function navigateToLandingSection(sectionId) {
     setSelectedTopic(null);
+    setSelectedDoctor(null);
     setScreen("home");
     setTimeout(() => {
       if (sectionId === "home") {
@@ -463,6 +474,19 @@ export default function App() {
           onLogin={() => openAuth("patient", "login")}
           onSignup={() => openAuth("patient", "signup")}
           onSelectTopic={openTopic}
+          onSelectDoctor={openDoctor}
+        />
+      ) : null}
+
+      {screen === "doctor" && selectedDoctor ? (
+        <DoctorProfilePage
+          doctor={selectedDoctor}
+          onBackHome={() => {
+            setSelectedDoctor(null);
+            setScreen("home");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          onLogin={() => openAuth("patient", "login")}
         />
       ) : null}
 

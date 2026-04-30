@@ -1,0 +1,39 @@
+.check-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--ink-soft);
+}
+
+.glass {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+}
+
+.btn-secondary {
+  background: var(--navy-deep);
+  color: var(--on-dark);
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 0 14px;
+  min-height: 52px;
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+:root.dark-mode .field {
+  border-color: var(--border);
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+input,
+textarea {
+  border: 0;
+}

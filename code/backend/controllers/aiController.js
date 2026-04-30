@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { API_KEY } from "../config/env.js";
+import { findDoctorsBySpecialties } from "../models/doctorModel.js";
 
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 const CANDIDATE_MODELS = [
@@ -94,10 +95,17 @@ export async function listModels(_req, res) {
 }
 
 export async function analyzeSymptoms(req, res) {
-  if (!API_KEY || !genAI) return res.status(503).json({ error: "GEMINI_API_KEY not configured" });
-
   const symptoms = String(req.body?.symptoms || "").trim();
   if (!symptoms) return res.status(400).json({ error: "symptoms required" });
+
+  if (!API_KEY || !genAI) {
+    return res.json({
+      primarySpecialty: "General Practice",
+      secondarySpecialty: "Internal Medicine",
+      reason: "AI is not configured, so Medicare recommends starting with a general medical consultation.",
+      recommendedDoctors: findDoctorsBySpecialties(["General Practice", "Internal Medicine"], 3)
+    });
+  }
 
   const prompt = `
 You are a hospital triage assistant. Based on the symptoms, return ONLY valid JSON:
@@ -118,12 +126,15 @@ Symptoms: "${symptoms}"
     const result = await model.generateContent(prompt);
     const text = result.response.text().trim();
     const data = parseJsonSafe(text);
+    data.recommendedDoctors = findDoctorsBySpecialties([data.primarySpecialty, data.secondarySpecialty], 3);
     return res.json(data);
   } catch (err) {
     console.error("AI error:", err);
-    return res.status(500).json({
-      error: "AI analysis failed",
-      hint: "Open /models to see available models; set your favorite in CANDIDATE_MODELS."
+    return res.json({
+      primarySpecialty: "General Practice",
+      secondarySpecialty: "Internal Medicine",
+      reason: "AI analysis was unavailable, so Medicare recommends starting with a general medical consultation.",
+      recommendedDoctors: findDoctorsBySpecialties(["General Practice", "Internal Medicine"], 3)
     });
   }
 }

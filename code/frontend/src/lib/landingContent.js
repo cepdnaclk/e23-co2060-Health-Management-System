@@ -2,6 +2,7 @@ export const navItems = [
   { id: "home", label: "Home" },
   { id: "explore", label: "Explore" },
   { id: "network", label: "Centres" },
+  { id: "doctors", label: "Doctors" },
   { id: "quality", label: "Quality" },
   { id: "workflows", label: "Workflows" },
   { id: "services", label: "Services" },
