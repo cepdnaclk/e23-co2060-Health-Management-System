@@ -3,6 +3,8 @@ USE patient_portal;
 
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(64) NULL UNIQUE,
+  patient_uid VARCHAR(24) NULL UNIQUE,
   full_name VARCHAR(120) NOT NULL,
   email VARCHAR(190) NOT NULL UNIQUE,
   phone VARCHAR(40) NOT NULL,
@@ -20,6 +22,9 @@ CREATE TABLE IF NOT EXISTS patient_profiles (
   emergency_contact VARCHAR(120) NULL,
   blood_group VARCHAR(10) NULL,
   allergies TEXT NULL,
+  known_conditions TEXT NULL,
+  mother_patient_uid VARCHAR(24) NULL,
+  father_patient_uid VARCHAR(24) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_patient_profiles_user

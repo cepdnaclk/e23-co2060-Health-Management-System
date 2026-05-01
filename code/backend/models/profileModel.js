@@ -1,5 +1,6 @@
 export function normalizeProfile(input = {}) {
   const trimmed = (v) => (typeof v === "string" ? v.trim() : "");
+  const patientId = (v) => trimmed(v).toUpperCase();
 
   return {
     dob: trimmed(input.dob) || null,
@@ -7,7 +8,10 @@ export function normalizeProfile(input = {}) {
     address: trimmed(input.address) || null,
     emergencyContact: trimmed(input.emergencyContact) || null,
     bloodGroup: trimmed(input.bloodGroup) || null,
-    allergies: trimmed(input.allergies) || null
+    allergies: trimmed(input.allergies) || null,
+    knownConditions: trimmed(input.knownConditions) || null,
+    motherPatientId: patientId(input.motherPatientId) || null,
+    fatherPatientId: patientId(input.fatherPatientId) || null
   };
 }
 
@@ -67,6 +71,8 @@ export function mapPatientRecord(row) {
   return {
     patient: {
       id: row.id,
+      patientId: row.patient_uid,
+      username: row.username,
       fullName: row.full_name,
       email: row.email,
       phone: row.phone,
@@ -78,7 +84,10 @@ export function mapPatientRecord(row) {
       address: row.address,
       emergencyContact: row.emergency_contact,
       bloodGroup: row.blood_group,
-      allergies: row.allergies
+      allergies: row.allergies,
+      knownConditions: row.known_conditions,
+      motherPatientId: row.mother_patient_uid,
+      fatherPatientId: row.father_patient_uid
     }
   };
 }

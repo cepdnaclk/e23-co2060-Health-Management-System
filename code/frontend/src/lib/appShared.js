@@ -52,6 +52,7 @@ export function titleForPatientView(view) {
   const map = {
     dashboard: "Dashboard",
     profile: "My Profile",
+    family: "Family Risk",
     appointments: "Appointments",
     symptom: "Symptom Checker",
     reports: "Reports",

@@ -22,9 +22,19 @@ const SUCCESS_ALERT_TIMEOUT_MS = 2200;
 const initialPatientLogin = { email: "", password: "" };
 const initialDoctorLogin = { username: "", password: "" };
 const initialReceptionistLogin = { username: "", password: "" };
-const initialSignupForm = { fullName: "", email: "", phone: "", password: "", agree: false };
+const initialSignupForm = { fullName: "", email: "", phone: "", password: "", motherPatientId: "", fatherPatientId: "", agree: false };
 const initialAccountForm = { fullName: "", phone: "", profilePhotoUrl: "" };
-const initialProfileForm = { dob: "", gender: "", address: "", emergencyContact: "", bloodGroup: "", allergies: "" };
+const initialProfileForm = {
+  dob: "",
+  gender: "",
+  address: "",
+  emergencyContact: "",
+  bloodGroup: "",
+  allergies: "",
+  knownConditions: "",
+  motherPatientId: "",
+  fatherPatientId: ""
+};
 
 export default function App() {
   const initialSession = readStoredSession();
@@ -47,6 +57,7 @@ export default function App() {
   const [signupForm, setSignupForm] = useState(initialSignupForm);
   const [accountForm, setAccountForm] = useState(initialAccountForm);
   const [profileForm, setProfileForm] = useState(initialProfileForm);
+  const [familyRiskVersion, setFamilyRiskVersion] = useState(0);
   const [doctorProfile, setDoctorProfile] = useState(null);
   const [session, setSession] = useState(initialSession);
 
@@ -128,8 +139,12 @@ export default function App() {
           address: data.profile?.address || "",
           emergencyContact: data.profile?.emergencyContact || "",
           bloodGroup: data.profile?.bloodGroup || "",
-          allergies: data.profile?.allergies || ""
+          allergies: data.profile?.allergies || "",
+          knownConditions: data.profile?.knownConditions || "",
+          motherPatientId: data.profile?.motherPatientId || "",
+          fatherPatientId: data.profile?.fatherPatientId || ""
         });
+        setFamilyRiskVersion((value) => value + 1);
       } catch (err) {
         if (!cancelled) setError(err.message || "Could not load profile");
       } finally {
@@ -226,7 +241,7 @@ export default function App() {
       const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...signupForm, initialInfo: {} })
+        body: JSON.stringify(signupForm)
       });
       const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || "Sign up failed");
@@ -330,6 +345,7 @@ export default function App() {
       });
       const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || "Could not update profile");
+      setFamilyRiskVersion((value) => value + 1);
       setSuccess("Medical profile updated.");
     } catch (err) {
       setErrorNetworkAware(err, setError);
@@ -462,6 +478,7 @@ export default function App() {
                 handleProfileSave={handleProfileSave}
                 savingAccount={savingAccount}
                 savingProfile={savingProfile}
+                familyRiskVersion={familyRiskVersion}
                 onLogout={handleLogout}
               />
             )}

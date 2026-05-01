@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
 import SymptomChecker from "../components/SymptomChecker";
-import { API_BASE, readJson, titleForPatientView } from "../lib/appShared";
+import { API_BASE, makeInitials, readJson, titleForPatientView } from "../lib/appShared";
 
 const patientNav = [
   { id: "dashboard", label: "Dashboard", icon: "D" },
   { id: "profile", label: "Profile", icon: "P" },
+  { id: "family", label: "Family Risk", icon: "F" },
   { id: "appointments", label: "Appointments", icon: "A" },
   { id: "symptom", label: "Symptom Checker", icon: "AI" },
   { id: "reports", label: "Reports", icon: "R" },
@@ -28,6 +29,7 @@ function PatientWorkspace({
   handleProfileSave,
   savingAccount,
   savingProfile,
+  familyRiskVersion,
   onLogout
 }) {
   return (
@@ -67,6 +69,7 @@ function PatientWorkspace({
                 </div>
               </div>
               <Field label="Full Name" type="text" value={accountForm.fullName} onChange={(e) => setAccountForm((v) => ({ ...v, fullName: e.target.value }))} />
+              <Field label="Patient ID" type="text" value={session.user?.patientId || ""} disabled />
               <Field label="Email" type="email" value={session.user?.email || ""} disabled />
               <Field label="Phone" type="tel" value={accountForm.phone} onChange={(e) => setAccountForm((v) => ({ ...v, phone: e.target.value }))} />
               <button disabled={savingAccount} className="btn-primary w-full" type="submit">
@@ -87,6 +90,25 @@ function PatientWorkspace({
               />
               <Field label="Blood Group" type="text" value={profileForm.bloodGroup} onChange={(e) => setProfileForm((v) => ({ ...v, bloodGroup: e.target.value }))} />
               <Field label="Allergies" type="text" value={profileForm.allergies} onChange={(e) => setProfileForm((v) => ({ ...v, allergies: e.target.value }))} />
+              <Field
+                label="Known Hereditary Conditions"
+                type="text"
+                value={profileForm.knownConditions}
+                onChange={(e) => setProfileForm((v) => ({ ...v, knownConditions: e.target.value }))}
+                placeholder="Diabetes, familial hypercholesterolemia"
+              />
+              <div className="family-link-fields">
+                <ParentIdField
+                  label="Mother Patient ID"
+                  value={profileForm.motherPatientId}
+                  onChange={(value) => setProfileForm((v) => ({ ...v, motherPatientId: value }))}
+                />
+                <ParentIdField
+                  label="Father Patient ID"
+                  value={profileForm.fatherPatientId}
+                  onChange={(value) => setProfileForm((v) => ({ ...v, fatherPatientId: value }))}
+                />
+              </div>
               <button disabled={savingProfile} className="btn-primary w-full" type="submit">
                 {savingProfile ? "Saving..." : "Save Medical Profile"}
               </button>
@@ -94,6 +116,7 @@ function PatientWorkspace({
           </div>
         ) : null}
 
+        {activeView === "family" ? <FamilyRiskView token={session.token} refreshKey={familyRiskVersion} /> : null}
         {activeView === "appointments" ? <AppointmentsView token={session.token} /> : null}
         {activeView === "symptom" ? <SymptomView token={session.token} /> : null}
         {activeView === "reports" ? <ReportsView token={session.token} /> : null}
@@ -103,13 +126,188 @@ function PatientWorkspace({
   );
 }
 
+function usePatientLookup(patientId) {
+  const [lookup, setLookup] = useState({ status: "idle", patient: null, error: "" });
+
+  useEffect(() => {
+    const id = String(patientId || "").trim().toUpperCase();
+    if (!id) {
+      setLookup({ status: "idle", patient: null, error: "" });
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setLookup({ status: "loading", patient: null, error: "" });
+      try {
+        const res = await fetch(`${API_BASE}/api/patients/lookup?patientId=${encodeURIComponent(id)}`);
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Patient ID not found");
+        if (!cancelled) setLookup({ status: "found", patient: data.patient, error: "" });
+      } catch (err) {
+        if (!cancelled) setLookup({ status: "missing", patient: null, error: err.message || "Patient ID not found" });
+      }
+    }, 320);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [patientId]);
+
+  return lookup;
+}
+
+function ParentIdField({ label, value, onChange }) {
+  const lookup = usePatientLookup(value);
+
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
+      <div className="field flex items-center gap-2 pr-3">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value.toUpperCase())}
+          className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none placeholder:text-slate-500 dark:placeholder:text-slate-400"
+          placeholder="PT-DEMO-MOM"
+        />
+      </div>
+      <p className={`parent-lookup parent-lookup-${lookup.status}`} aria-live="polite">
+        {!value ? "Optional" : lookup.status === "loading" ? "Checking..." : lookup.patient ? lookup.patient.fullName : lookup.error}
+      </p>
+    </label>
+  );
+}
+
+function FamilyRiskView({ token, refreshKey }) {
+  const [familyData, setFamilyData] = useState({ family: null, risks: [], disclaimer: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFamilyRisk() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch(`${API_BASE}/api/patient/family-risk`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Could not load family risk");
+        if (!cancelled) setFamilyData({ family: data.family, risks: data.risks || [], disclaimer: data.disclaimer || "" });
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Could not load family risk");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadFamilyRisk();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, refreshKey]);
+
+  const family = familyData.family;
+  const parents = [family?.parents?.father, family?.parents?.mother].filter(Boolean);
+
+  return (
+    <div className="family-risk-shell">
+      <div className="family-risk-header">
+        <div>
+          <p className="family-kicker">Hereditary Risk</p>
+          <h2>Family Tree</h2>
+        </div>
+        {loading ? <LoadingState label="Calculating family risk..." /> : null}
+      </div>
+
+      {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+
+      {!loading && !error && !parents.length ? (
+        <EmptyState title="No parents linked yet" text="Add mother and father patient IDs in your profile to build the tree." />
+      ) : null}
+
+      {family ? (
+        <div className="family-tree-panel">
+          <div className="family-tree">
+            <div className="family-generation family-generation-parents">
+              <FamilyNode member={family.parents?.father} fallbackLabel="Father" />
+              <FamilyNode member={family.parents?.mother} fallbackLabel="Mother" />
+            </div>
+            <div className="family-connector" aria-hidden="true" />
+            <div className="family-generation family-generation-child">
+              <FamilyNode member={family.patient} fallbackLabel="Patient" risks={familyData.risks} featured />
+            </div>
+          </div>
+
+          <div className="risk-summary-panel">
+            <p className="family-kicker">AI Estimate</p>
+            {familyData.risks.length ? (
+              <div className="risk-list">
+                {familyData.risks.map((risk) => (
+                  <RiskRow key={`${risk.condition}-${risk.inheritedFrom}`} risk={risk} />
+                ))}
+              </div>
+            ) : (
+              <p className="risk-empty">No inherited condition was found in the linked family profile.</p>
+            )}
+            {familyData.disclaimer ? <p className="risk-disclaimer">{familyData.disclaimer}</p> : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function FamilyNode({ member, fallbackLabel, risks = [], featured = false }) {
+  const initials = makeInitials(member?.fullName || fallbackLabel);
+
+  return (
+    <article className={featured ? "family-node family-node-featured" : "family-node"}>
+      <div className="family-node-image">
+        {member?.profilePhotoUrl ? <img src={member.profilePhotoUrl} alt={member.fullName} /> : <span>{initials}</span>}
+      </div>
+      <p className="family-node-name">{member?.fullName || fallbackLabel}</p>
+      <p className="family-node-id">{member?.patientId || "Not linked"}</p>
+      {featured && risks.length ? (
+        <div className="family-node-risks">
+          {risks.slice(0, 3).map((risk) => (
+            <span key={`${risk.condition}-${risk.percentage}`}>{risk.percentage}% {risk.condition}</span>
+          ))}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function RiskRow({ risk }) {
+  return (
+    <article className="risk-row">
+      <div>
+        <p className="risk-title">{risk.condition}</p>
+        <p className="risk-note">
+          {risk.inheritedFrom} - {risk.note}
+        </p>
+      </div>
+      <div className="risk-meter-wrap">
+        <strong>{risk.percentage}%</strong>
+        <span className="risk-meter">
+          <span style={{ width: `${risk.percentage}%` }} />
+        </span>
+      </div>
+    </article>
+  );
+}
+
 function DashboardView({ user, profile }) {
-  const completed = [profile.dob, profile.gender, profile.address, profile.emergencyContact, profile.bloodGroup, profile.allergies].filter(Boolean)
-    .length;
+  const completed = [profile.dob, profile.gender, profile.address, profile.emergencyContact, profile.bloodGroup, profile.allergies].filter(Boolean).length;
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <DashboardStat label="Welcome" value={user?.fullName || "Patient"} detail="Your Medicare workspace" />
+      <DashboardStat label="Patient ID" value={user?.patientId || "Pending"} detail="Use this ID for family linking" />
       <DashboardStat label="Profile Completion" value={`${Math.round((completed / 6) * 100)}%`} detail={`${completed} of 6 fields completed`} />
       <DashboardStat label="Blood Group" value={profile.bloodGroup || "Not set"} detail="Used in clinical workflows" />
       <div className="glass col-span-full rounded-2xl p-4">

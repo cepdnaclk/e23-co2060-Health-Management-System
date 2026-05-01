@@ -30,14 +30,57 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function makePatientUid(id) {
+  return `PT-${String(id).padStart(6, "0")}`;
+}
+
 function normalizeSql(sql) {
   return String(sql).replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function migrateDataShape(data) {
+  let changed = false;
+  data.nextIds = { ...initialData.nextIds, ...(data.nextIds || {}) };
+  for (const key of ["users", "patient_profiles", "appointments", "patient_reports"]) {
+    if (!Array.isArray(data[key])) {
+      data[key] = [];
+      changed = true;
+    }
+  }
+
+  for (const user of data.users) {
+    if (!Object.prototype.hasOwnProperty.call(user, "username")) {
+      user.username = null;
+      changed = true;
+    }
+    if (!user.patient_uid) {
+      user.patient_uid = makePatientUid(user.id);
+      changed = true;
+    }
+    if (!Object.prototype.hasOwnProperty.call(user, "profile_photo_url")) {
+      user.profile_photo_url = null;
+      changed = true;
+    }
+  }
+
+  for (const profile of data.patient_profiles) {
+    for (const key of ["known_conditions", "mother_patient_uid", "father_patient_uid"]) {
+      if (!Object.prototype.hasOwnProperty.call(profile, key)) {
+        profile[key] = null;
+        changed = true;
+      }
+    }
+  }
+
+  return { data, changed };
 }
 
 async function readData() {
   await initLocalDb();
   const raw = await fs.readFile(DATA_FILE, "utf8");
-  return JSON.parse(raw);
+  const migrated = migrateDataShape(JSON.parse(raw));
+  if (migrated.changed) await writeData(migrated.data);
+  return migrated.data;
 }
 
 async function writeData(data) {
@@ -52,6 +95,8 @@ function userPublicRow(user) {
   if (!user) return null;
   return {
     id: user.id,
+    username: user.username || null,
+    patient_uid: user.patient_uid || makePatientUid(user.id),
     full_name: user.full_name,
     email: user.email,
     phone: user.phone,
@@ -77,7 +122,10 @@ function userWithProfileRow(data, user) {
     address: profile.address || null,
     emergency_contact: profile.emergency_contact || null,
     blood_group: profile.blood_group || null,
-    allergies: profile.allergies || null
+    allergies: profile.allergies || null,
+    known_conditions: profile.known_conditions || null,
+    mother_patient_uid: profile.mother_patient_uid || null,
+    father_patient_uid: profile.father_patient_uid || null
   };
 }
 
@@ -122,8 +170,18 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.startsWith("insert into users")) {
-    const [fullName, email, phone, passwordHash] = params;
-    if (data.users.some((user) => user.email === email)) {
+    const withSeedColumns = params.length === 7;
+    const [fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash] = withSeedColumns
+      ? params
+      : [params[0], null, params[1], params[2], null, null, params[3]];
+    if (
+      data.users.some(
+        (user) =>
+          user.email === email ||
+          (username && user.username === username) ||
+          (patientUid && String(user.patient_uid).toUpperCase() === String(patientUid).toUpperCase())
+      )
+    ) {
       const error = new Error("Duplicate email");
       error.code = "ER_DUP_ENTRY";
       throw error;
@@ -131,15 +189,51 @@ export async function localQuery(sql, params = []) {
     const id = data.nextIds.users++;
     data.users.push({
       id,
+      username: username || null,
+      patient_uid: patientUid || makePatientUid(id),
       full_name: fullName,
       email,
       phone,
-      profile_photo_url: null,
+      profile_photo_url: profilePhotoUrl || null,
       password_hash: passwordHash,
       created_at: now()
     });
     await writeData(data);
     return [{ insertId: id, affectedRows: 1 }];
+  }
+
+  if (normalized.includes("where email = ? or username = ? or patient_uid = ?")) {
+    const [email, username, patientUid] = params;
+    const normalizedPatientUid = String(patientUid || "").toUpperCase();
+    return [
+      [
+        userAuthRow(
+          data.users.find(
+            (user) =>
+              user.email === email ||
+              (username && user.username === username) ||
+              String(user.patient_uid || "").toUpperCase() === normalizedPatientUid
+          )
+        )
+      ].filter(Boolean)
+    ];
+  }
+
+  if (normalized.includes("where username = ? or email = ? or patient_uid = ?")) {
+    const [username, email, patientUid] = params;
+    const normalizedPatientUid = String(patientUid || "").toUpperCase();
+    return [
+      [
+        data.users.find(
+          (user) =>
+            (username && user.username === username) ||
+            user.email === email ||
+            String(user.patient_uid || "").toUpperCase() === normalizedPatientUid
+        )
+      ]
+        .filter(Boolean)
+        .map((user) => ({ id: user.id }))
+    ];
   }
 
   if (normalized.includes("from users where email = ?")) {
@@ -152,11 +246,47 @@ export async function localQuery(sql, params = []) {
     return [[userWithProfileRow(data, data.users.find((user) => user.id === id))].filter(Boolean)];
   }
 
+  if (normalized.includes("where u.patient_uid = ?")) {
+    const [patientUid] = params;
+    return [
+      [
+        userWithProfileRow(
+          data,
+          data.users.find((user) => String(user.patient_uid || "").toUpperCase() === String(patientUid || "").toUpperCase())
+        )
+      ].filter(Boolean)
+    ];
+  }
+
+  if (normalized.includes("from users where patient_uid = ? limit 1")) {
+    const [patientUid] = params;
+    const user = data.users.find((item) => String(item.patient_uid || "").toUpperCase() === String(patientUid || "").toUpperCase());
+    return [[userPublicRow(user)].filter(Boolean)];
+  }
+
   if (normalized.includes("from users where id = ? limit 1")) {
     const [id] = params.map(Number);
     const user = data.users.find((item) => item.id === id);
     const row = normalized.startsWith("select id from users") ? (user ? { id: user.id } : null) : userPublicRow(user);
     return [[row].filter(Boolean)];
+  }
+
+  if (normalized.startsWith("select id from users where patient_uid is null")) {
+    return [
+      data.users
+        .filter((user) => !user.patient_uid)
+        .sort((a, b) => a.id - b.id)
+        .map((user) => ({ id: user.id }))
+    ];
+  }
+
+  if (normalized.startsWith("update users set patient_uid = ?")) {
+    const [patientUid, id] = params;
+    const user = data.users.find((item) => item.id === Number(id));
+    if (!user) return [{ affectedRows: 0 }];
+    user.patient_uid = patientUid;
+    await writeData(data);
+    return [{ affectedRows: 1 }];
   }
 
   if (normalized.startsWith("update users set full_name = ?, phone = ?, profile_photo_url = ?")) {
@@ -166,6 +296,35 @@ export async function localQuery(sql, params = []) {
     user.full_name = fullName;
     user.phone = phone;
     user.profile_photo_url = profilePhotoUrl || null;
+    await writeData(data);
+    return [{ affectedRows: 1 }];
+  }
+
+  if (normalized.startsWith("update users set full_name = ?, phone = ?, patient_uid = ?, password_hash = ?")) {
+    const [fullName, phone, patientUid, passwordHash, id] = params;
+    const user = data.users.find((item) => item.id === Number(id));
+    if (!user) return [{ affectedRows: 0 }];
+    user.full_name = fullName;
+    user.phone = phone;
+    user.patient_uid = patientUid;
+    user.password_hash = passwordHash;
+    await writeData(data);
+    return [{ affectedRows: 1 }];
+  }
+
+  if (normalized.startsWith("update users set full_name = ?, username = ?, email = ?, phone = ?, profile_photo_url = ?, patient_uid = ?, password_hash = ?")) {
+    const [fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash, id] = params;
+    const user = data.users.find((item) => item.id === Number(id));
+    if (!user) return [{ affectedRows: 0 }];
+    Object.assign(user, {
+      full_name: fullName,
+      username: username || null,
+      email,
+      phone,
+      profile_photo_url: profilePhotoUrl || null,
+      patient_uid: patientUid,
+      password_hash: passwordHash
+    });
     await writeData(data);
     return [{ affectedRows: 1 }];
   }
@@ -192,7 +351,18 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.startsWith("insert into patient_profiles")) {
-    const [userId, dob, gender, address, emergencyContact, bloodGroup, allergies] = params;
+    const [
+      userId,
+      dob,
+      gender,
+      address,
+      emergencyContact,
+      bloodGroup,
+      allergies,
+      knownConditions,
+      motherPatientUid,
+      fatherPatientUid
+    ] = params;
     let profile = data.patient_profiles.find((item) => item.user_id === Number(userId));
     if (!profile) {
       profile = { id: data.nextIds.patient_profiles++, user_id: Number(userId), created_at: now() };
@@ -205,6 +375,9 @@ export async function localQuery(sql, params = []) {
       emergency_contact: emergencyContact || null,
       blood_group: bloodGroup || null,
       allergies: allergies || null,
+      known_conditions: knownConditions || null,
+      mother_patient_uid: motherPatientUid || null,
+      father_patient_uid: fatherPatientUid || null,
       updated_at: now()
     });
     await writeData(data);
@@ -228,7 +401,7 @@ export async function localQuery(sql, params = []) {
     return [rows];
   }
 
-  if (normalized.includes("select id, full_name, email from users")) {
+  if (normalized.includes("select id, patient_uid, full_name, email from users") || normalized.includes("select id, full_name, email from users")) {
     const [limit] = params.map(Number);
     return [[...data.users].sort((a, b) => a.full_name.localeCompare(b.full_name)).slice(0, limit).map(userPublicRow)];
   }

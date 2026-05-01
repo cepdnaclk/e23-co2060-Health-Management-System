@@ -1,8 +1,10 @@
 import { Router } from "express";
 import {
   getPatientAppointments,
+  getPatientFamilyRisk,
   getPatientMe,
   getPatientReports,
+  lookupPatientByUid,
   payPatientAppointment,
   updateAuthMe,
   updatePatientMe
@@ -11,7 +13,9 @@ import { authRequired, requireRole } from "../middlewares/auth.js";
 
 const router = Router();
 
+router.get("/api/patients/lookup", lookupPatientByUid);
 router.get("/api/patient/me", authRequired, requireRole("patient"), getPatientMe);
+router.get("/api/patient/family-risk", authRequired, requireRole("patient"), getPatientFamilyRisk);
 router.get("/api/patient/appointments", authRequired, requireRole("patient"), getPatientAppointments);
 router.post("/api/patient/appointments/:appointmentId/pay", authRequired, requireRole("patient"), payPatientAppointment);
 router.get("/api/patient/reports", authRequired, requireRole("patient"), getPatientReports);

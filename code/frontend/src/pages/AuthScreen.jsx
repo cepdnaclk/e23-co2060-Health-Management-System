@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import Field from "../components/Field";
+import { API_BASE, readJson } from "../lib/appShared";
 import { authDoctorImage, authPatientImage } from "../lib/landingAssets";
 
 const roleTabs = [
@@ -11,6 +13,59 @@ const authTabs = [
   { id: "login", label: "Login" },
   { id: "signup", label: "Sign Up" }
 ];
+
+function usePatientLookup(patientId) {
+  const [lookup, setLookup] = useState({ status: "idle", patient: null, error: "" });
+
+  useEffect(() => {
+    const id = String(patientId || "").trim().toUpperCase();
+    if (!id) {
+      setLookup({ status: "idle", patient: null, error: "" });
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setLookup({ status: "loading", patient: null, error: "" });
+      try {
+        const res = await fetch(`${API_BASE}/api/patients/lookup?patientId=${encodeURIComponent(id)}`);
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Patient ID not found");
+        if (!cancelled) setLookup({ status: "found", patient: data.patient, error: "" });
+      } catch (err) {
+        if (!cancelled) setLookup({ status: "missing", patient: null, error: err.message || "Patient ID not found" });
+      }
+    }, 320);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [patientId]);
+
+  return lookup;
+}
+
+function ParentIdField({ label, value, onChange }) {
+  const lookup = usePatientLookup(value);
+
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
+      <div className="field flex items-center gap-2 pr-3">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value.toUpperCase())}
+          className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none placeholder:text-slate-500 dark:placeholder:text-slate-400"
+          placeholder="PT-DEMO-MOM"
+        />
+      </div>
+      <p className={`parent-lookup parent-lookup-${lookup.status}`} aria-live="polite">
+        {!value ? "Optional" : lookup.status === "loading" ? "Checking..." : lookup.patient ? lookup.patient.fullName : lookup.error}
+      </p>
+    </label>
+  );
+}
 
 export default function AuthScreen(props) {
   const {
@@ -132,6 +187,18 @@ export default function AuthScreen(props) {
                     value={signupForm.password}
                     onChange={(e) => setSignupForm((v) => ({ ...v, password: e.target.value }))}
                   />
+                  <div className="signup-family-fields">
+                    <ParentIdField
+                      label="Mother Patient ID"
+                      value={signupForm.motherPatientId}
+                      onChange={(value) => setSignupForm((v) => ({ ...v, motherPatientId: value }))}
+                    />
+                    <ParentIdField
+                      label="Father Patient ID"
+                      value={signupForm.fatherPatientId}
+                      onChange={(value) => setSignupForm((v) => ({ ...v, fatherPatientId: value }))}
+                    />
+                  </div>
                   <label className="check-row">
                     <input
                       type="checkbox"

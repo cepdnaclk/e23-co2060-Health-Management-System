@@ -1,6 +1,15 @@
-import { findUserById, findUserWithProfileById, updateUserAccount, upsertPatientProfile } from "../models/patientModel.js";
+import {
+  findUserById,
+  findUserByPatientUid,
+  findUserWithProfileById,
+  getPatientFamilyTree,
+  normalizePatientUid,
+  updateUserAccount,
+  upsertPatientProfile
+} from "../models/patientModel.js";
 import { normalizeAuthProfile, normalizeProfile } from "../models/profileModel.js";
 import { getPatientAppointmentById, listAppointmentsForPatient, listPatientReportsWithData, markAppointmentPaid } from "../models/appointmentModel.js";
+import { predictHereditaryRisks } from "../services/hereditaryRiskService.js";
 
 function appointmentPaymentFields(row) {
   return {
@@ -12,26 +21,65 @@ function appointmentPaymentFields(row) {
   };
 }
 
+function patientSessionUser(row) {
+  return {
+    id: row.id,
+    patientId: row.patient_uid,
+    username: row.username,
+    fullName: row.full_name,
+    email: row.email,
+    phone: row.phone,
+    profilePhotoUrl: row.profile_photo_url
+  };
+}
+
+async function validateFamilyLinks({ profile, currentUser }) {
+  const motherPatientId = normalizePatientUid(profile.motherPatientId);
+  const fatherPatientId = normalizePatientUid(profile.fatherPatientId);
+  const ownPatientId = normalizePatientUid(currentUser.patient_uid);
+
+  if (motherPatientId && motherPatientId === ownPatientId) {
+    return { error: "Mother patient ID cannot be your own patient ID" };
+  }
+  if (fatherPatientId && fatherPatientId === ownPatientId) {
+    return { error: "Father patient ID cannot be your own patient ID" };
+  }
+  if (motherPatientId && fatherPatientId && motherPatientId === fatherPatientId) {
+    return { error: "Mother and father patient IDs must be different" };
+  }
+
+  for (const [label, patientId] of [
+    ["Mother", motherPatientId],
+    ["Father", fatherPatientId]
+  ]) {
+    if (!patientId) continue;
+    const parent = await findUserByPatientUid(patientId);
+    if (!parent) return { error: `${label} patient ID was not found` };
+  }
+
+  return {
+    motherPatientId: motherPatientId || null,
+    fatherPatientId: fatherPatientId || null
+  };
+}
+
 export async function getPatientMe(req, res) {
   try {
     const row = await findUserWithProfileById(req.userId);
     if (!row) return res.status(404).json({ error: "User not found" });
 
     return res.json({
-      user: {
-        id: row.id,
-        fullName: row.full_name,
-        email: row.email,
-        phone: row.phone,
-        profilePhotoUrl: row.profile_photo_url
-      },
+      user: patientSessionUser(row),
       profile: {
         dob: row.dob,
         gender: row.gender,
         address: row.address,
         emergencyContact: row.emergency_contact,
         bloodGroup: row.blood_group,
-        allergies: row.allergies
+        allergies: row.allergies,
+        knownConditions: row.known_conditions,
+        motherPatientId: row.mother_patient_uid,
+        fatherPatientId: row.father_patient_uid
       }
     });
   } catch (error) {
@@ -53,13 +101,7 @@ export async function updateAuthMe(req, res) {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     return res.json({
-      user: {
-        id: user.id,
-        fullName: user.full_name,
-        email: user.email,
-        phone: user.phone,
-        profilePhotoUrl: user.profile_photo_url
-      }
+      user: patientSessionUser(user)
     });
   } catch (error) {
     console.error("Update auth profile error:", error);
@@ -71,11 +113,59 @@ export async function updatePatientMe(req, res) {
   const profile = normalizeProfile(req.body || {});
 
   try {
+    const currentUser = await findUserById(req.userId);
+    if (!currentUser) return res.status(404).json({ error: "User not found" });
+
+    const familyLinks = await validateFamilyLinks({ profile, currentUser });
+    if (familyLinks.error) {
+      return res.status(400).json({ error: familyLinks.error });
+    }
+
+    profile.motherPatientId = familyLinks.motherPatientId;
+    profile.fatherPatientId = familyLinks.fatherPatientId;
+
     await upsertPatientProfile(req.userId, profile);
     return res.json({ ok: true });
   } catch (error) {
     console.error("Update profile error:", error);
     return res.status(500).json({ error: "Could not update profile" });
+  }
+}
+
+export async function lookupPatientByUid(req, res) {
+  const patientId = normalizePatientUid(req.query?.patientId || req.params?.patientId);
+  if (!patientId) return res.status(400).json({ error: "patientId is required" });
+
+  try {
+    const patient = await findUserByPatientUid(patientId);
+    if (!patient) return res.status(404).json({ error: "Patient ID not found" });
+    return res.json({
+      patient: {
+        patientId: patient.patient_uid,
+        fullName: patient.full_name,
+        profilePhotoUrl: patient.profile_photo_url
+      }
+    });
+  } catch (error) {
+    console.error("Patient lookup error:", error);
+    return res.status(500).json({ error: "Could not lookup patient" });
+  }
+}
+
+export async function getPatientFamilyRisk(req, res) {
+  try {
+    const family = await getPatientFamilyTree(req.userId);
+    if (!family) return res.status(404).json({ error: "User not found" });
+
+    const risks = await predictHereditaryRisks(family);
+    return res.json({
+      family,
+      risks,
+      disclaimer: "Screening estimate only; not a diagnosis."
+    });
+  } catch (error) {
+    console.error("Get family risk error:", error);
+    return res.status(500).json({ error: "Could not fetch family risk" });
   }
 }
 

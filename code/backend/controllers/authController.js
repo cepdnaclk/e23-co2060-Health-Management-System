@@ -1,14 +1,58 @@
 import bcrypt from "bcryptjs";
 import { findDoctorByUsername, doctorToPublicProfile } from "../models/doctorModel.js";
-import { createUser, findUserByEmail } from "../models/patientModel.js";
+import {
+  createUser,
+  findUserByEmail,
+  findUserByLoginIdentifier,
+  findUserByPatientUid,
+  normalizePatientUid,
+  upsertPatientProfile
+} from "../models/patientModel.js";
+import { normalizeProfile } from "../models/profileModel.js";
 import { signToken } from "../middlewares/auth.js";
 import { findReceptionistByUsername, receptionistToPublicProfile } from "../models/receptionistModel.js";
+
+async function validateParentLinks(profile) {
+  const motherPatientId = normalizePatientUid(profile.motherPatientId);
+  const fatherPatientId = normalizePatientUid(profile.fatherPatientId);
+
+  if (motherPatientId && fatherPatientId && motherPatientId === fatherPatientId) {
+    return { error: "Mother and father patient IDs must be different" };
+  }
+
+  for (const [label, patientId] of [
+    ["Mother", motherPatientId],
+    ["Father", fatherPatientId]
+  ]) {
+    if (!patientId) continue;
+    const parent = await findUserByPatientUid(patientId);
+    if (!parent) return { error: `${label} patient ID was not found` };
+  }
+
+  return {
+    motherPatientId: motherPatientId || null,
+    fatherPatientId: fatherPatientId || null
+  };
+}
+
+function patientSessionUser(user) {
+  return {
+    id: user.id,
+    patientId: user.patient_uid,
+    username: user.username,
+    fullName: user.full_name,
+    email: user.email,
+    phone: user.phone,
+    profilePhotoUrl: user.profile_photo_url
+  };
+}
 
 export async function signup(req, res) {
   const fullName = String(req.body?.fullName || "").trim();
   const email = String(req.body?.email || "").trim().toLowerCase();
   const phone = String(req.body?.phone || "").trim();
   const password = String(req.body?.password || "");
+  const requestedProfile = normalizeProfile(req.body || {});
 
   if (!fullName || !email || !phone || !password) {
     return res.status(400).json({ error: "fullName, email, phone, and password are required" });
@@ -23,20 +67,30 @@ export async function signup(req, res) {
       return res.status(409).json({ error: "Email already in use" });
     }
 
+    const parentLinks = await validateParentLinks(requestedProfile);
+    if (parentLinks.error) {
+      return res.status(400).json({ error: parentLinks.error });
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await createUser({ fullName, email, phone, passwordHash });
+    await upsertPatientProfile(user.id, {
+      dob: null,
+      gender: null,
+      address: null,
+      emergencyContact: null,
+      bloodGroup: null,
+      allergies: null,
+      knownConditions: null,
+      motherPatientId: parentLinks.motherPatientId,
+      fatherPatientId: parentLinks.fatherPatientId
+    });
 
     const token = signToken({ id: user.id, email: user.email, role: "patient" });
     return res.status(201).json({
       token,
       role: "patient",
-      user: {
-        id: user.id,
-        fullName: user.full_name,
-        email: user.email,
-        phone: user.phone,
-        profilePhotoUrl: user.profile_photo_url
-      }
+      user: patientSessionUser(user)
     });
   } catch (error) {
     console.error("Signup error:", error);
@@ -53,7 +107,7 @@ export async function patientLogin(req, res) {
   }
 
   try {
-    const user = await findUserByEmail(email);
+    const user = await findUserByLoginIdentifier(email);
     if (!user) {
       return res.status(401).json({ error: "Invalid patient login or password" });
     }
@@ -67,13 +121,7 @@ export async function patientLogin(req, res) {
     return res.json({
       token,
       role: "patient",
-      user: {
-        id: user.id,
-        fullName: user.full_name,
-        email: user.email,
-        phone: user.phone,
-        profilePhotoUrl: user.profile_photo_url
-      }
+      user: patientSessionUser(user)
     });
   } catch (error) {
     console.error("Login error:", error);
