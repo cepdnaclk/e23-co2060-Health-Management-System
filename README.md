@@ -16,7 +16,7 @@ An AI support feature is included to assist doctors by providing suggestions bas
 
 ```
 {
-    "INVEX": [
+    "team": [
         {
             "name": "Apurwa Fernando",
             "email": "e23100@eng.pdn.ac.lk",
