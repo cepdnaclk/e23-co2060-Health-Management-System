@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Reveal from "../Reveal";
 import { API_BASE, readJson } from "../../lib/appShared";
+import { getDoctorImage } from "../../lib/landingAssets";
 
 export default function DoctorsSection({ onSelectDoctor }) {
   const [doctors, setDoctors] = useState([]);
@@ -46,7 +47,13 @@ export default function DoctorsSection({ onSelectDoctor }) {
             delay={index * 55}
             onClick={() => onSelectDoctor(doctor)}
           >
-            <div className="doctor-photo">{doctor.fullName?.split(" ").slice(-1)[0]?.[0] || "D"}</div>
+            <div className="doctor-photo">
+              {getDoctorImage(doctor.username) ? (
+                <img src={getDoctorImage(doctor.username)} alt={doctor.fullName} />
+              ) : (
+                doctor.fullName?.split(" ").slice(-1)[0]?.[0] || "D"
+              )}
+            </div>
             <h3>{doctor.fullName}</h3>
             <p>{doctor.specialty}</p>
           </Reveal>
