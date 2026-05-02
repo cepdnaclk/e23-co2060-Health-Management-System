@@ -1,7 +1,9 @@
 import Reveal from "../components/Reveal";
+import { getDoctorImage } from "../lib/landingAssets";
 
 export default function DoctorProfilePage({ doctor, onBackHome, onLogin }) {
   if (!doctor) return null;
+  const doctorImage = getDoctorImage(doctor.username);
 
   return (
     <div className="landing-page doctor-profile-page">
@@ -24,7 +26,7 @@ export default function DoctorProfilePage({ doctor, onBackHome, onLogin }) {
 
       <section id="profile" className="doctor-profile-hero">
         <Reveal className="doctor-profile-photo" variant="up">
-          {doctor.fullName?.split(" ").slice(-1)[0]?.[0] || "D"}
+          {doctorImage ? <img src={doctorImage} alt={doctor.fullName} /> : doctor.fullName?.split(" ").slice(-1)[0]?.[0] || "D"}
         </Reveal>
         <Reveal className="doctor-profile-copy" variant="right">
           <p className="eyebrow">{doctor.specialty}</p>

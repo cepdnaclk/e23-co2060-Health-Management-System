@@ -263,6 +263,7 @@
 .doctor-profile-photo {
   display: grid;
   min-height: 430px;
+  overflow: hidden;
   place-items: center;
   border-radius: 32px;
   background:
@@ -273,6 +274,13 @@
   font-family: "Sora", sans-serif;
   font-size: clamp(5rem, 12vw, 11rem);
   font-weight: 800;
+}
+
+.doctor-profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .doctor-profile-copy h1 {
