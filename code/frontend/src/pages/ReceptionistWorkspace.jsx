@@ -56,6 +56,8 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   const [uploadingReport, setUploadingReport] = useState(false);
   const [reports, setReports] = useState([]);
   const [reportPatientId, setReportPatientId] = useState("");
+  const [appointmentPatientSearch, setAppointmentPatientSearch] = useState("");
+  const [appointmentDoctorSearch, setAppointmentDoctorSearch] = useState("");
   const [appointmentForm, setAppointmentForm] = useState({
     patientId: "",
     doctorUsername: "",
@@ -93,6 +95,36 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   }, [overview.appointments, range, date]);
 
   const confirmedAppointments = (overview.appointments || []).filter((item) => item.status === "Confirmed").length;
+
+  const appointmentPatientOptions = useMemo(
+    () =>
+      (overview.patients || []).map((patient) => ({
+        id: String(patient.id),
+        label: `${patient.fullName} (${patient.email})`
+      })),
+    [overview.patients]
+  );
+
+  const appointmentDoctorOptions = useMemo(
+    () =>
+      (overview.doctors || []).map((doctor) => ({
+        username: String(doctor.username),
+        label: `${doctor.fullName} (${doctor.username})`
+      })),
+    [overview.doctors]
+  );
+
+  const filteredAppointmentPatients = useMemo(() => {
+    const needle = appointmentPatientSearch.trim().toLowerCase();
+    if (!needle) return appointmentPatientOptions;
+    return appointmentPatientOptions.filter((item) => item.label.toLowerCase().includes(needle));
+  }, [appointmentPatientOptions, appointmentPatientSearch]);
+
+  const filteredAppointmentDoctors = useMemo(() => {
+    const needle = appointmentDoctorSearch.trim().toLowerCase();
+    if (!needle) return appointmentDoctorOptions;
+    return appointmentDoctorOptions.filter((item) => item.label.toLowerCase().includes(needle));
+  }, [appointmentDoctorOptions, appointmentDoctorSearch]);
 
   useEffect(() => {
     if (!token) return;
@@ -144,6 +176,10 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
     e.preventDefault();
     setError("");
     setSuccess("");
+    if (!appointmentForm.patientId || !appointmentForm.doctorUsername) {
+      setError("Select a patient and a doctor from the matching list.");
+      return;
+    }
     setSavingAppointment(true);
     try {
       const res = await fetch(`${API_BASE}/api/reception/appointments`, {
@@ -310,35 +346,47 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
                 Patient
-                <select
+                <input
                   className="field mt-1 w-full"
-                  value={appointmentForm.patientId}
-                  onChange={(e) => setAppointmentForm((v) => ({ ...v, patientId: e.target.value }))}
+                  type="text"
+                  list="appointment-patient-options"
+                  placeholder="Search patient by name or email"
+                  value={appointmentPatientSearch}
+                  onChange={(e) => {
+                    const nextValue = e.target.value;
+                    setAppointmentPatientSearch(nextValue);
+                    const match = appointmentPatientOptions.find((item) => item.label === nextValue);
+                    setAppointmentForm((v) => ({ ...v, patientId: match ? match.id : "" }));
+                  }}
                   required
-                >
-                  <option value="">Select patient</option>
-                  {(overview.patients || []).map((patient) => (
-                    <option key={patient.id} value={patient.id}>
-                      {patient.fullName} ({patient.email})
-                    </option>
+                />
+                <datalist id="appointment-patient-options">
+                  {filteredAppointmentPatients.map((patient) => (
+                    <option key={patient.id} value={patient.label} />
                   ))}
-                </select>
+                </datalist>
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 Doctor
-                <select
+                <input
                   className="field mt-1 w-full"
-                  value={appointmentForm.doctorUsername}
-                  onChange={(e) => setAppointmentForm((v) => ({ ...v, doctorUsername: e.target.value }))}
+                  type="text"
+                  list="appointment-doctor-options"
+                  placeholder="Search doctor by name"
+                  value={appointmentDoctorSearch}
+                  onChange={(e) => {
+                    const nextValue = e.target.value;
+                    setAppointmentDoctorSearch(nextValue);
+                    const match = appointmentDoctorOptions.find((item) => item.label === nextValue);
+                    setAppointmentForm((v) => ({ ...v, doctorUsername: match ? match.username : "" }));
+                  }}
                   required
-                >
-                  <option value="">Select doctor</option>
-                  {(overview.doctors || []).map((doc) => (
-                    <option key={doc.username} value={doc.username}>
-                      {doc.fullName}
-                    </option>
+                />
+                <datalist id="appointment-doctor-options">
+                  {filteredAppointmentDoctors.map((doctor) => (
+                    <option key={doctor.username} value={doctor.label} />
                   ))}
-                </select>
+                </datalist>
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 Date & Time
