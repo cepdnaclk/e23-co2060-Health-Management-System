@@ -9,8 +9,9 @@ import {
   upsertPatientProfile
 } from "../models/patientModel.js";
 import { normalizeAuthProfile, normalizeProfile } from "../models/profileModel.js";
-import { getPatientAppointmentById, listAppointmentsForPatient, listPatientReportsWithData, markAppointmentPaid } from "../models/appointmentModel.js";
+import { createAppointment, getPatientAppointmentById, listAppointmentsForPatient, listPatientReportsWithData, markAppointmentPaid } from "../models/appointmentModel.js";
 import { predictHereditaryRisks } from "../services/hereditaryRiskService.js";
+import { findDoctorByUsername } from "../models/doctorModel.js";
 
 function appointmentPaymentFields(row) {
   return {
@@ -186,6 +187,42 @@ export async function getPatientAppointments(req, res) {
   } catch (error) {
     console.error("Get patient appointments error:", error);
     return res.status(500).json({ error: "Could not fetch appointments" });
+  }
+}
+
+export async function requestPatientAppointment(req, res) {
+  const doctorUsername = String(req.body?.doctorUsername || "").trim();
+  const scheduledAtRaw = String(req.body?.scheduledAt || "").trim();
+  const reason = String(req.body?.reason || "").trim();
+
+  if (!doctorUsername) return res.status(400).json({ error: "doctorUsername is required" });
+  if (!scheduledAtRaw) return res.status(400).json({ error: "scheduledAt is required" });
+  if (!findDoctorByUsername(doctorUsername)) return res.status(404).json({ error: "Doctor not found" });
+
+  const appointmentDate = new Date(scheduledAtRaw);
+  if (Number.isNaN(appointmentDate.getTime())) {
+    return res.status(400).json({ error: "Invalid scheduledAt date-time" });
+  }
+
+  try {
+    const appointmentId = await createAppointment({
+      patientId: req.userId,
+      doctorUsername,
+      scheduledAt: appointmentDate.toISOString().slice(0, 19).replace("T", " "),
+      reason,
+      createdBy: `patient:${req.userId}`,
+      status: "Pending"
+    });
+
+    return res.status(201).json({
+      ok: true,
+      appointmentId,
+      status: "Pending",
+      message: "Appointment request sent to receptionist for approval."
+    });
+  } catch (error) {
+    console.error("Patient appointment request error:", error);
+    return res.status(500).json({ error: "Could not request appointment" });
   }
 }
 

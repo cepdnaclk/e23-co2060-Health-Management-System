@@ -2,8 +2,10 @@ import { listDoctorsPublic, findDoctorByUsername } from "../models/doctorModel.j
 import { patientExists, listPatientsBasic } from "../models/patientModel.js";
 import {
   cancelAppointmentById,
+  confirmAppointmentById,
   createAppointment,
   listAppointmentsInRange,
+  listPendingAppointmentRequests,
   listPatientReports,
   uploadPatientReport
 } from "../models/appointmentModel.js";
@@ -64,14 +66,17 @@ export async function receptionistOverview(req, res) {
     const appointments = await listAppointmentsInRange({
       startIso: parsed.startIso,
       endIso: parsed.endIso,
-      doctorUsername: doctor ? String(doctor) : null
+      doctorUsername: doctor ? String(doctor) : null,
+      statuses: ["Pending", "Confirmed"]
     });
+    const pendingRequests = await listPendingAppointmentRequests(100);
 
     return res.json({
       range: parsed.safeRange,
       doctors,
       patients,
-      appointments: appointments.map(toAppointmentView)
+      appointments: appointments.map(toAppointmentView),
+      pendingRequests: pendingRequests.map(toAppointmentView)
     });
   } catch (error) {
     console.error("Reception overview error:", error);
@@ -113,6 +118,22 @@ export async function receptionistCreateAppointment(req, res) {
   } catch (error) {
     console.error("Reception create appointment error:", error);
     return res.status(500).json({ error: "Could not create appointment" });
+  }
+}
+
+export async function receptionistConfirmAppointment(req, res) {
+  const appointmentId = Number(req.params.appointmentId);
+  if (!Number.isFinite(appointmentId) || appointmentId <= 0) {
+    return res.status(400).json({ error: "Invalid appointment id" });
+  }
+
+  try {
+    const ok = await confirmAppointmentById(appointmentId);
+    if (!ok) return res.status(404).json({ error: "Appointment request not found or already confirmed" });
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error("Reception confirm appointment error:", error);
+    return res.status(500).json({ error: "Could not confirm appointment" });
   }
 }
 

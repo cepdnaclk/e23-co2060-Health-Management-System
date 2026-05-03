@@ -13,6 +13,51 @@ const CANDIDATE_MODELS = [
 
 let cachedWorkingModel = null;
 
+const FALLBACK_TRIAGE_RULES = [
+  {
+    match: /chest|heart|cardiac|palpitation|blood pressure|hypertension|shortness of breath/i,
+    primarySpecialty: "Cardiology",
+    secondarySpecialty: "Internal Medicine",
+    reason: "These symptoms may involve the heart or circulation, so a cardiology review is recommended."
+  },
+  {
+    match: /headache|migraine|seizure|stroke|dizzy|dizziness|numb|nerve|weakness|faint/i,
+    primarySpecialty: "Neurology",
+    secondarySpecialty: "Internal Medicine",
+    reason: "These symptoms may involve the nervous system, so a neurology review is recommended."
+  },
+  {
+    match: /skin|rash|itch|acne|eczema|wound|allergy|hives|burn/i,
+    primarySpecialty: "Dermatology",
+    secondarySpecialty: "General Practice",
+    reason: "These symptoms mainly affect the skin, so a dermatology review is recommended."
+  },
+  {
+    match: /joint|bone|fracture|sprain|back pain|knee|shoulder|ankle|orthopedic|orthopaedic/i,
+    primarySpecialty: "Orthopedics",
+    secondarySpecialty: "General Practice",
+    reason: "These symptoms may involve bones, joints, or muscles, so an orthopedic review is recommended."
+  },
+  {
+    match: /ear|nose|throat|sinus|tonsil|hearing|voice|cough|sore throat/i,
+    primarySpecialty: "ENT",
+    secondarySpecialty: "General Practice",
+    reason: "These symptoms may involve the ear, nose, or throat, so an ENT review is recommended."
+  },
+  {
+    match: /child|baby|infant|pediatric|paediatric|school age/i,
+    primarySpecialty: "Pediatrics",
+    secondarySpecialty: "General Practice",
+    reason: "The symptoms are related to a child patient, so a pediatric review is recommended."
+  },
+  {
+    match: /fever|diabetes|sugar|fatigue|vomit|nausea|stomach|abdominal|infection|general/i,
+    primarySpecialty: "Internal Medicine",
+    secondarySpecialty: "General Practice",
+    reason: "These general medical symptoms can have several causes, so an internal medicine review is recommended."
+  }
+];
+
 async function listModelsREST() {
   if (!API_KEY) throw new Error("GEMINI_API_KEY is not configured");
   const url = `https://generativelanguage.googleapis.com/v1/models?key=${encodeURIComponent(API_KEY)}`;
@@ -79,6 +124,21 @@ function parseJsonSafe(text) {
   }
 }
 
+function fallbackAnalysis(symptoms, reasonPrefix = "") {
+  const match = FALLBACK_TRIAGE_RULES.find((rule) => rule.match.test(symptoms)) || {
+    primarySpecialty: "General Practice",
+    secondarySpecialty: "Internal Medicine",
+    reason: "The symptoms are broad, so starting with a general medical consultation is recommended."
+  };
+
+  return {
+    primarySpecialty: match.primarySpecialty,
+    secondarySpecialty: match.secondarySpecialty,
+    reason: `${reasonPrefix}${match.reason}`,
+    recommendedDoctors: findDoctorsBySpecialties([match.primarySpecialty, match.secondarySpecialty], 3)
+  };
+}
+
 export async function listModels(_req, res) {
   if (!API_KEY) return res.status(503).json({ error: "GEMINI_API_KEY not configured" });
   try {
@@ -99,12 +159,7 @@ export async function analyzeSymptoms(req, res) {
   if (!symptoms) return res.status(400).json({ error: "symptoms required" });
 
   if (!API_KEY || !genAI) {
-    return res.json({
-      primarySpecialty: "General Practice",
-      secondarySpecialty: "Internal Medicine",
-      reason: "AI is not configured, so Medicare recommends starting with a general medical consultation.",
-      recommendedDoctors: findDoctorsBySpecialties(["General Practice", "Internal Medicine"], 3)
-    });
+    return res.json(fallbackAnalysis(symptoms));
   }
 
   const prompt = `
@@ -130,11 +185,6 @@ Symptoms: "${symptoms}"
     return res.json(data);
   } catch (err) {
     console.error("AI error:", err);
-    return res.json({
-      primarySpecialty: "General Practice",
-      secondarySpecialty: "Internal Medicine",
-      reason: "AI analysis was unavailable, so Medicare recommends starting with a general medical consultation.",
-      recommendedDoctors: findDoctorsBySpecialties(["General Practice", "Internal Medicine"], 3)
-    });
+    return res.json(fallbackAnalysis(symptoms));
   }
 }

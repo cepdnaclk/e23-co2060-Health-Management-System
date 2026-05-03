@@ -48,7 +48,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   const [range, setRange] = useState("day");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [doctorFilter, setDoctorFilter] = useState("");
-  const [overview, setOverview] = useState({ doctors: [], patients: [], appointments: [] });
+  const [overview, setOverview] = useState({ doctors: [], patients: [], appointments: [], pendingRequests: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -95,6 +95,8 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   }, [overview.appointments, range, date]);
 
   const confirmedAppointments = (overview.appointments || []).filter((item) => item.status === "Confirmed").length;
+  const pendingAppointmentRequests = overview.pendingRequests || [];
+  const pendingAppointments = pendingAppointmentRequests.length;
 
   const appointmentPatientOptions = useMemo(
     () =>
@@ -226,6 +228,23 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
     }
   }
 
+  async function confirmAppointment(id) {
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`${API_BASE}/api/reception/appointments/${id}/confirm`, {
+        method: "PUT",
+        headers
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not confirm appointment");
+      setSuccess("Appointment confirmed.");
+      await loadOverview();
+    } catch (err) {
+      setError(err.message || "Could not confirm appointment");
+    }
+  }
+
   async function uploadReport(e) {
     e.preventDefault();
     const file = e.target.reportFile?.files?.[0];
@@ -326,7 +345,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
           <DashboardStat label="Doctors" value={(overview.doctors || []).length} detail="Available profiles" />
           <DashboardStat label="Patients" value={(overview.patients || []).length} detail="Registered patients" />
           <DashboardStat label="Confirmed" value={confirmedAppointments} detail={`${range} view`} />
-          <DashboardStat label="Reports" value={reports.length} detail={reportPatientId ? "Selected patient" : "Select a patient"} />
+          <DashboardStat label="Pending" value={pendingAppointments} detail="Needs approval" />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -455,12 +474,50 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
           </form>
         </div>
 
+        <div className="mt-5 glass rounded-2xl p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Pending Appointment Requests</h2>
+              <p className="text-sm text-slate-600">Patient requests need receptionist approval before they reach doctor queues.</p>
+            </div>
+            <StatusBadge status={`${pendingAppointmentRequests.length} Pending`} />
+          </div>
+
+          {!pendingAppointmentRequests.length ? (
+            <EmptyState title="No pending requests" text="Patient appointment requests will appear here when they need approval." />
+          ) : null}
+
+          <div className="space-y-2">
+            {pendingAppointmentRequests.map((item) => (
+              <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-3 py-3">
+                <div className="text-sm text-slate-700">
+                  <p className="font-semibold text-slate-900">
+                    {item.patient.fullName} requested {item.date} at {item.time}
+                  </p>
+                  <p>
+                    Doctor: {item.doctorUsername} | Reason: {item.reason}
+                  </p>
+                  <StatusBadge status={item.status} />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" className="btn-primary" onClick={() => confirmAppointment(item.id)}>
+                    Accept
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={() => cancelAppointment(item.id)}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-5 grid gap-3">
           <h2 className="text-lg font-semibold text-slate-900">Calendar Appointments</h2>
           {[...dayBuckets.entries()].map(([dayKey, items]) => (
             <div key={dayKey} className="glass rounded-2xl p-4">
               <p className="mb-3 font-semibold text-slate-900">{dayKey}</p>
-              {!items.length ? <EmptyState title="No appointments" text="This date has no confirmed appointments in the selected range." /> : null}
+              {!items.length ? <EmptyState title="No appointments" text="This date has no appointment requests in the selected range." /> : null}
               <div className="space-y-2">
                 {items.map((item) => (
                   <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2">
@@ -474,9 +531,16 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
                       <StatusBadge status={item.status} />
                     </div>
                     {item.status !== "Cancelled" ? (
-                      <button type="button" className="btn-secondary" onClick={() => cancelAppointment(item.id)}>
-                        Cancel
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        {item.status === "Pending" ? (
+                          <button type="button" className="btn-primary" onClick={() => confirmAppointment(item.id)}>
+                            Confirm
+                          </button>
+                        ) : null}
+                        <button type="button" className="btn-secondary" onClick={() => cancelAppointment(item.id)}>
+                          Cancel
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-xs font-semibold uppercase text-rose-700">Cancelled</span>
                     )}

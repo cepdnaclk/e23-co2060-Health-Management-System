@@ -1,9 +1,10 @@
 import Reveal from "../components/Reveal";
 import { getDoctorImage } from "../lib/landingAssets";
 
-export default function DoctorProfilePage({ doctor, onBackHome, onLogin }) {
+export default function DoctorProfilePage({ doctor, onBackHome, onLogin, onBookAppointment, session }) {
   if (!doctor) return null;
   const doctorImage = getDoctorImage(doctor.username);
+  const isPatient = session?.role === "patient";
 
   return (
     <div className="landing-page doctor-profile-page">
@@ -19,8 +20,8 @@ export default function DoctorProfilePage({ doctor, onBackHome, onLogin }) {
             Availability
           </a>
         </nav>
-        <button type="button" className="nav-pill nav-pill-accent" onClick={onLogin}>
-          Login To Book
+        <button type="button" className="nav-pill nav-pill-accent" onClick={isPatient ? () => onBookAppointment?.(doctor) : onLogin}>
+          {isPatient ? "Book Appointment" : "Login To Book"}
         </button>
       </header>
 
@@ -32,8 +33,8 @@ export default function DoctorProfilePage({ doctor, onBackHome, onLogin }) {
           <p className="eyebrow">{doctor.specialty}</p>
           <h1>{doctor.fullName}</h1>
           <p>{doctor.bio}</p>
-          <button type="button" className="cta-button" onClick={onLogin}>
-            Login To Book Appointment
+          <button type="button" className="cta-button" onClick={isPatient ? () => onBookAppointment?.(doctor) : onLogin}>
+            {isPatient ? "Book An Appointment" : "Login To Book Appointment"}
           </button>
         </Reveal>
       </section>

@@ -409,14 +409,17 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.startsWith("insert into appointments")) {
-    const [patientId, doctorUsername, scheduledAt, reason, createdBy] = params;
+    const hasStatus = params.length === 6;
+    const [patientId, doctorUsername, scheduledAt, status, reason, createdBy] = hasStatus
+      ? params
+      : [params[0], params[1], params[2], "Confirmed", params[3], params[4]];
     const id = data.nextIds.appointments++;
     data.appointments.push({
       id,
       patient_id: Number(patientId),
       doctor_username: doctorUsername,
       scheduled_at: scheduledAt,
-      status: "Confirmed",
+      status: status || "Confirmed",
       reason,
       payment_status: "Unpaid",
       payment_amount: 2500,
@@ -431,9 +434,19 @@ export async function localQuery(sql, params = []) {
     return [{ insertId: id, affectedRows: 1 }];
   }
 
+  if (normalized.startsWith("update appointments set status = 'confirmed'")) {
+    const [appointmentId] = params.map(Number);
+    const appointment = data.appointments.find((item) => item.id === appointmentId && item.status === "Pending");
+    if (!appointment) return [{ affectedRows: 0 }];
+    appointment.status = "Confirmed";
+    appointment.updated_at = now();
+    await writeData(data);
+    return [{ affectedRows: 1 }];
+  }
+
   if (normalized.startsWith("update appointments set status = 'cancelled'")) {
     const [appointmentId] = params.map(Number);
-    const appointment = data.appointments.find((item) => item.id === appointmentId && item.status === "Confirmed");
+    const appointment = data.appointments.find((item) => item.id === appointmentId && ["Pending", "Confirmed"].includes(item.status));
     if (!appointment) return [{ affectedRows: 0 }];
     appointment.status = "Cancelled";
     appointment.updated_at = now();
@@ -454,10 +467,22 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.includes("from appointments a inner join users")) {
-    const [startIso, endIso, doctorUsername] = params;
+    if (normalized.includes("where a.status = 'pending'")) {
+      const [limit] = params.map(Number);
+      const rows = data.appointments
+        .filter((item) => item.status === "Pending")
+        .sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at))
+        .slice(0, limit)
+        .map((item) => appointmentView(data, item));
+      return [rows];
+    }
+
+    const [startIso, endIso] = params;
+    const doctorUsername = normalized.includes("a.doctor_username = ?") ? params[2] : null;
+    const statuses = params.slice(doctorUsername ? 3 : 2).map(String);
     const rows = data.appointments
       .filter((item) => item.scheduled_at >= startIso && item.scheduled_at < endIso)
-      .filter((item) => item.status === "Confirmed")
+      .filter((item) => !statuses.length || statuses.includes(item.status))
       .filter((item) => !doctorUsername || item.doctor_username === doctorUsername)
       .sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at))
       .map((item) => appointmentView(data, item));

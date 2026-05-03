@@ -10,11 +10,17 @@ import ServicesSection from "../components/landing/ServicesSection";
 import SymptomSection from "../components/landing/SymptomSection";
 import WorkflowSection from "../components/landing/WorkflowSection";
 
-export default function LandingPage({ onLogin, onSignup, onSelectTopic, onSelectDoctor }) {
+export default function LandingPage({ onLogin, onSignup, onLogout, onWorkspace, onBookAppointment, session, onSelectTopic, onSelectDoctor }) {
   return (
     <div className="landing-page">
-      <Navbar onLogin={onLogin} onSignup={onSignup} />
-      <HeroSection onLogin={onLogin} onSignup={onSignup} />
+      <Navbar onLogin={onLogin} onSignup={onSignup} onLogout={onLogout} onWorkspace={onWorkspace} session={session} />
+      <HeroSection
+        onLogin={onLogin}
+        onSignup={onSignup}
+        onBookAppointment={onBookAppointment}
+        onWorkspace={onWorkspace}
+        session={session}
+      />
       <SymptomSection />
       <ExplorerSection onSelectTopic={onSelectTopic} />
       <NetworkSection onSelectTopic={onSelectTopic} />
@@ -22,7 +28,7 @@ export default function LandingPage({ onLogin, onSignup, onSelectTopic, onSelect
       <QualitySection />
       <WorkflowSection onSelectTopic={onSelectTopic} />
       <ServicesSection onSelectTopic={onSelectTopic} />
-      <AppointmentSection onLogin={onLogin} />
+      <AppointmentSection onLogin={onLogin} onBookAppointment={onBookAppointment} session={session} />
       <FooterSection />
     </div>
   );

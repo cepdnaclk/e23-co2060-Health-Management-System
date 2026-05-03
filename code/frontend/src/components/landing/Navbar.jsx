@@ -1,8 +1,9 @@
 import { navItems } from "../../lib/landingContent";
 import { useTheme } from "../../context/ThemeContext";
 
-export default function Navbar({ onLogin, onSignup, onNavigate, isWorkspace = false }) {
+export default function Navbar({ onLogin, onSignup, onLogout, onWorkspace, session, onNavigate, isWorkspace = false }) {
   const { isDarkMode, toggleTheme } = useTheme();
+  const isPatient = session?.role === "patient";
 
   return (
     <header className="topbar">
@@ -31,12 +32,25 @@ export default function Navbar({ onLogin, onSignup, onNavigate, isWorkspace = fa
         <button type="button" className="theme-toggle" onClick={toggleTheme} title={isDarkMode ? "Light Mode" : "Dark Mode"}>
           {isDarkMode ? "☀️" : "🌙"}
         </button>
-        <button type="button" className="nav-pill" onClick={onLogin}>
-          Login
-        </button>
-        <button type="button" className="nav-pill nav-pill-accent" onClick={onSignup}>
-          Sign Up
-        </button>
+        {isPatient ? (
+          <>
+            <button type="button" className="nav-pill" onClick={onWorkspace}>
+              Dashboard
+            </button>
+            <button type="button" className="nav-pill nav-pill-accent" onClick={onLogout}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="nav-pill" onClick={onLogin}>
+              Login
+            </button>
+            <button type="button" className="nav-pill nav-pill-accent" onClick={onSignup}>
+              Sign Up
+            </button>
+          </>
+        )}
       </div>
     </header>
   );

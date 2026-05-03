@@ -428,7 +428,7 @@ function AppointmentsView({ token }) {
       {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
       {paymentError ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{paymentError}</p> : null}
       {paymentSuccess ? <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">{paymentSuccess}</p> : null}
-      {!loading && !appointments.length ? <EmptyState title="No appointments yet" text="Confirmed appointments will appear here with payment status and visit details." /> : null}
+      {!loading && !appointments.length ? <EmptyState title="No appointments yet" text="Requested and confirmed appointments will appear here with status and payment details." /> : null}
       <div className="space-y-2">
         {appointments.map((item) => (
           <div key={item.id} className="glass rounded-2xl p-4 text-sm text-slate-700">
@@ -449,6 +449,8 @@ function AppointmentsView({ token }) {
                 <button type="button" className="btn-primary payment-button" onClick={() => openPayment(item)}>
                   Pay Now
                 </button>
+              ) : item.status === "Pending" ? (
+                <span className="text-xs font-semibold uppercase text-slate-500">Waiting for receptionist approval</span>
               ) : null}
             </div>
           </div>

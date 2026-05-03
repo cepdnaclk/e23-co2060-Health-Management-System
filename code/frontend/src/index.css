@@ -94,6 +94,52 @@ button {
   background: rgba(4, 127, 110, 0.94);
 }
 
+.booking-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(8, 34, 54, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.booking-modal {
+  width: min(560px, 100%);
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 190, 204, 0.45);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 60px rgba(8, 34, 54, 0.25);
+}
+
+.booking-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.booking-modal-header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.5rem;
+}
+
+.booking-close {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(10, 47, 77, 0.08);
+  color: var(--ink);
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .topbar {
   position: sticky;
   top: 20px;

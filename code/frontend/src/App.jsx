@@ -23,6 +23,7 @@ const initialPatientLogin = { email: "", password: "" };
 const initialDoctorLogin = { username: "", password: "" };
 const initialReceptionistLogin = { username: "", password: "" };
 const initialSignupForm = { fullName: "", email: "", phone: "", password: "", motherPatientId: "", fatherPatientId: "", agree: false };
+const initialBookingForm = { doctorUsername: "", scheduledAt: "", reason: "" };
 const initialAccountForm = { fullName: "", phone: "", profilePhotoUrl: "" };
 const initialProfileForm = {
   dob: "",
@@ -38,7 +39,7 @@ const initialProfileForm = {
 
 export default function App() {
   const initialSession = readStoredSession();
-  const [screen, setScreen] = useState(initialSession?.token ? "workspace" : "home");
+  const [screen, setScreen] = useState(initialSession?.token && initialSession.role !== "patient" ? "workspace" : "home");
   const [authRole, setAuthRole] = useState("patient");
   const [mode, setMode] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
@@ -60,6 +61,11 @@ export default function App() {
   const [familyRiskVersion, setFamilyRiskVersion] = useState(0);
   const [doctorProfile, setDoctorProfile] = useState(null);
   const [session, setSession] = useState(initialSession);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingForm, setBookingForm] = useState(initialBookingForm);
+  const [bookingDoctors, setBookingDoctors] = useState([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState("");
 
   const initials = useMemo(() => makeInitials(session?.user?.fullName), [session?.user?.fullName]);
   const doctorUser = doctorProfile || session?.user || null;
@@ -183,7 +189,7 @@ export default function App() {
       setSession(next);
       setDoctorProfile(null);
       setActiveView("dashboard");
-      setScreen("workspace");
+      setScreen("home");
       setSuccess("Login successful.");
     } catch (err) {
       setErrorNetworkAware(err, setError);
@@ -252,7 +258,7 @@ export default function App() {
       setDoctorProfile(null);
       setSignupForm(initialSignupForm);
       setActiveView("dashboard");
-      setScreen("workspace");
+      setScreen("home");
       setSuccess("Account created.");
     } catch (err) {
       setErrorNetworkAware(err, setError);
@@ -414,6 +420,63 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  async function openBooking(doctor = null) {
+    if (!session?.token || session.role !== "patient") {
+      openAuth("patient", "login");
+      return;
+    }
+
+    setBookingOpen(true);
+    setBookingError("");
+    setBookingForm({
+      ...initialBookingForm,
+      doctorUsername: doctor?.username || ""
+    });
+
+    if (bookingDoctors.length) return;
+
+    setBookingLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/public/doctors`);
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not load doctors");
+      setBookingDoctors(data.doctors || []);
+    } catch (err) {
+      setBookingError(err.message || "Could not load doctors");
+    } finally {
+      setBookingLoading(false);
+    }
+  }
+
+  async function submitBooking(e) {
+    e.preventDefault();
+    if (!session?.token || session.role !== "patient") return;
+
+    setBookingLoading(true);
+    setBookingError("");
+    setSuccess("");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/patient/appointments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`
+        },
+        body: JSON.stringify(bookingForm)
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not request appointment");
+      setBookingOpen(false);
+      setBookingForm(initialBookingForm);
+      setSuccess(data.message || "Appointment request sent to receptionist.");
+    } catch (err) {
+      setBookingError(err.message || "Could not request appointment");
+    } finally {
+      setBookingLoading(false);
+    }
+  }
+
   function navigateToLandingSection(sectionId) {
     setSelectedTopic(null);
     setSelectedDoctor(null);
@@ -440,9 +503,12 @@ export default function App() {
         <div className="workspace-page">
           <Navbar
             isWorkspace
+            session={session}
             onNavigate={navigateToLandingSection}
             onLogin={() => openAuth("patient", "login")}
             onSignup={() => openAuth("patient", "signup")}
+            onLogout={handleLogout}
+            onWorkspace={() => setScreen("workspace")}
           />
           <div className="workspace-content">
             {session.role === "doctor" ? (
@@ -490,6 +556,10 @@ export default function App() {
         <LandingPage
           onLogin={() => openAuth("patient", "login")}
           onSignup={() => openAuth("patient", "signup")}
+          onLogout={handleLogout}
+          onWorkspace={() => setScreen("workspace")}
+          onBookAppointment={openBooking}
+          session={session}
           onSelectTopic={openTopic}
           onSelectDoctor={openDoctor}
         />
@@ -504,6 +574,8 @@ export default function App() {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           onLogin={() => openAuth("patient", "login")}
+          onBookAppointment={openBooking}
+          session={session}
         />
       ) : null}
 
@@ -545,6 +617,21 @@ export default function App() {
           onSignup={handleSignup}
         />
       ) : null}
+
+      {bookingOpen ? (
+        <BookingModal
+          form={bookingForm}
+          setForm={setBookingForm}
+          doctors={bookingDoctors}
+          loading={bookingLoading}
+          error={bookingError}
+          onSubmit={submitBooking}
+          onClose={() => {
+            setBookingOpen(false);
+            setBookingError("");
+          }}
+        />
+      ) : null}
     </main>
   );
 }
@@ -554,6 +641,69 @@ function StatusBanners({ error, success }) {
     <div className="status-stack">
       {error ? <p className="status-banner status-banner-error">{error}</p> : null}
       {success ? <p className="status-banner status-banner-success">{success}</p> : null}
+    </div>
+  );
+}
+
+function BookingModal({ form, setForm, doctors, loading, error, onSubmit, onClose }) {
+  return (
+    <div className="booking-modal-backdrop" role="dialog" aria-modal="true" aria-label="Book an appointment">
+      <form className="booking-modal" onSubmit={onSubmit}>
+        <div className="booking-modal-header">
+          <div>
+            <p className="eyebrow">Patient Request</p>
+            <h2>Book An Appointment</h2>
+          </div>
+          <button type="button" className="booking-close" onClick={onClose} aria-label="Close">
+            x
+          </button>
+        </div>
+
+        <label className="block text-sm font-medium text-slate-700">
+          Doctor
+          <select
+            className="field mt-1 w-full"
+            value={form.doctorUsername}
+            onChange={(e) => setForm((value) => ({ ...value, doctorUsername: e.target.value }))}
+            required
+          >
+            <option value="">Select a doctor</option>
+            {doctors.map((doctor) => (
+              <option key={doctor.username} value={doctor.username}>
+                {doctor.fullName} - {doctor.specialty}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block text-sm font-medium text-slate-700">
+          Preferred Date & Time
+          <input
+            className="field mt-1 w-full"
+            type="datetime-local"
+            value={form.scheduledAt}
+            onChange={(e) => setForm((value) => ({ ...value, scheduledAt: e.target.value }))}
+            required
+          />
+        </label>
+
+        <label className="block text-sm font-medium text-slate-700">
+          Reason
+          <textarea
+            className="field mt-1 w-full"
+            rows="3"
+            value={form.reason}
+            onChange={(e) => setForm((value) => ({ ...value, reason: e.target.value }))}
+            placeholder="Briefly describe the reason for the visit"
+          />
+        </label>
+
+        {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+
+        <button type="submit" className="btn-primary w-full" disabled={loading}>
+          {loading ? "Sending..." : "Send Request"}
+        </button>
+      </form>
     </div>
   );
 }
