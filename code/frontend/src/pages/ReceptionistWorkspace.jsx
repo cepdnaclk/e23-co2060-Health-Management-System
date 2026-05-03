@@ -57,6 +57,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   const [reports, setReports] = useState([]);
   const [reportPatientId, setReportPatientId] = useState("");
   const [reportPatientSearch, setReportPatientSearch] = useState("");
+  const [reportFileName, setReportFileName] = useState("");
   const [appointmentPatientSearch, setAppointmentPatientSearch] = useState("");
   const [appointmentDoctorSearch, setAppointmentDoctorSearch] = useState("");
   const [appointmentForm, setAppointmentForm] = useState({
@@ -300,6 +301,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
         const reportsData = await readJson(reportsRes);
         if (reportsRes.ok) setReports(reportsData.reports || []);
         e.target.reset();
+        setReportFileName("");
       } catch (err) {
         setError(err.message || "Could not upload report");
       } finally {
@@ -476,7 +478,26 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 PDF file
-                <input className="field mt-1 w-full pt-3" type="file" name="reportFile" accept="application/pdf" required />
+                <div className="field mt-1 flex min-h-[56px] items-center justify-between gap-3 px-3 py-2">
+                  <label
+                    htmlFor="report-file-input"
+                    className="btn-secondary inline-flex cursor-pointer items-center px-4 py-2 text-sm"
+                  >
+                    Choose File
+                  </label>
+                  <span className="truncate text-xs text-slate-600 sm:text-sm">
+                    {reportFileName || "No file selected"}
+                  </span>
+                </div>
+                <input
+                  id="report-file-input"
+                  className="sr-only"
+                  type="file"
+                  name="reportFile"
+                  accept="application/pdf"
+                  onChange={(e) => setReportFileName(e.target.files?.[0]?.name || "")}
+                  required
+                />
               </label>
               <button className="btn-primary w-full" type="submit" disabled={uploadingReport}>
                 {uploadingReport ? "Uploading..." : "Upload Report"}

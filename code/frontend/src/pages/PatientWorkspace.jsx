@@ -33,6 +33,8 @@ function PatientWorkspace({
   familyRiskVersion,
   onLogout
 }) {
+  const [profilePhotoFileName, setProfilePhotoFileName] = useState("");
+
   return (
     <div className="workspace-layout mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
       <RoleSidebar
@@ -66,7 +68,22 @@ function PatientWorkspace({
                   ) : (
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sky-100 text-sky-700">{initials}</div>
                   )}
-                  <input type="file" accept="image/*" onChange={handlePhotoUpload} className="text-xs text-slate-600" />
+                  <div className="field flex min-h-[52px] w-full items-center justify-between gap-2 px-3 py-2">
+                    <label htmlFor="patient-photo-input" className="btn-secondary inline-flex cursor-pointer items-center px-4 py-2 text-xs sm:text-sm">
+                      Add Profile Picture
+                    </label>
+                    <span className="truncate text-xs text-slate-600 sm:text-sm">{profilePhotoFileName || "No file selected"}</span>
+                  </div>
+                  <input
+                    id="patient-photo-input"
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => {
+                      setProfilePhotoFileName(e.target.files?.[0]?.name || "");
+                      handlePhotoUpload(e);
+                    }}
+                  />
                 </div>
               </div>
               <Field label="Full Name" type="text" value={accountForm.fullName} onChange={(e) => setAccountForm((v) => ({ ...v, fullName: e.target.value }))} />
