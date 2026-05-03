@@ -45,24 +45,58 @@ A HTML template integrated with the given GitHub repository templates, based on 
 
 ## Introduction
 
-Description of the real world problem and solution, impact
+Hospitals manage many daily tasks such as patient registration, appointments, medical reports, and doctor consultations. When these tasks are handled manually, it can cause delays, misplaced records, and poor communication between patients and hospital staff.
+
+This project provides a web-based Health Management System to manage these tasks in one place. Patients can register, view appointments, update their profile, make payments, and view reports. Doctors can view appointments and patient details, while receptionists can create appointments and upload reports.
+
+The system improves hospital workflow by reducing manual work, making patient data easier to access, and helping users complete healthcare tasks faster.
 
 
 ## Solution Architecture
 
-High level diagram + description
+The system uses a simple client-server architecture. The frontend is built using React, the backend is built using Node.js and Express.js, and the database is MySQL. The frontend communicates with the backend using REST APIs.
+
+
+JWT authentication is used to protect user accounts and role-based access is used to separate patient, doctor, and receptionist functions. The database stores users, patient profiles, appointments, payments, and reports. The system also includes AI-assisted symptom analysis and hereditary risk support.
 
 ## Software Designs
 
-Detailed designs with many sub-sections
+The frontend has separate screens for the landing page, login/signup, patient workspace, doctor workspace, and receptionist workspace. React state is used to manage forms, login sessions, dashboard views, loading messages, and errors.
+
+The backend is divided into route, controller, model, and middleware files. Routes receive API requests, controllers handle the main logic, models communicate with the database, and middleware checks authentication and user roles.
+
+The database contains tables for users, patient profiles, appointments, and patient reports. Appointments include doctor name, patient ID, date/time, status, reason, and payment details. Reports are stored with the patient ID, file name, file type, uploaded user, and upload time.
+
+The main user roles are:
+
+- Patient: manage profile, view appointments, pay for appointments, view reports, and use health guidance features.
+- Doctor: view appointments, view patient records, update patient details, and complete appointments.
+- Receptionist: create/cancel appointments, view patients, and upload reports.
 
 ## Testing
 
-Testing done on software : detailed + summarized results
+The software was tested by checking the main workflows manually through the web interface and API endpoints.
+
+Tested functions include:
+
+- Patient signup and login.
+- Doctor and receptionist login.
+- Patient profile update.
+- Appointment creation, viewing, payment, completion, and cancellation.
+- Report upload and viewing.
+- Role-based access control.
+- AI symptom analysis and fallback responses.
+
+The results showed that the main features worked as expected. Invalid inputs such as missing login details, wrong passwords, invalid appointment IDs, and unsupported report files were also checked. The system returned suitable error messages for these cases.
 
 ## Conclusion
 
-What was achieved, future developments, commercialization plans
+The project achieved a working Health Management System with patient, doctor, and receptionist access. It supports account management, appointments, payments, reports, patient records, and AI-assisted health guidance.
+
+Future improvements include adding prescription management, lab technician access, real payment gateway support, notifications, stronger security, automated testing, and cloud deployment.
+
+The system can be further developed into a commercial hospital management platform for small and medium healthcare centers after adding production-level security, data protection, backups, and compliance features.
+
 
 ## Links
 
