@@ -6,7 +6,7 @@ ___
 
 # e23-co2060-project: Second Year Project.
 
-This project is a web-based Health Management System built using the MERN stack (MongoDB, Express, React, and Node.js). It aims to simplify hospital operations by providing a single platform for patients, doctors, lab technicians, and administrators. Each user role has a separate interface with clear permissions to ensure secure and organized access to data.
+This project is a web-based Health Management System built using the  stack (My Sql, Express, React, and Node.js). It aims to simplify hospital operations by providing a single platform for patients, doctors, lab technicians, and administrators. Each user role has a separate interface with clear permissions to ensure secure and organized access to data.
 
 Patients, can book appointments, view medical records, prescriptions, and lab results. Doctors can manage patient diagnoses, prescriptions, and request lab tests. Lab technicians upload and manage test results, while administrators handle scheduling and overall system management. The backend uses REST APIs with JWT-based authentication and role-based access control to protect sensitive data.
 
