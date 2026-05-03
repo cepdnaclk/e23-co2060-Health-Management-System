@@ -42,7 +42,7 @@ function DoctorWorkspace({ doctor, activeView, setActiveView, onLogout, dataLoad
         {activeView === "dashboard" ? <DoctorDashboardView doctor={doctor} /> : null}
         {activeView === "profile" ? <DoctorProfileView doctor={doctor} token={token} onDoctorUpdate={onDoctorUpdate} /> : null}
         {activeView === "appointments" ? <DoctorAppointmentsView token={token} onFinishAppointment={() => setActiveView("profile")} /> : null}
-        {activeView === "diagnosis" ? <DoctorDiagnosisView /> : null}
+        {activeView === "diagnosis" ? <DoctorDiagnosisView token={token} /> : null}
         {activeView === "prescriptions" ? <DoctorPrescriptionsView /> : null}
       </section>
     </div>
@@ -474,11 +474,258 @@ function DoctorAppointmentsView({ token, onFinishAppointment }) {
   );
 }
 
-function DoctorDiagnosisView() {
+function DoctorDiagnosisView({ token }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [patients, setPatients] = useState([]);
+  const [selectedPatientId, setSelectedPatientId] = useState("");
+  const [patientRecord, setPatientRecord] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [form, setForm] = useState({
+    visitDate: today,
+    diagnosis: "",
+    healthStatus: "",
+    treatmentNotes: "",
+    nextSteps: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPatients() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch(`${API_BASE}/api/doctor/patients`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Could not load patients");
+        if (cancelled) return;
+        const loadedPatients = data.patients || [];
+        setPatients(loadedPatients);
+        if (loadedPatients[0]?.id) {
+          setSelectedPatientId(String(loadedPatients[0].id));
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Could not load patients");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadPatients();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!selectedPatientId) return;
+    let cancelled = false;
+
+    async function loadPatientHistory() {
+      setLoading(true);
+      setError("");
+      setSuccess("");
+      try {
+        const [patientRes, logRes] = await Promise.all([
+          fetch(`${API_BASE}/api/doctor/patients/${selectedPatientId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/api/doctor/patients/${selectedPatientId}/diagnosis-logs`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        const patientData = await readJson(patientRes);
+        const logData = await readJson(logRes);
+        if (!patientRes.ok) throw new Error(patientData.error || "Could not load patient medical history");
+        if (!logRes.ok) throw new Error(logData.error || "Could not load diagnosis logs");
+        if (cancelled) return;
+
+        setPatientRecord(patientData);
+        setLogs(logData.logs || []);
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Could not load diagnosis history");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadPatientHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPatientId, token]);
+
+  async function saveDiagnosisLog(e) {
+    e.preventDefault();
+    if (!selectedPatientId) return;
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`${API_BASE}/api/doctor/patients/${selectedPatientId}/diagnosis-logs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(form)
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not save diagnosis log");
+
+      setLogs(data.logs || []);
+      setForm({
+        visitDate: today,
+        diagnosis: "",
+        healthStatus: "",
+        treatmentNotes: "",
+        nextSteps: ""
+      });
+      setSuccess("Diagnosis log added to patient medical history.");
+    } catch (err) {
+      setErrorNetworkAware(err, setError);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const profile = patientRecord?.profile || {};
+  const patient = patientRecord?.patient || {};
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       <h2 className="text-lg font-semibold text-slate-900">Diagnosis</h2>
-      <EmptyState title="Diagnosis tools ready to connect" text="Diagnosis entries, notes, and next-step recommendations can be connected here." />
+      {loading ? <LoadingState label="Loading diagnosis history..." /> : null}
+      {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+      {success ? <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">{success}</p> : null}
+
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium text-slate-700">Patient</span>
+        <select
+          value={selectedPatientId}
+          onChange={(e) => setSelectedPatientId(e.target.value)}
+          className="field w-full text-sm text-slate-800"
+        >
+          <option value="">Select a patient</option>
+          {patients.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.fullName} {item.patientId ? `(${item.patientId})` : ""}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {!patients.length && !loading ? (
+        <EmptyState title="No patients found" text="Patients will appear here after accounts are created." />
+      ) : null}
+
+      {patientRecord ? (
+        <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+          <section className="glass rounded-2xl p-4">
+            <h3 className="mb-3 text-base font-semibold text-slate-900">Medical History</h3>
+            <div className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
+              <p><span className="font-semibold text-slate-900">Name:</span> {patient.fullName || "Not set"}</p>
+              <p><span className="font-semibold text-slate-900">Patient ID:</span> {patient.patientId || "Not set"}</p>
+              <p><span className="font-semibold text-slate-900">DOB:</span> {normalizeDateForInput(profile.dob) || "Not set"}</p>
+              <p><span className="font-semibold text-slate-900">Gender:</span> {profile.gender || "Not set"}</p>
+              <p><span className="font-semibold text-slate-900">Blood Group:</span> {profile.bloodGroup || "Not set"}</p>
+              <p><span className="font-semibold text-slate-900">Emergency:</span> {profile.emergencyContact || "Not set"}</p>
+              <p className="sm:col-span-2"><span className="font-semibold text-slate-900">Allergies:</span> {profile.allergies || "None recorded"}</p>
+              <p className="sm:col-span-2"><span className="font-semibold text-slate-900">Known Conditions:</span> {profile.knownConditions || "None recorded"}</p>
+            </div>
+          </section>
+
+          <form onSubmit={saveDiagnosisLog} className="glass space-y-4 rounded-2xl p-4">
+            <h3 className="text-base font-semibold text-slate-900">Add Treatment Log</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Date"
+                type="date"
+                required
+                value={form.visitDate}
+                onChange={(e) => setForm((v) => ({ ...v, visitDate: e.target.value }))}
+              />
+              <Field
+                label="Diagnosis"
+                type="text"
+                required
+                placeholder="Example: Viral fever"
+                value={form.diagnosis}
+                onChange={(e) => setForm((v) => ({ ...v, diagnosis: e.target.value }))}
+              />
+            </div>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-slate-700">Health Status</span>
+              <textarea
+                required
+                rows={3}
+                value={form.healthStatus}
+                onChange={(e) => setForm((v) => ({ ...v, healthStatus: e.target.value }))}
+                className="field w-full resize-none text-sm text-slate-800"
+                placeholder="Current symptoms, vitals, severity, and patient condition"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-slate-700">Treatment Notes</span>
+              <textarea
+                rows={3}
+                value={form.treatmentNotes}
+                onChange={(e) => setForm((v) => ({ ...v, treatmentNotes: e.target.value }))}
+                className="field w-full resize-none text-sm text-slate-800"
+                placeholder="Medication, treatment given, advice, or observations"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-slate-700">Next Steps</span>
+              <textarea
+                rows={2}
+                value={form.nextSteps}
+                onChange={(e) => setForm((v) => ({ ...v, nextSteps: e.target.value }))}
+                className="field w-full resize-none text-sm text-slate-800"
+                placeholder="Follow-up date, tests, referrals, or monitoring plan"
+              />
+            </label>
+            <button type="submit" className="btn-primary w-full sm:w-auto" disabled={saving}>
+              {saving ? "Saving..." : "Add Diagnosis Log"}
+            </button>
+          </form>
+        </div>
+      ) : null}
+
+      {patientRecord ? (
+        <section className="space-y-3">
+          <h3 className="text-base font-semibold text-slate-900">Patient Health Log</h3>
+          {!logs.length ? (
+            <EmptyState title="No diagnosis logs yet" text="After treatment, dated health status entries will appear here." />
+          ) : null}
+          <div className="space-y-3">
+            {logs.map((log) => (
+              <article key={log.id} className="glass rounded-2xl p-4 text-sm text-slate-700">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-semibold text-slate-900">{normalizeDateForInput(log.visitDate) || log.visitDate}</p>
+                  <StatusBadge status={log.diagnosis} />
+                </div>
+                <p><span className="font-semibold text-slate-900">Health Status:</span> {log.healthStatus}</p>
+                {log.treatmentNotes ? (
+                  <p className="mt-2"><span className="font-semibold text-slate-900">Treatment:</span> {log.treatmentNotes}</p>
+                ) : null}
+                {log.nextSteps ? (
+                  <p className="mt-2"><span className="font-semibold text-slate-900">Next Steps:</span> {log.nextSteps}</p>
+                ) : null}
+                <p className="mt-2 text-xs text-slate-500">Added by Dr. {log.doctorUsername}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

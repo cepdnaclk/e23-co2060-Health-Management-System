@@ -11,12 +11,14 @@ const initialData = {
     users: 1,
     patient_profiles: 1,
     appointments: 1,
-    patient_reports: 1
+    patient_reports: 1,
+    patient_diagnosis_logs: 1
   },
   users: [],
   patient_profiles: [],
   appointments: [],
-  patient_reports: []
+  patient_reports: [],
+  patient_diagnosis_logs: []
 };
 
 let initialized = false;
@@ -41,7 +43,7 @@ function normalizeSql(sql) {
 function migrateDataShape(data) {
   let changed = false;
   data.nextIds = { ...initialData.nextIds, ...(data.nextIds || {}) };
-  for (const key of ["users", "patient_profiles", "appointments", "patient_reports"]) {
+  for (const key of ["users", "patient_profiles", "appointments", "patient_reports", "patient_diagnosis_logs"]) {
     if (!Array.isArray(data[key])) {
       data[key] = [];
       changed = true;
@@ -549,6 +551,38 @@ export async function localQuery(sql, params = []) {
         if (!includeData) delete row.report_data;
         return row;
       });
+    return [rows];
+  }
+
+  if (normalized.startsWith("insert into patient_diagnosis_logs")) {
+    const [patientId, doctorUsername, visitDate, diagnosis, healthStatus, treatmentNotes, nextSteps] = params;
+    const id = data.nextIds.patient_diagnosis_logs++;
+    data.patient_diagnosis_logs.push({
+      id,
+      patient_id: Number(patientId),
+      doctor_username: doctorUsername,
+      visit_date: visitDate,
+      diagnosis,
+      health_status: healthStatus,
+      treatment_notes: treatmentNotes || null,
+      next_steps: nextSteps || null,
+      created_at: now()
+    });
+    await writeData(data);
+    return [{ insertId: id, affectedRows: 1 }];
+  }
+
+  if (normalized.includes("from patient_diagnosis_logs where patient_id = ?")) {
+    const [patientId, limit] = params.map(Number);
+    const rows = data.patient_diagnosis_logs
+      .filter((item) => item.patient_id === patientId)
+      .sort((a, b) => {
+        const dateCompare = String(b.visit_date).localeCompare(String(a.visit_date));
+        if (dateCompare) return dateCompare;
+        return String(b.created_at).localeCompare(String(a.created_at));
+      })
+      .slice(0, limit)
+      .map(clone);
     return [rows];
   }
 

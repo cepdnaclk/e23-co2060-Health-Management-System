@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getPatientAppointments,
+  getPatientDiagnosisLogs,
   getPatientFamilyRisk,
   getPatientMe,
   getPatientReports,
@@ -17,6 +18,7 @@ router.get("/api/patients/lookup", lookupPatientByUid);
 router.get("/api/patient/me", authRequired, requireRole("patient"), getPatientMe);
 router.get("/api/patient/family-risk", authRequired, requireRole("patient"), getPatientFamilyRisk);
 router.get("/api/patient/appointments", authRequired, requireRole("patient"), getPatientAppointments);
+router.get("/api/patient/diagnosis-logs", authRequired, requireRole("patient"), getPatientDiagnosisLogs);
 router.post("/api/patient/appointments/:appointmentId/pay", authRequired, requireRole("patient"), payPatientAppointment);
 router.get("/api/patient/reports", authRequired, requireRole("patient"), getPatientReports);
 router.put("/api/auth/me", authRequired, requireRole("patient"), updateAuthMe);

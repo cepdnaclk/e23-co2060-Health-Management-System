@@ -3,6 +3,7 @@ import {
   findUserByPatientUid,
   findUserWithProfileById,
   getPatientFamilyTree,
+  listPatientDiagnosisLogs,
   normalizePatientUid,
   updateUserAccount,
   upsertPatientProfile
@@ -185,6 +186,16 @@ export async function getPatientAppointments(req, res) {
   } catch (error) {
     console.error("Get patient appointments error:", error);
     return res.status(500).json({ error: "Could not fetch appointments" });
+  }
+}
+
+export async function getPatientDiagnosisLogs(req, res) {
+  try {
+    const logs = await listPatientDiagnosisLogs(req.userId, 100);
+    return res.json({ logs });
+  } catch (error) {
+    console.error("Get patient diagnosis logs error:", error);
+    return res.status(500).json({ error: "Could not fetch medical log" });
   }
 }
 

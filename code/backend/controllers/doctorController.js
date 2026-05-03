@@ -1,7 +1,10 @@
 import { doctorToPublicProfile, findDoctorByUsername, listDoctorsPublic, updateDoctorByUsername } from "../models/doctorModel.js";
 import { normalizeDoctorSelfProfile, normalizeProfile } from "../models/profileModel.js";
 import {
+  createPatientDiagnosisLog,
   getPatientRecordById,
+  listPatientDiagnosisLogs,
+  listPatientsBasic,
   patientExists,
   updatePatientBasic,
   upsertPatientProfile
@@ -78,6 +81,16 @@ export async function doctorAppointments(_req, res) {
   }
 }
 
+export async function doctorPatients(_req, res) {
+  try {
+    const patients = await listPatientsBasic(300);
+    return res.json({ patients });
+  } catch (error) {
+    console.error("Doctor patients error:", error);
+    return res.status(500).json({ error: "Could not load patients" });
+  }
+}
+
 export async function completeDoctorAppointment(req, res) {
   const appointmentId = Number(req.params.appointmentId);
   if (!Number.isFinite(appointmentId) || appointmentId <= 0) {
@@ -137,5 +150,63 @@ export async function updateDoctorPatient(req, res) {
   } catch (error) {
     console.error("Doctor update patient error:", error);
     return res.status(500).json({ error: "Could not update patient profile" });
+  }
+}
+
+export async function getDoctorPatientDiagnosisLogs(req, res) {
+  const patientId = Number(req.params.patientId);
+  if (!Number.isFinite(patientId) || patientId <= 0) {
+    return res.status(400).json({ error: "Invalid patient id" });
+  }
+
+  try {
+    const exists = await patientExists(patientId);
+    if (!exists) return res.status(404).json({ error: "Patient not found" });
+
+    const logs = await listPatientDiagnosisLogs(patientId, 100);
+    return res.json({ logs });
+  } catch (error) {
+    console.error("Doctor diagnosis log list error:", error);
+    return res.status(500).json({ error: "Could not load diagnosis history" });
+  }
+}
+
+export async function createDoctorPatientDiagnosisLog(req, res) {
+  const patientId = Number(req.params.patientId);
+  if (!Number.isFinite(patientId) || patientId <= 0) {
+    return res.status(400).json({ error: "Invalid patient id" });
+  }
+
+  const visitDate = String(req.body?.visitDate || "").trim();
+  const diagnosis = String(req.body?.diagnosis || "").trim();
+  const healthStatus = String(req.body?.healthStatus || "").trim();
+  const treatmentNotes = String(req.body?.treatmentNotes || "").trim();
+  const nextSteps = String(req.body?.nextSteps || "").trim();
+
+  if (!visitDate || Number.isNaN(new Date(`${visitDate}T00:00:00`).getTime())) {
+    return res.status(400).json({ error: "Valid visit date is required" });
+  }
+  if (!diagnosis) return res.status(400).json({ error: "Diagnosis is required" });
+  if (!healthStatus) return res.status(400).json({ error: "Health status is required" });
+
+  try {
+    const exists = await patientExists(patientId);
+    if (!exists) return res.status(404).json({ error: "Patient not found" });
+
+    await createPatientDiagnosisLog({
+      patientId,
+      doctorUsername: String(req.auth?.username || "doctor"),
+      visitDate,
+      diagnosis,
+      healthStatus,
+      treatmentNotes,
+      nextSteps
+    });
+
+    const logs = await listPatientDiagnosisLogs(patientId, 100);
+    return res.status(201).json({ logs });
+  } catch (error) {
+    console.error("Doctor diagnosis log create error:", error);
+    return res.status(500).json({ error: "Could not save diagnosis log" });
   }
 }

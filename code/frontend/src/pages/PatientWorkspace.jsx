@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
 import SymptomChecker from "../components/SymptomChecker";
-import { API_BASE, makeInitials, readJson, titleForPatientView } from "../lib/appShared";
+import { API_BASE, makeInitials, normalizeDateForInput, readJson, titleForPatientView } from "../lib/appShared";
 
 const patientNav = [
   { id: "dashboard", label: "Dashboard", icon: "D" },
   { id: "profile", label: "Profile", icon: "P" },
   { id: "family", label: "Family Risk", icon: "F" },
   { id: "appointments", label: "Appointments", icon: "A" },
+  { id: "medical-log", label: "Medical Log", icon: "L" },
   { id: "symptom", label: "Symptom Checker", icon: "AI" },
   { id: "reports", label: "Reports", icon: "R" },
   { id: "settings", label: "Settings", icon: "S" }
@@ -118,6 +119,7 @@ function PatientWorkspace({
 
         {activeView === "family" ? <FamilyRiskView token={session.token} refreshKey={familyRiskVersion} /> : null}
         {activeView === "appointments" ? <AppointmentsView token={session.token} /> : null}
+        {activeView === "medical-log" ? <MedicalLogView token={session.token} /> : null}
         {activeView === "symptom" ? <SymptomView token={session.token} /> : null}
         {activeView === "reports" ? <ReportsView token={session.token} /> : null}
         {activeView === "settings" ? <SettingsView /> : null}
@@ -516,6 +518,67 @@ function AppointmentsView({ token }) {
           </div>
         </form>
       ) : null}
+    </div>
+  );
+}
+
+function MedicalLogView({ token }) {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMedicalLog() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch(`${API_BASE}/api/patient/diagnosis-logs`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Could not load medical log");
+        if (!cancelled) setLogs(data.logs || []);
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Could not load medical log");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadMedicalLog();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  return (
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-slate-900">Medical Log</h2>
+      {loading ? <LoadingState label="Loading medical log..." /> : null}
+      {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+      {!loading && !logs.length ? (
+        <EmptyState title="No medical log entries yet" text="Doctor diagnosis and treatment updates will appear here after appointments." />
+      ) : null}
+      <div className="space-y-3">
+        {logs.map((log) => (
+          <article key={log.id} className="glass rounded-2xl p-4 text-sm text-slate-700">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <p className="font-semibold text-slate-900">{normalizeDateForInput(log.visitDate) || log.visitDate}</p>
+              <StatusBadge status={log.diagnosis} />
+            </div>
+            <p><span className="font-semibold text-slate-900">Doctor:</span> Dr. {log.doctorUsername}</p>
+            <p className="mt-2"><span className="font-semibold text-slate-900">Health Status:</span> {log.healthStatus}</p>
+            {log.treatmentNotes ? (
+              <p className="mt-2"><span className="font-semibold text-slate-900">Treatment:</span> {log.treatmentNotes}</p>
+            ) : null}
+            {log.nextSteps ? (
+              <p className="mt-2"><span className="font-semibold text-slate-900">Next Steps:</span> {log.nextSteps}</p>
+            ) : null}
+          </article>
+        ))}
+      </div>
     </div>
   );
 }

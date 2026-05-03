@@ -243,6 +243,70 @@ export async function listPatientsBasic(limit = 200) {
   }));
 }
 
+function mapDiagnosisLog(row) {
+  return {
+    id: row.id,
+    patientId: row.patient_id,
+    doctorUsername: row.doctor_username,
+    visitDate: row.visit_date,
+    diagnosis: row.diagnosis,
+    healthStatus: row.health_status,
+    treatmentNotes: row.treatment_notes || "",
+    nextSteps: row.next_steps || "",
+    createdAt: row.created_at
+  };
+}
+
+export async function listPatientDiagnosisLogs(patientId, limit = 50) {
+  const [rows] = await pool.query(
+    `
+      SELECT
+        id,
+        patient_id,
+        doctor_username,
+        visit_date,
+        diagnosis,
+        health_status,
+        treatment_notes,
+        next_steps,
+        created_at
+      FROM patient_diagnosis_logs
+      WHERE patient_id = ?
+      ORDER BY visit_date DESC, created_at DESC
+      LIMIT ?
+    `,
+    [patientId, limit]
+  );
+  return rows.map(mapDiagnosisLog);
+}
+
+export async function createPatientDiagnosisLog({
+  patientId,
+  doctorUsername,
+  visitDate,
+  diagnosis,
+  healthStatus,
+  treatmentNotes,
+  nextSteps
+}) {
+  const [result] = await pool.query(
+    `
+      INSERT INTO patient_diagnosis_logs (
+        patient_id,
+        doctor_username,
+        visit_date,
+        diagnosis,
+        health_status,
+        treatment_notes,
+        next_steps
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    [patientId, doctorUsername, visitDate, diagnosis, healthStatus, treatmentNotes, nextSteps]
+  );
+  return result.insertId;
+}
+
 export async function getPatientRecordById(patientId) {
   const row = await findUserWithProfileById(patientId);
   if (!row) return null;

@@ -205,6 +205,25 @@ export async function initDb() {
     )
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS patient_diagnosis_logs (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      patient_id BIGINT UNSIGNED NOT NULL,
+      doctor_username VARCHAR(64) NOT NULL,
+      visit_date DATE NOT NULL,
+      diagnosis VARCHAR(255) NOT NULL,
+      health_status TEXT NOT NULL,
+      treatment_notes TEXT NULL,
+      next_steps TEXT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_diagnosis_logs_patient
+        FOREIGN KEY (patient_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+      INDEX idx_diagnosis_logs_patient_date (patient_id, visit_date),
+      INDEX idx_diagnosis_logs_doctor_date (doctor_username, visit_date)
+    )
+  `);
+
   await seedDefaultPatient();
   await seedDemoFamily();
   await ensurePatientIds();
