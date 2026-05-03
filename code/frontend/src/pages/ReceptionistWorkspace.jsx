@@ -56,6 +56,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   const [uploadingReport, setUploadingReport] = useState(false);
   const [reports, setReports] = useState([]);
   const [reportPatientId, setReportPatientId] = useState("");
+  const [reportPatientSearch, setReportPatientSearch] = useState("");
   const [appointmentPatientSearch, setAppointmentPatientSearch] = useState("");
   const [appointmentDoctorSearch, setAppointmentDoctorSearch] = useState("");
   const [appointmentForm, setAppointmentForm] = useState({
@@ -116,6 +117,15 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
     [overview.doctors]
   );
 
+  const reportPatientOptions = useMemo(
+    () =>
+      (overview.patients || []).map((patient) => ({
+        id: String(patient.id),
+        label: `${patient.fullName} (${patient.email})`
+      })),
+    [overview.patients]
+  );
+
   const filteredAppointmentPatients = useMemo(() => {
     const needle = appointmentPatientSearch.trim().toLowerCase();
     if (!needle) return appointmentPatientOptions;
@@ -127,6 +137,12 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
     if (!needle) return appointmentDoctorOptions;
     return appointmentDoctorOptions.filter((item) => item.label.toLowerCase().includes(needle));
   }, [appointmentDoctorOptions, appointmentDoctorSearch]);
+
+  const filteredReportPatients = useMemo(() => {
+    const needle = reportPatientSearch.trim().toLowerCase();
+    if (!needle) return reportPatientOptions;
+    return reportPatientOptions.filter((item) => item.label.toLowerCase().includes(needle));
+  }, [reportPatientOptions, reportPatientSearch]);
 
   useEffect(() => {
     if (!token) return;
@@ -438,19 +454,25 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
                 Patient
-                <select
+                <input
                   className="field mt-1 w-full"
-                  value={reportPatientId}
-                  onChange={(e) => setReportPatientId(e.target.value)}
+                  type="text"
+                  list="report-patient-options"
+                  placeholder="Search patient by name or email"
+                  value={reportPatientSearch}
+                  onChange={(e) => {
+                    const nextValue = e.target.value;
+                    setReportPatientSearch(nextValue);
+                    const match = reportPatientOptions.find((item) => item.label === nextValue);
+                    setReportPatientId(match ? match.id : "");
+                  }}
                   required
-                >
-                  <option value="">Select patient</option>
-                  {(overview.patients || []).map((patient) => (
-                    <option key={patient.id} value={patient.id}>
-                      {patient.fullName} ({patient.email})
-                    </option>
+                />
+                <datalist id="report-patient-options">
+                  {filteredReportPatients.map((patient) => (
+                    <option key={patient.id} value={patient.label} />
                   ))}
-                </select>
+                </datalist>
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 PDF file
