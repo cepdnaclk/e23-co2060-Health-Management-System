@@ -1,8 +1,39 @@
+# Dependencies
 node_modules/
+**/node_modules/
+
+# Environment files
 .env
+.env.*
+!.env.example
+*.local
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.dev-logs/
+
+# Build and generated output
 dist/
 build/
+coverage/
 .vite/
-.dev-logs/
+
+# macOS and editor files
+.DS_Store
 __MACOSX/
+.vscode/
+.idea/
+
+# Temporary and local files
+*.tmp
+*.swp
+*.swo
+
+# Database and local runtime files
+*.sqlite
+*.sqlite3
+*.db
