@@ -327,6 +327,10 @@ function DashboardView({ user, profile, token, setActiveView }) {
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  const [aiAdvice, setAiAdvice] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
   const getTodayStr = () => {
     const today = new Date();
     const y = today.getFullYear();
@@ -361,6 +365,32 @@ function DashboardView({ user, profile, token, setActiveView }) {
       cancelled = true;
     };
   }, [token]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAiAdvice() {
+      setAiLoading(true);
+      setAiError("");
+      try {
+        const res = await fetch(`${API_BASE}/api/patient/ai-advice`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Could not load AI advice");
+        if (!cancelled) setAiAdvice(data);
+      } catch (err) {
+        if (!cancelled) setAiError(err.message || "Could not load AI advice");
+      } finally {
+        if (!cancelled) setAiLoading(false);
+      }
+    }
+
+    if (token) loadAiAdvice();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, profile.bloodGroup, profile.knownConditions, profile.allergies]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -524,6 +554,113 @@ function DashboardView({ user, profile, token, setActiveView }) {
             Manage all appointments &rarr;
           </button>
         </div>
+      </div>
+
+      {/* AI Wellness Advisor Section */}
+      <div className="glass col-span-full rounded-2xl p-5 mt-2">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">✨</span>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 font-display">Your AI Wellness Coach</h3>
+              <p className="text-xs text-slate-500">Customized diet, recipes, and lifestyle tips tailored to your profile</p>
+            </div>
+          </div>
+          {aiLoading ? (
+            <span className="text-xs text-sky-600 animate-pulse font-medium">Analyzing profile...</span>
+          ) : (
+            <span className="text-[10px] font-semibold bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">Gemini AI Active</span>
+          )}
+        </div>
+
+        {aiError ? (
+          <p className="rounded-xl border border-rose-200 bg-rose-50/50 p-3 text-xs text-rose-700">{aiError}</p>
+        ) : aiLoading && !aiAdvice ? (
+          <div className="py-8 text-center text-slate-500">
+            <p className="text-sm font-medium animate-pulse">Formulating personalized nutritional guides and daily checklist...</p>
+          </div>
+        ) : aiAdvice ? (
+          <div className="grid gap-6 md:grid-cols-3 text-sm text-slate-700">
+            {/* Dietary Advice */}
+            <div className="rounded-xl border border-sky-100/50 bg-white/40 p-4 dark:border-slate-800 dark:bg-slate-800/20">
+              <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-1.5">
+                <span className="text-base">🥗</span> Diet Plan
+              </h4>
+              <p className="text-xs text-slate-500 mb-3">{aiAdvice.dietAdvice?.explanation}</p>
+
+              <div className="space-y-2.5">
+                <div>
+                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">Foods to Eat:</p>
+                  <ul className="list-disc list-inside text-xs space-y-0.5">
+                    {aiAdvice.dietAdvice?.foodsToEat?.map((food, i) => (
+                      <li key={i}>{food}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">Foods to Limit:</p>
+                  <ul className="list-disc list-inside text-xs space-y-0.5">
+                    {aiAdvice.dietAdvice?.foodsToAvoid?.map((food, i) => (
+                      <li key={i}>{food}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Custom Recipe */}
+            <div className="rounded-xl border border-sky-100/50 bg-white/40 p-4 dark:border-slate-800 dark:bg-slate-800/20">
+              <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-1.5">
+                <span className="text-base">🍳</span> Recommended Recipe
+              </h4>
+              <p className="font-semibold text-slate-800 text-xs mb-1">{aiAdvice.recipe?.title}</p>
+              <p className="text-[11px] text-slate-500 mb-3">{aiAdvice.recipe?.description}</p>
+
+              <div className="space-y-2">
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Ingredients:</p>
+                  <ul className="list-disc list-inside text-xs space-y-0.5">
+                    {aiAdvice.recipe?.ingredients?.slice(0, 5).map((ing, i) => (
+                      <li key={i} className="truncate">{ing}</li>
+                    ))}
+                    {aiAdvice.recipe?.ingredients?.length > 5 ? (
+                      <li className="text-[10px] text-slate-400 list-none">+ {aiAdvice.recipe.ingredients.length - 5} more ingredients</li>
+                    ) : null}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Directions:</p>
+                  <ol className="list-decimal list-inside text-xs space-y-0.5">
+                    {aiAdvice.recipe?.instructions?.slice(0, 3).map((step, i) => (
+                      <li key={i} className="truncate">{step}</li>
+                    ))}
+                    {aiAdvice.recipe?.instructions?.length > 3 ? (
+                      <li className="text-[10px] text-slate-400 list-none">+ {aiAdvice.recipe.instructions.length - 3} more steps</li>
+                    ) : null}
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            {/* Lifestyle Advice */}
+            <div className="rounded-xl border border-sky-100/50 bg-white/40 p-4 dark:border-slate-800 dark:bg-slate-800/20">
+              <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-1.5">
+                <span className="text-base">🏃‍♂️</span> Daily Lifestyle Tips
+              </h4>
+              <p className="text-xs text-slate-500 mb-3">Daily wellness tips recommended for your medical condition:</p>
+              <ul className="space-y-2">
+                {aiAdvice.lifestyle?.map((tip, i) => (
+                  <li key={i} className="flex gap-2 text-xs">
+                    <span className="text-sky-500 font-bold">•</span>
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500 text-center py-6">Your profile detail is needed to calculate AI advice.</p>
+        )}
       </div>
     </div>
   );
