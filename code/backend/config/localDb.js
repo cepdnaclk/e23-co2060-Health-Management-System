@@ -74,7 +74,7 @@ function migrateDataShape(data) {
   }
 
   for (const profile of data.patient_profiles) {
-    for (const key of ["known_conditions", "mother_patient_uid", "father_patient_uid"]) {
+    for (const key of ["known_conditions", "mother_patient_uid", "father_patient_uid", "weight", "height", "dietary_preference", "activity_level"]) {
       if (!Object.prototype.hasOwnProperty.call(profile, key)) {
         profile[key] = null;
         changed = true;
@@ -137,7 +137,11 @@ function userWithProfileRow(data, user) {
     allergies: profile.allergies || null,
     known_conditions: profile.known_conditions || null,
     mother_patient_uid: profile.mother_patient_uid || null,
-    father_patient_uid: profile.father_patient_uid || null
+    father_patient_uid: profile.father_patient_uid || null,
+    weight: profile.weight || null,
+    height: profile.height || null,
+    dietary_preference: profile.dietary_preference || null,
+    activity_level: profile.activity_level || null
   };
 }
 
@@ -455,7 +459,11 @@ export async function localQuery(sql, params = []) {
       allergies,
       knownConditions,
       motherPatientUid,
-      fatherPatientUid
+      fatherPatientUid,
+      weight,
+      height,
+      dietaryPreference,
+      activityLevel
     ] = params;
     let profile = data.patient_profiles.find((item) => item.user_id === Number(userId));
     if (!profile) {
@@ -472,6 +480,10 @@ export async function localQuery(sql, params = []) {
       known_conditions: knownConditions || null,
       mother_patient_uid: motherPatientUid || null,
       father_patient_uid: fatherPatientUid || null,
+      weight: weight || null,
+      height: height || null,
+      dietary_preference: dietaryPreference || null,
+      activity_level: activityLevel || null,
       updated_at: now()
     });
     await writeData(data);

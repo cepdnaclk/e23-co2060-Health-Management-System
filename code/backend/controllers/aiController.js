@@ -223,12 +223,54 @@ function parseJsonSafeAdvice(text) {
   }
 }
 
-function getFallbackAdvice(bloodGroup, knownConditions, allergies) {
+function getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, height, dietaryPreference, activityLevel) {
   const isDiabetic = /diabet/i.test(knownConditions);
   const isHypertensive = /hypertens|bp|pressure/i.test(knownConditions);
+  const isVeg = /vegetar|vegan/i.test(dietaryPreference);
+  const isKeto = /keto/i.test(dietaryPreference);
 
-  const foodsToEat = ["Leafy green vegetables", "Lean proteins (chicken, fish)", "Healthy fats (olive oil, nuts)"];
-  const foodsToAvoid = ["Refined sugars", "Processed meats", "Sugary beverages"];
+  let wNum = parseFloat(weight || 0);
+  let hNum = parseFloat(height || 0) / 100.0;
+  let bmi = 0;
+  let bmiCategory = "";
+  if (wNum > 0 && hNum > 0) {
+    bmi = wNum / (hNum * hNum);
+    if (bmi < 18.5) bmiCategory = "Underweight";
+    else if (bmi < 25) bmiCategory = "Normal";
+    else if (bmi < 30) bmiCategory = "Overweight";
+    else bmiCategory = "Obese";
+  }
+
+  let foodsToEat = [];
+  if (isVeg) {
+    foodsToEat = ["Organic Tofu", "Lentils and Chickpeas", "Tempeh", "Leafy Greens", "Avocados", "Chia seeds"];
+  } else if (isKeto) {
+    foodsToEat = ["Fatty fish (salmon)", "Avocados", "Eggs", "Grass-fed beef", "Olive oil", "Leafy Greens"];
+  } else {
+    foodsToEat = ["Lean proteins (chicken breast, fish)", "Leafy green vegetables", "Healthy fats (olive oil, avocados)"];
+  }
+
+  let foodsToAvoid = [];
+  if (isKeto) {
+    foodsToAvoid = ["Refined sugars", "Grains & starches (bread, rice, pasta)", "Root vegetables (potatoes)", "High-sugar fruits"];
+  } else {
+    foodsToAvoid = ["Refined sugars", "Processed meats", "Sugary beverages", "Trans fats"];
+  }
+
+  const lowerAllergies = String(allergies || "").toLowerCase();
+  if (lowerAllergies.includes("peanut")) {
+    foodsToAvoid.push("Peanuts", "Peanut butter", "Peanut oil");
+    foodsToEat = foodsToEat.filter(f => !/peanut/i.test(f));
+  }
+  if (lowerAllergies.includes("dairy") || lowerAllergies.includes("milk")) {
+    foodsToAvoid.push("Cow's milk", "Cheese", "Butter", "Dairy products");
+    foodsToEat = foodsToEat.filter(f => !/cheese|butter|dairy|milk/i.test(f));
+  }
+  if (lowerAllergies.includes("gluten") || lowerAllergies.includes("wheat")) {
+    foodsToAvoid.push("Wheat bread", "Barley", "Rye", "Gluten products");
+    foodsToEat = foodsToEat.filter(f => !/bread|pasta|wheat/i.test(f));
+  }
+
   let explanation = "Focus on whole, nutrient-dense foods to support overall metabolic health.";
 
   if (isDiabetic) {
@@ -243,6 +285,46 @@ function getFallbackAdvice(bloodGroup, knownConditions, allergies) {
     explanation = "A DASH-style diet focusing on low-sodium and potassium-rich foods is recommended to regulate blood pressure.";
   }
 
+  if (bmiCategory === "Overweight" || bmiCategory === "Obese") {
+    explanation += ` Caloric moderation is advised for BMI: ${bmi.toFixed(1)} (${bmiCategory}).`;
+  } else if (bmiCategory === "Underweight") {
+    explanation += ` Calorie-dense foods are recommended to support a healthy weight gain for BMI: ${bmi.toFixed(1)} (${bmiCategory}).`;
+  }
+
+  let recipeTitle = "Lemon Garlic Grilled Chicken with Quinoa";
+  let recipeDescription = "A quick, wholesome, low-glycemic dinner loaded with lean proteins and healthy minerals.";
+  let recipeIngredients = ["150g chicken breast", "1/2 cup cooked quinoa", "1 cup steamed broccoli", "1 tbsp olive oil", "Herbs"];
+  let recipeInstructions = ["Season chicken with herbs and grill for 6-7 minutes on each side.", "Serve alongside warm quinoa and steamed broccoli."];
+
+  if (isVeg) {
+    recipeTitle = "Grilled Tofu Power Bowl with Quinoa";
+    recipeDescription = "A plant-based, fiber-rich dinner packed with complete proteins and healthy complex carbs.";
+    recipeIngredients = ["150g firm tofu cubes", "1/2 cup cooked quinoa", "1 cup steamed broccoli", "1 tbsp olive oil", "Soy sauce", "Sesame seeds"];
+    recipeInstructions = ["Marinate tofu in soy sauce and pan-sear in olive oil for 4 minutes each side.", "Assemble bowl with cooked quinoa, tofu, and steamed broccoli. Sprinkle sesame seeds on top."];
+  } else if (isDiabetic) {
+    recipeTitle = "Baked Herb Salmon with Asparagus";
+    recipeDescription = "A quick, omega-3 rich dinner loaded with healthy fats and low-glycemic greens.";
+    recipeIngredients = ["150g fresh salmon fillet", "1 bunch asparagus", "1 tbsp olive oil", "1 minced garlic clove", "Lemon slices", "Dill"];
+    recipeInstructions = ["Preheat oven to 400°F (200°C).", "Place salmon and asparagus on a baking sheet, drizzle with olive oil and garlic.", "Bake for 12-15 minutes until salmon flakes easily. Garnish with lemon and dill."];
+  }
+
+  const lifestyle = [
+    "Stay hydrated: drink 2-3 liters of water daily.",
+    "Aim for 7-8 hours of quality sleep to support hormonal and physical restoration."
+  ];
+
+  if (activityLevel === "Sedentary") {
+    lifestyle.push("Start with light activity: aim for a 20-minute daily walk.");
+  } else if (activityLevel === "Very Active") {
+    lifestyle.push("Ensure adequate protein recovery and muscle stretching post-exercise.");
+  } else {
+    lifestyle.push("Engage in 150 minutes of moderate aerobic exercise weekly (e.g., brisk walking).");
+  }
+
+  if (bmiCategory === "Overweight" || bmiCategory === "Obese") {
+    lifestyle.push("Practice mindful eating and maintain a mild caloric deficit.");
+  }
+
   return {
     dietAdvice: {
       foodsToEat,
@@ -250,21 +332,12 @@ function getFallbackAdvice(bloodGroup, knownConditions, allergies) {
       explanation
     },
     recipe: {
-      title: isDiabetic ? "Baked Herb Salmon with Asparagus" : "Lemon Garlic Grilled Chicken with Quinoa",
-      description: "A quick, wholesome, low-glycemic dinner loaded with lean proteins and healthy minerals.",
-      ingredients: isDiabetic 
-        ? ["150g fresh salmon fillet", "1 bunch asparagus", "1 tbsp olive oil", "1 minced garlic clove", "Lemon slices", "Dill"]
-        : ["150g chicken breast", "1/2 cup cooked quinoa", "1 cup steamed broccoli", "1 tbsp olive oil", "Herbs"],
-      instructions: isDiabetic
-        ? ["Preheat oven to 400°F (200°C).", "Place salmon and asparagus on a baking sheet, drizzle with olive oil and garlic.", "Bake for 12-15 minutes until salmon flakes easily. Garnish with lemon and dill."]
-        : ["Season chicken with herbs and grill for 6-7 minutes on each side.", "Serve alongside warm quinoa and steamed broccoli."]
+      title: recipeTitle,
+      description: recipeDescription,
+      ingredients: recipeIngredients,
+      instructions: recipeInstructions
     },
-    lifestyle: [
-      "Engage in 150 minutes of moderate aerobic exercise weekly (e.g., brisk walking).",
-      "Stay hydrated: drink 2-3 liters of water daily.",
-      "Practice mindfulness or deep breathing for 10 minutes daily to manage stress levels.",
-      "Aim for 7-8 hours of quality sleep to support hormonal and physical restoration."
-    ]
+    lifestyle
   };
 }
 
@@ -281,6 +354,10 @@ export async function getAiAdvice(req, res) {
     const allergies = patient.allergies || "None recorded";
     const gender = patient.gender || "Not set";
     const dob = patient.dob || "";
+    const weight = patient.weight || "";
+    const height = patient.height || "";
+    const dietaryPreference = patient.dietary_preference || "None";
+    const activityLevel = patient.activity_level || "Not set";
 
     let ageText = "Not set";
     if (dob) {
@@ -294,17 +371,32 @@ export async function getAiAdvice(req, res) {
       ageText = `${age} years old`;
     }
 
+    let bmiText = "Not set";
+    let bmiCategory = "";
+    if (weight && height) {
+      const wNum = parseFloat(weight);
+      const hNum = parseFloat(height) / 100.0;
+      if (wNum > 0 && hNum > 0) {
+        const bmi = wNum / (hNum * hNum);
+        bmiText = bmi.toFixed(1);
+        if (bmi < 18.5) bmiCategory = "Underweight";
+        else if (bmi < 25) bmiCategory = "Normal weight";
+        else if (bmi < 30) bmiCategory = "Overweight";
+        else bmiCategory = "Obese";
+      }
+    }
+
     if (!API_KEY || !genAI) {
-      return res.json(getFallbackAdvice(bloodGroup, knownConditions, allergies));
+      return res.json(getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, height, dietaryPreference, activityLevel));
     }
 
     const prompt = `
-You are an expert AI clinical nutritionist and wellness coach. Based on the patient's profiles below, return ONLY valid JSON:
+You are an expert AI clinical nutritionist and wellness coach. Based on the patient's profile below, return ONLY valid JSON:
 {
   "dietAdvice": {
     "foodsToEat": ["food item 1", "food item 2", ...],
     "foodsToAvoid": ["food item 1", "food item 2", ...],
-    "explanation": "short explanation of the diet choice based on blood type and conditions"
+    "explanation": "short explanation of the diet choice based on body metrics, dietary preference, activity, chronic diseases, and allergies"
   },
   "recipe": {
     "title": "Recipe Title",
@@ -322,12 +414,21 @@ You are an expert AI clinical nutritionist and wellness coach. Based on the pati
 Patient Profile:
 - Age: ${ageText}
 - Gender: ${gender}
+- Weight: ${weight ? weight + " kg" : "Not set"}
+- Height: ${height ? height + " cm" : "Not set"}
+- BMI: ${bmiText} ${bmiCategory ? "(" + bmiCategory + ")" : ""}
+- Activity Level: ${activityLevel}
+- Dietary Preference: ${dietaryPreference}
 - Blood Group: ${bloodGroup}
 - Known Conditions / Medical History: ${knownConditions}
 - Food Allergies: ${allergies}
 
 Rules:
-- Keep the response tailored to their blood group and conditions (e.g. low-carb/low-sugar for Diabetes, avoiding allergen triggers).
+- Keep the response strictly tailored to all of their profile constraints:
+  * Align with their Dietary Preference (e.g. Vegetarian/Vegan means NO animal products, Keto means high fat/very low carb).
+  * Strictly avoid their Food Allergies.
+  * Limit sugar/carbs if diabetic. Limit sodium if hypertensive.
+  * Adjust recommendations based on their BMI and Activity Level (e.g. support weight loss or nutrient surplus if needed).
 - Do not include markdown formatting or extra text outside the JSON structure.
 `.trim();
 
@@ -342,11 +443,20 @@ Rules:
     return res.json(data);
   } catch (error) {
     console.error("AI Advice error:", error);
-    return res.json(getFallbackAdvice(
-      req.query?.bloodGroup || "Not set",
-      req.query?.knownConditions || "None",
-      req.query?.allergies || "None"
-    ));
+    try {
+      const patient = await findUserWithProfileById(userId);
+      return res.json(getFallbackAdvice(
+        patient?.blood_group || "Not set",
+        patient?.known_conditions || "None",
+        patient?.allergies || "None",
+        patient?.weight,
+        patient?.height,
+        patient?.dietary_preference,
+        patient?.activity_level
+      ));
+    } catch {
+      return res.json(getFallbackAdvice("Not set", "None", "None"));
+    }
   }
 }
 

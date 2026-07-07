@@ -11,7 +11,11 @@ export function normalizeProfile(input = {}) {
     allergies: trimmed(input.allergies) || null,
     knownConditions: trimmed(input.knownConditions) || null,
     motherPatientId: patientId(input.motherPatientId) || null,
-    fatherPatientId: patientId(input.fatherPatientId) || null
+    fatherPatientId: patientId(input.fatherPatientId) || null,
+    weight: trimmed(input.weight) || null,
+    height: trimmed(input.height) || null,
+    dietaryPreference: trimmed(input.dietaryPreference) || null,
+    activityLevel: trimmed(input.activityLevel) || null
   };
 }
 
@@ -87,7 +91,11 @@ export function mapPatientRecord(row) {
       allergies: row.allergies,
       knownConditions: row.known_conditions,
       motherPatientId: row.mother_patient_uid,
-      fatherPatientId: row.father_patient_uid
+      fatherPatientId: row.father_patient_uid,
+      weight: row.weight,
+      height: row.height,
+      dietaryPreference: row.dietary_preference,
+      activityLevel: row.activity_level
     }
   };
 }

@@ -107,6 +107,62 @@ function PatientWorkspace({
                 onChange={(e) => setProfileForm((v) => ({ ...v, emergencyContact: e.target.value }))}
               />
               <Field label="Blood Group" type="text" value={profileForm.bloodGroup} onChange={(e) => setProfileForm((v) => ({ ...v, bloodGroup: e.target.value }))} />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <Field
+                  label="Weight (kg)"
+                  type="text"
+                  value={profileForm.weight || ""}
+                  onChange={(e) => setProfileForm((v) => ({ ...v, weight: e.target.value }))}
+                  placeholder="e.g. 70"
+                />
+                <Field
+                  label="Height (cm)"
+                  type="text"
+                  value={profileForm.height || ""}
+                  onChange={(e) => setProfileForm((v) => ({ ...v, height: e.target.value }))}
+                  placeholder="e.g. 175"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Dietary Preference</span>
+                  <div className="field flex items-center pr-3">
+                    <select
+                      value={profileForm.dietaryPreference || ""}
+                      onChange={(e) => setProfileForm((v) => ({ ...v, dietaryPreference: e.target.value }))}
+                      className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none border-0"
+                    >
+                      <option value="">None</option>
+                      <option value="Vegetarian">Vegetarian</option>
+                      <option value="Vegan">Vegan</option>
+                      <option value="Keto">Keto</option>
+                      <option value="Low-FODMAP">Low-FODMAP</option>
+                      <option value="Halal">Halal</option>
+                      <option value="Kosher">Kosher</option>
+                    </select>
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Activity Level</span>
+                  <div className="field flex items-center pr-3">
+                    <select
+                      value={profileForm.activityLevel || ""}
+                      onChange={(e) => setProfileForm((v) => ({ ...v, activityLevel: e.target.value }))}
+                      className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 outline-none border-0"
+                    >
+                      <option value="">Not set</option>
+                      <option value="Sedentary">Sedentary</option>
+                      <option value="Lightly Active">Lightly Active</option>
+                      <option value="Moderately Active">Moderately Active</option>
+                      <option value="Very Active">Very Active</option>
+                    </select>
+                  </div>
+                </label>
+              </div>
+
               <Field label="Allergies" type="text" value={profileForm.allergies} onChange={(e) => setProfileForm((v) => ({ ...v, allergies: e.target.value }))} />
               <Field
                 label="Known Hereditary Conditions"
@@ -321,7 +377,19 @@ function RiskRow({ risk }) {
 }
 
 function DashboardView({ user, profile, token, setActiveView }) {
-  const completed = [profile.dob, profile.gender, profile.address, profile.emergencyContact, profile.bloodGroup, profile.allergies].filter(Boolean).length;
+  const completed = [
+    profile.dob,
+    profile.gender,
+    profile.address,
+    profile.emergencyContact,
+    profile.bloodGroup,
+    profile.allergies,
+    profile.knownConditions,
+    profile.weight,
+    profile.height,
+    profile.dietaryPreference,
+    profile.activityLevel
+  ].filter(Boolean).length;
 
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -390,7 +458,16 @@ function DashboardView({ user, profile, token, setActiveView }) {
     return () => {
       cancelled = true;
     };
-  }, [token, profile.bloodGroup, profile.knownConditions, profile.allergies]);
+  }, [
+    token,
+    profile.bloodGroup,
+    profile.knownConditions,
+    profile.allergies,
+    profile.weight,
+    profile.height,
+    profile.dietaryPreference,
+    profile.activityLevel
+  ]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -432,7 +509,7 @@ function DashboardView({ user, profile, token, setActiveView }) {
     <div className="grid gap-4 md:grid-cols-3">
       <DashboardStat label="Welcome" value={user?.fullName || "Patient"} detail="Your Medicare workspace" />
       <DashboardStat label="Patient ID" value={user?.patientId || "Pending"} detail="Use this ID for family linking" />
-      <DashboardStat label="Profile Completion" value={`${Math.round((completed / 6) * 100)}%`} detail={`${completed} of 6 fields completed`} />
+      <DashboardStat label="Profile Completion" value={`${Math.round((completed / 11) * 100)}%`} detail={`${completed} of 11 fields completed`} />
       <DashboardStat label="Blood Group" value={profile.bloodGroup || "Not set"} detail="Used in clinical workflows" />
 
       {/* Calendar Card */}

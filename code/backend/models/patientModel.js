@@ -75,7 +75,11 @@ export async function findUserWithProfileById(id) {
         p.allergies,
         p.known_conditions,
         p.mother_patient_uid,
-        p.father_patient_uid
+        p.father_patient_uid,
+        p.weight,
+        p.height,
+        p.dietary_preference,
+        p.activity_level
       FROM users u
       LEFT JOIN patient_profiles p ON p.user_id = u.id
       WHERE u.id = ?
@@ -105,7 +109,11 @@ export async function findUserWithProfileByPatientUid(patientUid) {
         p.allergies,
         p.known_conditions,
         p.mother_patient_uid,
-        p.father_patient_uid
+        p.father_patient_uid,
+        p.weight,
+        p.height,
+        p.dietary_preference,
+        p.activity_level
       FROM users u
       LEFT JOIN patient_profiles p ON p.user_id = u.id
       WHERE u.patient_uid = ?
@@ -129,9 +137,13 @@ export async function upsertPatientProfile(userId, profile) {
         allergies,
         known_conditions,
         mother_patient_uid,
-        father_patient_uid
+        father_patient_uid,
+        weight,
+        height,
+        dietary_preference,
+        activity_level
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         dob = VALUES(dob),
         gender = VALUES(gender),
@@ -141,7 +153,11 @@ export async function upsertPatientProfile(userId, profile) {
         allergies = VALUES(allergies),
         known_conditions = VALUES(known_conditions),
         mother_patient_uid = VALUES(mother_patient_uid),
-        father_patient_uid = VALUES(father_patient_uid)
+        father_patient_uid = VALUES(father_patient_uid),
+        weight = VALUES(weight),
+        height = VALUES(height),
+        dietary_preference = VALUES(dietary_preference),
+        activity_level = VALUES(activity_level)
     `,
     [
       userId,
@@ -153,7 +169,11 @@ export async function upsertPatientProfile(userId, profile) {
       profile.allergies,
       profile.knownConditions,
       profile.motherPatientId,
-      profile.fatherPatientId
+      profile.fatherPatientId,
+      profile.weight,
+      profile.height,
+      profile.dietaryPreference,
+      profile.activityLevel
     ]
   );
 }

@@ -51,7 +51,11 @@ const initialProfileForm = {
   allergies: "",
   knownConditions: "",
   motherPatientId: "",
-  fatherPatientId: ""
+  fatherPatientId: "",
+  weight: "",
+  height: "",
+  dietaryPreference: "",
+  activityLevel: ""
 };
 
 export default function App() {
@@ -168,7 +172,11 @@ export default function App() {
           allergies: data.profile?.allergies || "",
           knownConditions: data.profile?.knownConditions || "",
           motherPatientId: data.profile?.motherPatientId || "",
-          fatherPatientId: data.profile?.fatherPatientId || ""
+          fatherPatientId: data.profile?.fatherPatientId || "",
+          weight: data.profile?.weight || "",
+          height: data.profile?.height || "",
+          dietaryPreference: data.profile?.dietaryPreference || "",
+          activityLevel: data.profile?.activityLevel || ""
         });
         setFamilyRiskVersion((value) => value + 1);
       } catch (err) {

@@ -143,6 +143,10 @@ export async function initDb() {
       known_conditions TEXT NULL,
       mother_patient_uid VARCHAR(24) NULL,
       father_patient_uid VARCHAR(24) NULL,
+      weight VARCHAR(32) NULL,
+      height VARCHAR(32) NULL,
+      dietary_preference VARCHAR(64) NULL,
+      activity_level VARCHAR(64) NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       CONSTRAINT fk_patient_profiles_user
@@ -154,7 +158,11 @@ export async function initDb() {
   for (const statement of [
     "ALTER TABLE patient_profiles ADD COLUMN known_conditions TEXT NULL",
     "ALTER TABLE patient_profiles ADD COLUMN mother_patient_uid VARCHAR(24) NULL",
-    "ALTER TABLE patient_profiles ADD COLUMN father_patient_uid VARCHAR(24) NULL"
+    "ALTER TABLE patient_profiles ADD COLUMN father_patient_uid VARCHAR(24) NULL",
+    "ALTER TABLE patient_profiles ADD COLUMN weight VARCHAR(32) NULL",
+    "ALTER TABLE patient_profiles ADD COLUMN height VARCHAR(32) NULL",
+    "ALTER TABLE patient_profiles ADD COLUMN dietary_preference VARCHAR(64) NULL",
+    "ALTER TABLE patient_profiles ADD COLUMN activity_level VARCHAR(64) NULL"
   ]) {
     try {
       await pool.query(statement);
