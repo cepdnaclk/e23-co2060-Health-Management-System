@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
 import SymptomChecker from "../components/SymptomChecker";
-import { API_BASE, makeInitials, normalizeDateForInput, readJson, titleForPatientView } from "../lib/appShared";
+import { API_BASE, buildGoogleCalendarUrl, makeInitials, normalizeDateForInput, readJson, titleForPatientView } from "../lib/appShared";
 
 const patientNav = [
   { id: "dashboard", label: "Dashboard", icon: "D" },
@@ -343,6 +343,9 @@ function AppointmentsView({ token }) {
   const [error, setError] = useState("");
   const [paymentError, setPaymentError] = useState("");
   const [paymentSuccess, setPaymentSuccess] = useState("");
+  const [calendarStatus, setCalendarStatus] = useState({ configured: false, connected: false });
+  const [calendarBusyId, setCalendarBusyId] = useState(null);
+  const [calendarMessage, setCalendarMessage] = useState("");
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [paymentForm, setPaymentForm] = useState({ cardName: "", cardNumber: "", expiry: "", cvv: "" });
 
@@ -371,6 +374,61 @@ function AppointmentsView({ token }) {
       cancelled = true;
     };
   }, [token]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCalendarStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/api/google/calendar/status`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readJson(res);
+        if (!cancelled && res.ok) setCalendarStatus(data);
+      } catch {
+        if (!cancelled) setCalendarStatus({ configured: false, connected: false });
+      }
+    }
+
+    loadCalendarStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  async function connectGoogleCalendar() {
+    setCalendarMessage("");
+    try {
+      const res = await fetch(`${API_BASE}/api/google/calendar/auth-url`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not start Google Calendar connection");
+      window.location.href = data.url;
+    } catch (err) {
+      setCalendarMessage(err.message || "Could not start Google Calendar connection");
+    }
+  }
+
+  async function createGoogleCalendarEvent(item) {
+    setCalendarBusyId(item.id);
+    setCalendarMessage("");
+    try {
+      const res = await fetch(`${API_BASE}/api/google/calendar/appointments/${item.id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not create Google Calendar event");
+      setCalendarMessage("Google Calendar event created.");
+      if (data.htmlLink) window.open(data.htmlLink, "_blank", "noopener,noreferrer");
+      setCalendarStatus((status) => ({ ...status, connected: true }));
+    } catch (err) {
+      setCalendarMessage(err.message || "Could not create Google Calendar event");
+    } finally {
+      setCalendarBusyId(null);
+    }
+  }
 
   async function submitPayment(e) {
     e.preventDefault();
@@ -445,6 +503,7 @@ function AppointmentsView({ token }) {
       {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
       {paymentError ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{paymentError}</p> : null}
       {paymentSuccess ? <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">{paymentSuccess}</p> : null}
+      {calendarMessage ? <p className="rounded-xl border border-sky-300 bg-sky-50 p-3 text-sm text-sky-700">{calendarMessage}</p> : null}
       {!loading && !appointments.length ? <EmptyState title="No appointments yet" text="Requested and confirmed appointments will appear here with status and payment details." /> : null}
       <div className="space-y-2">
         {appointments.map((item) => (
@@ -470,6 +529,22 @@ function AppointmentsView({ token }) {
                 <span className="text-xs font-semibold uppercase text-slate-500">Waiting for receptionist approval</span>
               ) : null}
             </div>
+            {item.status === "Confirmed" ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a className="btn-secondary" href={buildGoogleCalendarUrl(item)} target="_blank" rel="noreferrer">
+                  Add to Google Calendar
+                </a>
+                {calendarStatus.connected ? (
+                  <button type="button" className="btn-primary" disabled={calendarBusyId === item.id} onClick={() => createGoogleCalendarEvent(item)}>
+                    {calendarBusyId === item.id ? "Creating..." : "Sync to Google Calendar"}
+                  </button>
+                ) : calendarStatus.configured ? (
+                  <button type="button" className="btn-secondary" onClick={connectGoogleCalendar}>
+                    Connect Google Calendar
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         ))}
       </div>

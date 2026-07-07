@@ -9,6 +9,7 @@ import doctorRoutes from "./routes/doctorRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import receptionistRoutes from "./routes/receptionistRoutes.js";
+import googleCalendarRoutes from "./routes/googleCalendarRoutes.js";
 
 const app = express();
 let dbInitialized = false;
@@ -49,6 +50,7 @@ app.use(doctorRoutes);
 app.use(patientRoutes);
 app.use(aiRoutes);
 app.use(receptionistRoutes);
+app.use(googleCalendarRoutes);
 
 app.use((error, _req, res, next) => {
   if (error?.type === "entity.too.large") {

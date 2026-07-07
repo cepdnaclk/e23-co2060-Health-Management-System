@@ -48,6 +48,26 @@ export async function readJson(response) {
   }
 }
 
+function compactCalendarDate(value) {
+  return value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+export function buildGoogleCalendarUrl(appointment) {
+  const start = new Date(appointment?.scheduledAt || appointment?.scheduled_at || "");
+  if (Number.isNaN(start.getTime())) return "";
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + 30);
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `Appointment with Dr. ${appointment.doctorUsername || appointment.doctor_username || ""}`.trim(),
+    dates: `${compactCalendarDate(start)}/${compactCalendarDate(end)}`,
+    details: `Reason: ${appointment.reason || "General consultation"}\nAppointment: ${appointment.appointmentId || `APT-${appointment.id}`}`
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 export function titleForPatientView(view) {
   const map = {
     dashboard: "Dashboard",
