@@ -5,8 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["Space Grotesk", "ui-sans-serif", "system-ui", "sans-serif"]
+        sans: ["Calibri", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Calibri", "ui-sans-serif", "system-ui", "sans-serif"]
       },
       colors: {
         brand: {

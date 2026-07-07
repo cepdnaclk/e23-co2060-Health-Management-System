@@ -10,6 +10,13 @@
   background: var(--surface);
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.glass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -12px color-mix(in srgb, var(--accent) 20%, transparent), var(--shadow);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
 }
 
 .btn-secondary {
@@ -25,6 +32,13 @@
   min-height: 52px;
   background: var(--surface-strong);
   color: var(--ink);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 :root.dark-mode .field {

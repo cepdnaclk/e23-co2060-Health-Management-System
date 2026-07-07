@@ -59,14 +59,21 @@
   color: var(--ink-soft);
   font-weight: 800;
   text-align: left;
-  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+  border-left: 3px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
-.role-nav-item:hover,
-.role-nav-item-active {
-  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+.role-nav-item:hover {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-soft));
   color: var(--ink);
-  transform: translateX(2px);
+  transform: translateX(4px);
+}
+
+.role-nav-item-active {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, var(--surface-strong)), var(--surface-strong));
+  color: var(--ink);
+  border-left-color: var(--teal);
+  box-shadow: 0 4px 15px -3px color-mix(in srgb, var(--accent) 18%, transparent), var(--shadow);
 }
 
 .role-nav-item span {
@@ -75,9 +82,15 @@
   height: 28px;
   place-items: center;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
   font-size: 0.78rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.role-nav-item:hover span {
+  transform: scale(1.08);
+  background-color: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .role-logout {
@@ -93,6 +106,13 @@
     linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent),
     var(--surface-strong);
   box-shadow: var(--shadow);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.dashboard-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -12px color-mix(in srgb, var(--accent) 25%, transparent), var(--shadow);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
 }
 
 .dashboard-stat p {
@@ -108,7 +128,7 @@
   display: block;
   margin-top: 8px;
   color: var(--ink);
-  font-family: "Sora", sans-serif;
+  font-family: "Calibri", "ui-sans-serif", "system-ui", "sans-serif";
   font-size: clamp(1.5rem, 3vw, 2.35rem);
 }
 
@@ -451,7 +471,7 @@
 
 .risk-meter-wrap strong {
   color: var(--rose);
-  font-family: "Sora", sans-serif;
+  font-family: "Calibri", "ui-sans-serif", "system-ui", "sans-serif";
   font-size: 1.35rem;
 }
 

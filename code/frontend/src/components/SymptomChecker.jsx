@@ -141,6 +141,26 @@ export default function SymptomChecker({ token, className = "" }) {
           );
         })}
 
+        {messages.length === 1 && !loading ? (
+          <div className="flex flex-wrap gap-2 pt-2 px-1 self-start max-w-[85%]">
+            {[
+              "Mild fever and dry cough",
+              "Severe headache and dizziness",
+              "Sharp lower back pain",
+              "Itchy skin rash on arms"
+            ].map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => setInputValue(chip)}
+                className="text-xs px-3 py-1.5 rounded-full border border-sky-100 bg-white/80 hover:bg-sky-50 text-sky-700 font-medium transition-all hover:scale-105 active:scale-95 shadow-sm"
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         {loading ? (
           <div className="self-start flex items-center gap-1.5 bg-slate-100 text-slate-500 dark:bg-slate-800 px-4 py-2.5 rounded-2xl rounded-tl-none max-w-[80%]">
             <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />

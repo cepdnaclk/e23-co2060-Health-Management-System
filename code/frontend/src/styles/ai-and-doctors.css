@@ -213,7 +213,7 @@
     radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--on-dark) 24%, transparent), transparent 23%),
     linear-gradient(150deg, var(--navy), var(--teal));
   color: var(--accent-ink);
-  font-family: "Sora", sans-serif;
+  font-family: "Calibri", "ui-sans-serif", "system-ui", "sans-serif";
   font-size: clamp(2.2rem, 5vw, 4.5rem);
   font-weight: 800;
 }
@@ -271,7 +271,7 @@
     radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--on-dark) 24%, transparent), transparent 24%),
     linear-gradient(150deg, var(--navy), var(--teal));
   color: var(--accent-ink);
-  font-family: "Sora", sans-serif;
+  font-family: "Calibri", "ui-sans-serif", "system-ui", "sans-serif";
   font-size: clamp(5rem, 12vw, 11rem);
   font-weight: 800;
 }
