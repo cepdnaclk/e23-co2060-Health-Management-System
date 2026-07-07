@@ -349,3 +349,100 @@ Rules:
     ));
   }
 }
+
+function parseChatResponseSafe(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const m = text.match(/\{[\s\S]*\}$/m);
+    if (m) {
+      try {
+        return JSON.parse(m[0]);
+      } catch {
+        // no-op
+      }
+    }
+    return {
+      finished: false,
+      aiResponse: "I received your description. Could you please specify how long you have had these symptoms and if there is any other detail?",
+      primarySpecialty: null,
+      secondarySpecialty: null,
+      reason: null
+    };
+  }
+}
+
+function handleFallbackSymptomChat(messages) {
+  const userMessages = messages.filter(m => m.sender === "user");
+
+  if (userMessages.length <= 1) {
+    return {
+      finished: false,
+      aiResponse: "Thank you for explaining your symptoms. To help me recommend the best specialist, could you please tell me how long you have had this, and if you are experiencing any other symptoms (like fever, pain, or nausea)?"
+    };
+  }
+
+  const combinedSymptoms = userMessages.map(m => m.text).join(" ");
+  const analysis = fallbackAnalysis(combinedSymptoms, "Based on our dialogue: ");
+
+  return {
+    finished: true,
+    aiResponse: `Based on your description, I recommend consulting with our ${analysis.primarySpecialty} department. ${analysis.reason} I have listed some recommended doctors below for you.`,
+    primarySpecialty: analysis.primarySpecialty,
+    secondarySpecialty: analysis.secondarySpecialty,
+    reason: analysis.reason,
+    recommendedDoctors: analysis.recommendedDoctors
+  };
+}
+
+export async function handleSymptomChat(req, res) {
+  const messages = req.body?.messages;
+  if (!Array.isArray(messages) || !messages.length) {
+    return res.status(400).json({ error: "messages array is required" });
+  }
+
+  if (!API_KEY || !genAI) {
+    return res.json(handleFallbackSymptomChat(messages));
+  }
+
+  const prompt = `
+You are a highly skilled medical triage assistant. Your goal is to converse with a patient to understand their symptoms and guide them to the most suitable medical department/doctors.
+
+Conversation history:
+${messages.map(m => `${m.sender === "user" ? "Patient" : "Assistant"}: ${m.text}`).join("\n")}
+
+Rules:
+1. Analyze the symptoms mentioned by the patient.
+2. If you need more information to suggest the correct specialties (such as onset, duration, severity, location of pain, associated symptoms), return "finished": false and ask ONE concise, polite clarifying question in "aiResponse". Do not diagnose or prescribe treatment.
+3. If you have enough information to confidently select the most suitable medical specialties, return "finished": true, provide a polite summary of your advice in "aiResponse", and fill in the "primarySpecialty" and "secondarySpecialty" fields.
+4. Choose the specialties strictly from this list: "Cardiology", "Neurology", "General Surgery", "Pulmonology", "Gastroenterology", "Orthopedics", "Dermatology", "Urology", "OB-GYN", "Psychiatry", "Ophthalmology", "ENT", "General Practice", "Internal Medicine", "Pediatrics".
+5. Return ONLY a valid JSON object matching this schema:
+{
+  "finished": true/false,
+  "aiResponse": "Your reply or question to the patient",
+  "primarySpecialty": "Selected primary specialty or null",
+  "secondarySpecialty": "Selected secondary specialty or null",
+  "reason": "One-sentence clinical reasoning or null"
+}
+`.trim();
+
+  try {
+    const workingModel = await resolveWorkingModel(
+      'Return {"finished":false,"aiResponse":"probe","primarySpecialty":null,"secondarySpecialty":null,"reason":null}'
+    );
+
+    const model = genAI.getGenerativeModel({ model: workingModel });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().trim();
+    const data = parseChatResponseSafe(text);
+
+    if (data.finished && data.primarySpecialty) {
+      data.recommendedDoctors = findDoctorsBySpecialties([data.primarySpecialty, data.secondarySpecialty], 3);
+    }
+
+    return res.json(data);
+  } catch (err) {
+    console.error("AI Symptom Chat error:", err);
+    return res.json(handleFallbackSymptomChat(messages));
+  }
+}
