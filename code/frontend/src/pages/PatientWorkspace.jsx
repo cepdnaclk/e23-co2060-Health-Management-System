@@ -54,7 +54,7 @@ function PatientWorkspace({
           {dataLoading ? <LoadingState /> : null}
         </div>
 
-        {activeView === "dashboard" ? <DashboardView user={session.user} profile={profileForm} /> : null}
+        {activeView === "dashboard" ? <DashboardView user={session.user} profile={profileForm} token={session.token} setActiveView={setActiveView} /> : null}
 
         {activeView === "profile" ? (
           <div className="grid gap-6 xl:grid-cols-2">
@@ -320,8 +320,83 @@ function RiskRow({ risk }) {
   );
 }
 
-function DashboardView({ user, profile }) {
+function DashboardView({ user, profile, token, setActiveView }) {
   const completed = [profile.dob, profile.gender, profile.address, profile.emergencyContact, profile.bloodGroup, profile.allergies].filter(Boolean).length;
+
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const getTodayStr = () => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const [selectedDateStr, setSelectedDateStr] = useState(getTodayStr());
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAppointments() {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/patient/appointments`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readJson(res);
+        if (!res.ok) throw new Error(data.error || "Could not load appointments");
+        if (!cancelled) setAppointments(data.appointments || []);
+      } catch (err) {
+        if (!cancelled) console.error("Dashboard load appointments failed:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    if (token) loadAppointments();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const daysArray = Array.from({ length: totalDays }, (_, i) => i + 1);
+  const emptyCells = Array.from({ length: firstDayIndex }, () => null);
+  const calendarCells = [...emptyCells, ...daysArray];
+
+  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const getAppointmentsForDate = (d) => {
+    if (!d) return [];
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    return appointments.filter(
+      (app) => String(app.scheduledAt || "").slice(0, 10) === dateStr
+    );
+  };
+
+  const selectedDayAppointments = appointments.filter(
+    (app) => String(app.scheduledAt || "").slice(0, 10) === selectedDateStr
+  );
+
+  const formattedSelectedDate = () => {
+    if (!selectedDateStr) return "";
+    const parts = selectedDateStr.split("-");
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  };
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -329,8 +404,126 @@ function DashboardView({ user, profile }) {
       <DashboardStat label="Patient ID" value={user?.patientId || "Pending"} detail="Use this ID for family linking" />
       <DashboardStat label="Profile Completion" value={`${Math.round((completed / 6) * 100)}%`} detail={`${completed} of 6 fields completed`} />
       <DashboardStat label="Blood Group" value={profile.bloodGroup || "Not set"} detail="Used in clinical workflows" />
-      <div className="glass col-span-full rounded-2xl p-4">
-        <p className="text-sm text-slate-700">Use the left navigation to manage profile details, appointments, reports, and settings.</p>
+
+      {/* Calendar Card */}
+      <div className="glass col-span-full md:col-span-2 rounded-2xl p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-slate-900">Appointment Calendar</h3>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={prevMonth}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+            >
+              &larr;
+            </button>
+            <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 min-w-[120px] text-center">
+              {monthNames[month]} {year}
+            </span>
+            <button
+              type="button"
+              onClick={nextMonth}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+            >
+              &rarr;
+            </button>
+          </div>
+        </div>
+
+        {/* Days of week */}
+        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-500 mb-2">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+
+        {/* Days grid */}
+        <div className="grid grid-cols-7 gap-1.5">
+          {calendarCells.map((day, idx) => {
+            if (day === null) {
+              return <div key={`empty-${idx}`} className="h-10" />;
+            }
+
+            const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            const dayApps = getAppointmentsForDate(day);
+            const isSelected = selectedDateStr === dateStr;
+            const isToday = getTodayStr() === dateStr;
+
+            return (
+              <button
+                key={`day-${day}`}
+                type="button"
+                onClick={() => setSelectedDateStr(dateStr)}
+                className={`relative flex h-10 flex-col items-center justify-center rounded-xl text-sm font-medium transition-all ${
+                  isSelected
+                    ? "bg-sky-500 text-white font-bold shadow-md shadow-sky-500/20"
+                    : isToday
+                      ? "border border-sky-500 text-sky-600 bg-sky-50/50"
+                      : "text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800/50"
+                }`}
+              >
+                <span>{day}</span>
+                {dayApps.length > 0 ? (
+                  <span
+                    className={`absolute bottom-1 h-1.5 w-1.5 rounded-full ${
+                      isSelected ? "bg-white" : "bg-sky-500"
+                    }`}
+                  />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Selected Day Details */}
+      <div className="glass col-span-full md:col-span-1 rounded-2xl p-5 flex flex-col justify-between">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900 mb-1">Appointment Details</h3>
+          <p className="text-[10px] text-slate-500 mb-4">{formattedSelectedDate()}</p>
+
+          {loading ? (
+            <p className="text-sm text-slate-600">Loading appointments...</p>
+          ) : selectedDayAppointments.length > 0 ? (
+            <div className="space-y-3">
+              {selectedDayAppointments.map((app) => (
+                <div key={app.id} className="rounded-xl border border-sky-100 bg-white/60 p-3 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-800/40">
+                  <p className="font-semibold text-slate-900 mb-1">
+                    {String(app.scheduledAt || "").split("T")[1]?.slice(0, 5) || String(app.scheduledAt || "").slice(11, 16)} - Dr. {app.doctorUsername}
+                  </p>
+                  <p className="mb-1 text-slate-600">Reason: {app.reason}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <StatusBadge status={app.status} />
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      app.paymentStatus === "Paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                    }`}>
+                      {app.paymentStatus || "Unpaid"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-6 text-center text-slate-500">
+              <span className="text-2xl mb-1">📅</span>
+              <p className="text-xs">No appointments scheduled for this day.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-sky-100/60 pt-3 mt-4 text-center">
+          <button
+            type="button"
+            onClick={() => setActiveView("appointments")}
+            className="text-xs font-semibold text-sky-600 hover:text-sky-700"
+          >
+            Manage all appointments &rarr;
+          </button>
+        </div>
       </div>
     </div>
   );
