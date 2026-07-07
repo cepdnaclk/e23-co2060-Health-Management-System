@@ -51,6 +51,10 @@ function migrateDataShape(data) {
   }
 
   for (const user of data.users) {
+    if (!Object.prototype.hasOwnProperty.call(user, "role")) {
+      user.role = "patient";
+      changed = true;
+    }
     if (!Object.prototype.hasOwnProperty.call(user, "username")) {
       user.username = null;
       changed = true;
@@ -61,6 +65,10 @@ function migrateDataShape(data) {
     }
     if (!Object.prototype.hasOwnProperty.call(user, "profile_photo_url")) {
       user.profile_photo_url = null;
+      changed = true;
+    }
+    if (!Object.prototype.hasOwnProperty.call(user, "role_profile")) {
+      user.role_profile = null;
       changed = true;
     }
   }
@@ -97,12 +105,14 @@ function userPublicRow(user) {
   if (!user) return null;
   return {
     id: user.id,
+    role: user.role || "patient",
     username: user.username || null,
-    patient_uid: user.patient_uid || makePatientUid(user.id),
+    patient_uid: user.role === "patient" ? user.patient_uid || makePatientUid(user.id) : user.patient_uid || null,
     full_name: user.full_name,
     email: user.email,
     phone: user.phone,
-    profile_photo_url: user.profile_photo_url || null
+    profile_photo_url: user.profile_photo_url || null,
+    role_profile: user.role_profile || null
   };
 }
 
@@ -172,16 +182,22 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.startsWith("insert into users")) {
+    const withRoleColumns = params.length === 8;
     const withSeedColumns = params.length === 7;
-    const [fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash] = withSeedColumns
+    const [role, username, fullName, email, phone, profilePhotoUrl, passwordHash, roleProfile] = withRoleColumns
       ? params
-      : [params[0], null, params[1], params[2], null, null, params[3]];
+      : withSeedColumns
+        ? ["patient", params[0], params[1], params[2], params[3], params[4], params[5], params[6]]
+        : params.length === 6
+          ? [params[0], null, params[1], params[2], params[3], params[4], params[5], null]
+          : ["patient", params[0], null, params[1], params[2], null, null, params[3]];
+    const patientUid = withSeedColumns ? params[5] : role === "patient" ? makePatientUid(data.nextIds.users) : null;
     if (
       data.users.some(
         (user) =>
           user.email === email ||
           (username && user.username === username) ||
-          (patientUid && String(user.patient_uid).toUpperCase() === String(patientUid).toUpperCase())
+          (patientUid && String(user.patient_uid || "").toUpperCase() === String(patientUid).toUpperCase())
       )
     ) {
       const error = new Error("Duplicate email");
@@ -191,17 +207,53 @@ export async function localQuery(sql, params = []) {
     const id = data.nextIds.users++;
     data.users.push({
       id,
+      role: role || "patient",
       username: username || null,
-      patient_uid: patientUid || makePatientUid(id),
+      patient_uid: patientUid || null,
       full_name: fullName,
       email,
       phone,
       profile_photo_url: profilePhotoUrl || null,
+      role_profile: withRoleColumns ? roleProfile : null,
       password_hash: passwordHash,
       created_at: now()
     });
     await writeData(data);
     return [{ insertId: id, affectedRows: 1 }];
+  }
+
+  if (normalized.includes("from users where email = ? and role = ?")) {
+    const [email, role] = params;
+    return [[userAuthRow(data.users.find((user) => user.email === email && user.role === role))].filter(Boolean)];
+  }
+
+  if (normalized.includes("from users where username = ? and role = ?")) {
+    const [username, role] = params;
+    return [[userAuthRow(data.users.find((user) => user.username === username && user.role === role))].filter(Boolean)];
+  }
+
+  if (normalized.includes("from users where (email = ? or username = ? or patient_uid = ?) and role = ?")) {
+    const [email, username, patientUid, role] = params;
+    const normalizedPatientUid = String(patientUid || "").toUpperCase();
+    return [[
+      userAuthRow(
+        data.users.find(
+          (user) =>
+            user.role === role &&
+            (user.email === email || (username && user.username === username) || String(user.patient_uid || "").toUpperCase() === normalizedPatientUid)
+        )
+      )
+    ].filter(Boolean)];
+  }
+
+  if (normalized.includes("from users where role = ? order by created_at desc limit ?")) {
+    const [role, limit] = params;
+    const rows = [...data.users]
+      .filter((user) => user.role === role)
+      .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+      .slice(0, Number(limit))
+      .map(userPublicRow);
+    return [rows];
   }
 
   if (normalized.includes("where email = ? or username = ? or patient_uid = ?")) {
@@ -243,6 +295,20 @@ export async function localQuery(sql, params = []) {
     return [[userAuthRow(data.users.find((user) => user.email === email))].filter(Boolean)];
   }
 
+  if (normalized.includes("from users where id = ? and role = ?")) {
+    const [id, role] = params;
+    const user = data.users.find((item) => item.id === Number(id) && item.role === role);
+    return [[userPublicRow(user)].filter(Boolean)];
+  }
+
+  if (normalized.includes("from users where patient_uid = ? and role = ?")) {
+    const [patientUid, role] = params;
+    const user = data.users.find(
+      (item) => String(item.patient_uid || "").toUpperCase() === String(patientUid || "").toUpperCase() && item.role === role
+    );
+    return [[userPublicRow(user)].filter(Boolean)];
+  }
+
   if (normalized.includes("left join patient_profiles") && normalized.includes("where u.id = ?")) {
     const [id] = params.map(Number);
     return [[userWithProfileRow(data, data.users.find((user) => user.id === id))].filter(Boolean)];
@@ -276,7 +342,7 @@ export async function localQuery(sql, params = []) {
   if (normalized.startsWith("select id from users where patient_uid is null")) {
     return [
       data.users
-        .filter((user) => !user.patient_uid)
+        .filter((user) => user.role === "patient" && !user.patient_uid)
         .sort((a, b) => a.id - b.id)
         .map((user) => ({ id: user.id }))
     ];
@@ -298,6 +364,32 @@ export async function localQuery(sql, params = []) {
     user.full_name = fullName;
     user.phone = phone;
     user.profile_photo_url = profilePhotoUrl || null;
+    await writeData(data);
+    return [{ affectedRows: 1 }];
+  }
+
+  if (normalized.startsWith("update users set password_hash = ?")) {
+    const [passwordHash, id] = params;
+    const user = data.users.find((item) => item.id === Number(id));
+    if (!user) return [{ affectedRows: 0 }];
+    user.password_hash = passwordHash;
+    await writeData(data);
+    return [{ affectedRows: 1 }];
+  }
+
+  if (normalized.startsWith("update users set full_name = ?, username = ?, email = ?, phone = ?, profile_photo_url = ?, password_hash = ?, role_profile = ?")) {
+    const [fullName, username, email, phone, profilePhotoUrl, passwordHash, roleProfile, id] = params;
+    const user = data.users.find((item) => item.id === Number(id));
+    if (!user) return [{ affectedRows: 0 }];
+    Object.assign(user, {
+      full_name: fullName,
+      username: username || null,
+      email,
+      phone,
+      profile_photo_url: profilePhotoUrl || null,
+      password_hash: passwordHash,
+      role_profile: roleProfile
+    });
     await writeData(data);
     return [{ affectedRows: 1 }];
   }
@@ -405,7 +497,7 @@ export async function localQuery(sql, params = []) {
 
   if (normalized.includes("select id, patient_uid, full_name, email from users") || normalized.includes("select id, full_name, email from users")) {
     const [limit] = params.map(Number);
-    return [[...data.users].sort((a, b) => a.full_name.localeCompare(b.full_name)).slice(0, limit).map(userPublicRow)];
+    return [[...data.users].filter((user) => user.role === "patient").sort((a, b) => a.full_name.localeCompare(b.full_name)).slice(0, limit).map(userPublicRow)];
   }
 
   if (normalized.startsWith("insert into appointments")) {

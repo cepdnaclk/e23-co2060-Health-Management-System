@@ -89,7 +89,7 @@ async function startServer() {
   await initializeDatabase();
   if (!dbInitialized) scheduleDatabaseRetry();
 
-  app.listen(PORT, () => {
+  app.listen(PORT, "127.0.0.1", () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Health: http://localhost:${PORT}/health`);
     console.log(`Models: http://localhost:${PORT}/models`);

@@ -139,7 +139,7 @@ function PatientWorkspace({
         {activeView === "medical-log" ? <MedicalLogView token={session.token} /> : null}
         {activeView === "symptom" ? <SymptomView token={session.token} /> : null}
         {activeView === "reports" ? <ReportsView token={session.token} /> : null}
-        {activeView === "settings" ? <SettingsView /> : null}
+        {activeView === "settings" ? <SettingsView token={session.token} /> : null}
       </section>
     </div>
   );
@@ -657,11 +657,72 @@ function ReportsView({ token }) {
   );
 }
 
-function SettingsView() {
+function SettingsView({ token }) {
+  const [passwordForm, setPasswordForm] = useState({ password: "", confirmPassword: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  async function handleSavePassword(e) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!passwordForm.password || !passwordForm.confirmPassword) {
+      setError("Please enter and confirm a password.");
+      return;
+    }
+    if (passwordForm.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (passwordForm.password !== passwordForm.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ password: passwordForm.password })
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Could not update password");
+      setPasswordForm({ password: "", confirmPassword: "" });
+      setSuccess("Password saved. You can now sign in with email and password too.");
+    } catch (err) {
+      setError(err.message || "Could not update password");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Settings</h2>
-      <EmptyState title="Settings coming next" text="Notification preferences and password changes can be connected here." />
+      <form className="space-y-4 rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm" onSubmit={handleSavePassword}>
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">Create or change password</h3>
+          <p className="text-sm text-slate-600">If your account was created with Google, set a password here to use email and password login too.</p>
+        </div>
+        <Field label="New Password" type="password" value={passwordForm.password} onChange={(e) => setPasswordForm((v) => ({ ...v, password: e.target.value }))} />
+        <Field
+          label="Confirm Password"
+          type="password"
+          value={passwordForm.confirmPassword}
+          onChange={(e) => setPasswordForm((v) => ({ ...v, confirmPassword: e.target.value }))}
+        />
+        <button disabled={saving} type="submit" className="btn-primary">
+          {saving ? "Saving..." : "Save Password"}
+        </button>
+        {error ? <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+        {success ? <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700">{success}</p> : null}
+      </form>
     </div>
   );
 }

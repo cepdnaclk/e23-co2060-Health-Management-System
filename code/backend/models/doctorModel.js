@@ -1,4 +1,5 @@
 import { HARDCODED_DOCTOR_PASSWORD } from "../config/env.js";
+import { findUserByUsername as findAccountByUsername, findUsersByRole, updateRoleAccount } from "./accountModel.js";
 
 const HARD_CODED_DOCTORS = [
   {
@@ -123,7 +124,32 @@ const HARD_CODED_DOCTORS = [
   }
 ];
 
+function normalizeDoctorProfile(doctor) {
+  if (!doctor) return null;
+  const roleProfile = doctor.role_profile || {};
+  return {
+    id: doctor.id,
+    username: doctor.username,
+    fullName: doctor.fullName || doctor.full_name,
+    specialty: doctor.specialty || roleProfile.specialty || "General Practice",
+    qualification: doctor.qualification || roleProfile.qualification || "MBBS",
+    experienceYears: doctor.experienceYears ?? roleProfile.experienceYears ?? 0,
+    registrationId: doctor.registrationId || roleProfile.registrationId || null,
+    email: doctor.email,
+    phone: doctor.phone,
+    availableDays: doctor.availableDays || roleProfile.availableDays || [],
+    workingHours: doctor.workingHours || roleProfile.workingHours || null,
+    bio: doctor.bio || roleProfile.bio || null,
+    role: "doctor"
+  };
+}
+
 export function doctorToPublicProfile(doctor) {
+  return normalizeDoctorProfile(doctor);
+}
+
+function hardcodedDoctorToProfile(doctor) {
+  if (!doctor) return null;
   return {
     id: doctor.id,
     username: doctor.username,
@@ -140,12 +166,17 @@ export function doctorToPublicProfile(doctor) {
   };
 }
 
-export function findDoctorByUsername(username) {
-  return HARD_CODED_DOCTORS.find((item) => item.username === username) || null;
+export async function findDoctorByUsername(username) {
+  const account = await findAccountByUsername(username, "doctor");
+  if (account) return normalizeDoctorProfile(account);
+  const hardcoded = HARD_CODED_DOCTORS.find((item) => item.username === username) || null;
+  return hardcodedDoctorToProfile(hardcoded);
 }
 
-export function listDoctorsPublic() {
-  return HARD_CODED_DOCTORS.map((doctor) => doctorToPublicProfile(doctor));
+export async function listDoctorsPublic() {
+  const accounts = await findUsersByRole("doctor", 200);
+  const profiles = [...HARD_CODED_DOCTORS.map(hardcodedDoctorToProfile), ...accounts.map(normalizeDoctorProfile)];
+  return profiles.filter(Boolean).filter((doctor, index, list) => list.findIndex((item) => item.username === doctor.username) === index);
 }
 
 export function findDoctorsBySpecialties(specialties = [], limit = 3) {
@@ -158,8 +189,30 @@ export function findDoctorsBySpecialties(specialties = [], limit = 3) {
   return unique.slice(0, limit).map((doctor) => doctorToPublicProfile(doctor));
 }
 
-export function updateDoctorByUsername(username, data) {
-  const doctor = findDoctorByUsername(username);
+export async function updateDoctorByUsername(username, data) {
+  const doctorAccount = await findAccountByUsername(username, "doctor");
+  if (doctorAccount) {
+    await updateRoleAccount(doctorAccount.id, {
+      fullName: data.fullName,
+      username: doctorAccount.username,
+      email: data.email,
+      phone: data.phone,
+      profilePhotoUrl: doctorAccount.profile_photo_url,
+      passwordHash: doctorAccount.password_hash,
+      roleProfile: {
+        specialty: data.specialty,
+        qualification: data.qualification,
+        experienceYears: data.experienceYears,
+        registrationId: data.registrationId,
+        availableDays: data.availableDays,
+        workingHours: data.workingHours,
+        bio: data.bio
+      }
+    });
+    return normalizeDoctorProfile(await findAccountByUsername(username, "doctor"));
+  }
+
+  const doctor = HARD_CODED_DOCTORS.find((item) => item.username === username);
   if (!doctor) return null;
 
   doctor.fullName = data.fullName;

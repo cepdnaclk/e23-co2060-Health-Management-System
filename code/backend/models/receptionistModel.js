@@ -1,4 +1,5 @@
 import { HARDCODED_RECEPTIONIST_PASSWORD } from "../config/env.js";
+import { findUserByUsername as findAccountByUsername } from "./accountModel.js";
 
 const HARD_CODED_RECEPTIONISTS = [
   {
@@ -10,7 +11,19 @@ const HARD_CODED_RECEPTIONISTS = [
   }
 ];
 
-export function findReceptionistByUsername(username) {
+export async function findReceptionistByUsername(username) {
+  const account = await findAccountByUsername(username, "receptionist");
+  if (account) {
+    return {
+      id: account.id,
+      username: account.username,
+      password: account.password_hash,
+      fullName: account.full_name,
+      email: account.email,
+      role: "receptionist"
+    };
+  }
+
   return HARD_CODED_RECEPTIONISTS.find((item) => item.username === username) || null;
 }
 

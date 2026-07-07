@@ -11,18 +11,18 @@ import {
 } from "../models/patientModel.js";
 import { completeAppointmentByIdForDoctor, listAppointmentsInRange } from "../models/appointmentModel.js";
 
-export function getDoctorMe(req, res) {
+export async function getDoctorMe(req, res) {
   const username = String(req.auth?.username || "");
-  const doctor = findDoctorByUsername(username);
+  const doctor = await findDoctorByUsername(username);
   if (!doctor) {
     return res.status(404).json({ error: "Doctor profile not found" });
   }
   return res.json({ user: doctorToPublicProfile(doctor) });
 }
 
-export function updateDoctorMe(req, res) {
+export async function updateDoctorMe(req, res) {
   const username = String(req.auth?.username || "");
-  const doctor = findDoctorByUsername(username);
+  const doctor = await findDoctorByUsername(username);
   if (!doctor) {
     return res.status(404).json({ error: "Doctor profile not found" });
   }
@@ -32,12 +32,12 @@ export function updateDoctorMe(req, res) {
     return res.status(400).json({ error: normalized.error });
   }
 
-  const updated = updateDoctorByUsername(username, normalized);
+  const updated = await updateDoctorByUsername(username, normalized);
   return res.json({ user: updated });
 }
 
-export function listDoctors(_req, res) {
-  return res.json({ doctors: listDoctorsPublic() });
+export async function listDoctors(_req, res) {
+  return res.json({ doctors: await listDoctorsPublic() });
 }
 
 export async function doctorAppointments(_req, res) {

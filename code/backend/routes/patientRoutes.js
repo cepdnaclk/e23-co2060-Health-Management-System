@@ -9,6 +9,7 @@ import {
   payPatientAppointment,
   requestPatientAppointment,
   updateAuthMe,
+  updatePatientPassword,
   updatePatientMe
 } from "../controllers/patientController.js";
 import { authRequired, requireRole } from "../middlewares/auth.js";
@@ -24,6 +25,7 @@ router.get("/api/patient/diagnosis-logs", authRequired, requireRole("patient"), 
 router.post("/api/patient/appointments/:appointmentId/pay", authRequired, requireRole("patient"), payPatientAppointment);
 router.get("/api/patient/reports", authRequired, requireRole("patient"), getPatientReports);
 router.put("/api/auth/me", authRequired, requireRole("patient"), updateAuthMe);
+router.put("/api/auth/password", authRequired, requireRole("patient"), updatePatientPassword);
 router.put("/api/patient/me", authRequired, requireRole("patient"), updatePatientMe);
 
 export default router;

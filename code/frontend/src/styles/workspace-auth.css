@@ -237,8 +237,44 @@
   gap: 14px;
 }
 
-.auth-submit {
+.auth-submit,
+.auth-google-button {
   justify-content: center;
+}
+
+.auth-social-row {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+.auth-social-row + .auth-form {
+  margin-top: 0;
+}
+
+.auth-google-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.auth-google-button .google-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:root.dark-mode .auth-google-button {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.24);
 }
 
 .auth-note {

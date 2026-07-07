@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DoctorWorkspace from "./pages/DoctorWorkspace";
 import PatientWorkspace from "./pages/PatientWorkspace";
 import AuthScreen from "./pages/AuthScreen";
@@ -10,6 +10,8 @@ import ReceptionistWorkspace from "./pages/ReceptionistWorkspace";
 import {
   AUTH_STORE_KEY,
   API_BASE,
+  GOOGLE_CLIENT_ID,
+  loadGoogleIdentityScript,
   makeInitials,
   normalizeDateForInput,
   readJson,
@@ -23,6 +25,21 @@ const initialPatientLogin = { email: "", password: "" };
 const initialDoctorLogin = { username: "", password: "" };
 const initialReceptionistLogin = { username: "", password: "" };
 const initialSignupForm = { fullName: "", email: "", phone: "", password: "", motherPatientId: "", fatherPatientId: "", agree: false };
+const initialDoctorSignupForm = {
+  username: "",
+  fullName: "",
+  email: "",
+  phone: "",
+  password: "",
+  specialty: "General Practice",
+  qualification: "MBBS",
+  experienceYears: "0",
+  registrationId: "",
+  availableDays: "",
+  workingHours: "",
+  bio: ""
+};
+const initialReceptionistSignupForm = { username: "", fullName: "", email: "", phone: "", password: "" };
 const initialBookingForm = { doctorUsername: "", scheduledAt: "", reason: "" };
 const initialAccountForm = { fullName: "", phone: "", profilePhotoUrl: "" };
 const initialProfileForm = {
@@ -52,10 +69,13 @@ export default function App() {
   const [success, setSuccess] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const googleInitialized = useRef(false);
   const [patientLoginForm, setPatientLoginForm] = useState(initialPatientLogin);
   const [doctorLoginForm, setDoctorLoginForm] = useState(initialDoctorLogin);
   const [receptionistLoginForm, setReceptionistLoginForm] = useState(initialReceptionistLogin);
   const [signupForm, setSignupForm] = useState(initialSignupForm);
+  const [doctorSignupForm, setDoctorSignupForm] = useState(initialDoctorSignupForm);
+  const [receptionistSignupForm, setReceptionistSignupForm] = useState(initialReceptionistSignupForm);
   const [accountForm, setAccountForm] = useState(initialAccountForm);
   const [profileForm, setProfileForm] = useState(initialProfileForm);
   const [familyRiskVersion, setFamilyRiskVersion] = useState(0);
@@ -103,7 +123,7 @@ export default function App() {
           if (cancelled) return;
 
           const next = { token: session.token, role: "doctor", user: data.user || session.user };
-          localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+          sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
           setSession(next);
           setDoctorProfile(data.user || null);
           return;
@@ -111,7 +131,7 @@ export default function App() {
 
         if (session.role === "receptionist") {
           const next = { token: session.token, role: "receptionist", user: session.user || null };
-          localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+          sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
           setSession(next);
           return;
         }
@@ -132,7 +152,7 @@ export default function App() {
         if (cancelled) return;
 
         const next = { token: session.token, role: "patient", user: data.user || session.user };
-        localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+        sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
         setSession(next);
         setAccountForm({
           fullName: data.user?.fullName || "",
@@ -185,7 +205,7 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || "Login failed");
 
       const next = { token: data.token, role: data.role || "patient", user: data.user };
-      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
       setSession(next);
       setDoctorProfile(null);
       setActiveView("dashboard");
@@ -195,6 +215,65 @@ export default function App() {
       setErrorNetworkAware(err, setError);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleResponse(response) {
+    const credential = String(response?.credential || "");
+    if (!credential) {
+      setLoading(false);
+      setError("Google authentication was not completed.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential })
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Google login failed");
+
+      const next = { token: data.token, role: data.role || "patient", user: data.user };
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      setSession(next);
+      setDoctorProfile(null);
+      setActiveView("dashboard");
+      setScreen("home");
+      setSuccess("Google sign-in successful.");
+    } catch (err) {
+      setErrorNetworkAware(err, setError);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function initializeGoogleSignIn() {
+    if (!GOOGLE_CLIENT_ID) {
+      throw new Error("Google sign-in is not configured.");
+    }
+    await loadGoogleIdentityScript();
+    if (!googleInitialized.current && window.google?.accounts?.id) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse
+      });
+      googleInitialized.current = true;
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      await initializeGoogleSignIn();
+      window.google.accounts.id.prompt();
+    } catch (err) {
+      setLoading(false);
+      setErrorNetworkAware(err, setError);
     }
   }
 
@@ -219,12 +298,56 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || "Doctor login failed");
 
       const next = { token: data.token, role: "doctor", user: data.user };
-      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
       setSession(next);
       setDoctorProfile(data.user || null);
       setActiveView("dashboard");
       setScreen("workspace");
       setSuccess("Doctor login successful.");
+    } catch (err) {
+      setErrorNetworkAware(err, setError);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDoctorSignup(e) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    const payload = {
+      ...doctorSignupForm,
+      experienceYears: Number(doctorSignupForm.experienceYears || 0),
+      availableDays: String(doctorSignupForm.availableDays || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    };
+
+    if (!payload.username.trim() || !payload.fullName.trim() || !payload.email.trim() || !payload.phone.trim() || !payload.password) {
+      setError("Doctor username, full name, email, phone, and password are required.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/doctor/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Doctor sign up failed");
+
+      const next = { token: data.token, role: data.role || "doctor", user: data.user };
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      setSession(next);
+      setDoctorProfile(data.user || null);
+      setDoctorSignupForm(initialDoctorSignupForm);
+      setActiveView("dashboard");
+      setScreen("workspace");
+      setSuccess("Doctor account created.");
     } catch (err) {
       setErrorNetworkAware(err, setError);
     } finally {
@@ -253,7 +376,7 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || "Sign up failed");
 
       const next = { token: data.token, role: data.role || "patient", user: data.user };
-      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
       setSession(next);
       setDoctorProfile(null);
       setSignupForm(initialSignupForm);
@@ -288,12 +411,47 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || "Receptionist login failed");
 
       const next = { token: data.token, role: "receptionist", user: data.user };
-      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
       setSession(next);
       setDoctorProfile(null);
       setActiveView("dashboard");
       setScreen("workspace");
       setSuccess("Receptionist login successful.");
+    } catch (err) {
+      setErrorNetworkAware(err, setError);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReceptionistSignup(e) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!receptionistSignupForm.username.trim() || !receptionistSignupForm.fullName.trim() || !receptionistSignupForm.email.trim() || !receptionistSignupForm.phone.trim() || !receptionistSignupForm.password) {
+      setError("Receptionist username, full name, email, phone, and password are required.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/reception/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(receptionistSignupForm)
+      });
+      const data = await readJson(res);
+      if (!res.ok) throw new Error(data.error || "Receptionist sign up failed");
+
+      const next = { token: data.token, role: data.role || "receptionist", user: data.user };
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      setSession(next);
+      setDoctorProfile(null);
+      setReceptionistSignupForm(initialReceptionistSignupForm);
+      setActiveView("dashboard");
+      setScreen("workspace");
+      setSuccess("Receptionist account created.");
     } catch (err) {
       setErrorNetworkAware(err, setError);
     } finally {
@@ -322,7 +480,7 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || "Could not update account");
 
       const next = { token: session.token, role: "patient", user: data.user };
-      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+      sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
       setSession(next);
       setSuccess("Account details updated.");
     } catch (err) {
@@ -381,7 +539,7 @@ export default function App() {
   }
 
   function handleLogout(showMessage = true) {
-    localStorage.removeItem(AUTH_STORE_KEY);
+    sessionStorage.removeItem(AUTH_STORE_KEY);
     setSession(null);
     setDoctorProfile(null);
     setAccountForm(initialAccountForm);
@@ -389,6 +547,8 @@ export default function App() {
     setPatientLoginForm(initialPatientLogin);
     setDoctorLoginForm(initialDoctorLogin);
     setReceptionistLoginForm(initialReceptionistLogin);
+    setDoctorSignupForm(initialDoctorSignupForm);
+    setReceptionistSignupForm(initialReceptionistSignupForm);
     setActiveView("dashboard");
     setScreen("home");
     setMode("login");
@@ -521,7 +681,7 @@ export default function App() {
                 token={session.token}
                 onDoctorUpdate={(user) => {
                   const next = { token: session.token, role: "doctor", user };
-                  localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
+                  sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
                   setSession(next);
                   setDoctorProfile(user);
                 }}
@@ -603,6 +763,8 @@ export default function App() {
           doctorLoginForm={doctorLoginForm}
           receptionistLoginForm={receptionistLoginForm}
           signupForm={signupForm}
+          doctorSignupForm={doctorSignupForm}
+          receptionistSignupForm={receptionistSignupForm}
           setAuthRole={setAuthRole}
           setMode={setMode}
           setShowPassword={setShowPassword}
@@ -610,10 +772,15 @@ export default function App() {
           setDoctorLoginForm={setDoctorLoginForm}
           setReceptionistLoginForm={setReceptionistLoginForm}
           setSignupForm={setSignupForm}
+          setDoctorSignupForm={setDoctorSignupForm}
+          setReceptionistSignupForm={setReceptionistSignupForm}
           onBack={() => setScreen("home")}
           onPatientLogin={handlePatientLogin}
+          onGoogleLogin={handleGoogleLogin}
           onDoctorLogin={handleDoctorLogin}
+          onDoctorSignup={handleDoctorSignup}
           onReceptionistLogin={handleReceptionistLogin}
+          onReceptionistSignup={handleReceptionistSignup}
           onSignup={handleSignup}
         />
       ) : null}

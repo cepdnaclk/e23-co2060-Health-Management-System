@@ -1,4 +1,11 @@
 import { pool } from "../config/db.js";
+import {
+  createPatientAccount,
+  findUserByEmail as findAccountByEmail,
+  findUserById as findAccountById,
+  findUserByLoginIdentifier as findAccountByLoginIdentifier,
+  updateUserAccount
+} from "./accountModel.js";
 import { mapPatientRecord } from "./profileModel.js";
 
 const USER_AUTH_COLUMNS = "id, username, patient_uid, email, password_hash, full_name, phone, profile_photo_url";
@@ -28,45 +35,25 @@ function patientNode(row, relationship = "Self") {
 }
 
 export async function findUserByEmail(email) {
-  const [rows] = await pool.query(`SELECT ${USER_AUTH_COLUMNS} FROM users WHERE email = ? LIMIT 1`, [email]);
-  return rows[0] || null;
+  return findAccountByEmail(email, "patient");
 }
 
 export async function findUserByLoginIdentifier(identifier) {
-  const value = String(identifier || "").trim();
-  const patientUid = normalizePatientUid(value);
-  const [rows] = await pool.query(
-    `SELECT ${USER_AUTH_COLUMNS}
-     FROM users
-     WHERE email = ? OR username = ? OR patient_uid = ?
-     LIMIT 1`,
-    [value.toLowerCase(), value.toLowerCase(), patientUid]
-  );
-  return rows[0] || null;
+  return findAccountByLoginIdentifier(identifier, "patient");
 }
 
-export async function createUser({ fullName, email, phone, passwordHash }) {
-  const [result] = await pool.query("INSERT INTO users (full_name, email, phone, password_hash) VALUES (?, ?, ?, ?)", [
-    fullName,
-    email,
-    phone,
-    passwordHash
-  ]);
-  await setPatientUid(result.insertId, makePatientUid(result.insertId));
-  const [rows] = await pool.query(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ? LIMIT 1`, [result.insertId]);
-  return rows[0] || null;
+export async function createUser({ fullName, email, phone, passwordHash, profilePhotoUrl }) {
+  const user = await createPatientAccount({ fullName, email, phone, passwordHash, profilePhotoUrl });
+  await setPatientUid(user.id, makePatientUid(user.id));
+  return findUserById(user.id);
 }
 
 export async function findUserById(id) {
-  const [rows] = await pool.query(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ? LIMIT 1`, [id]);
-  return rows[0] || null;
+  return findAccountById(id, "patient");
 }
 
 export async function findUserByPatientUid(patientUid) {
-  const [rows] = await pool.query(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE patient_uid = ? LIMIT 1`, [
-    normalizePatientUid(patientUid)
-  ]);
-  return rows[0] || null;
+  return findAccountByLoginIdentifier(normalizePatientUid(patientUid), "patient");
 }
 
 export async function findUserWithProfileById(id) {
@@ -127,15 +114,6 @@ export async function findUserWithProfileByPatientUid(patientUid) {
     [normalizePatientUid(patientUid)]
   );
   return rows[0] || null;
-}
-
-export async function updateUserAccount(id, { fullName, phone, profilePhotoUrl }) {
-  await pool.query("UPDATE users SET full_name = ?, phone = ?, profile_photo_url = ? WHERE id = ?", [
-    fullName,
-    phone,
-    profilePhotoUrl,
-    id
-  ]);
 }
 
 export async function upsertPatientProfile(userId, profile) {
@@ -230,6 +208,7 @@ export async function listPatientsBasic(limit = 200) {
     `
       SELECT id, patient_uid, full_name, email
       FROM users
+      WHERE role = 'patient'
       ORDER BY full_name ASC
       LIMIT ?
     `,
@@ -314,10 +293,10 @@ export async function getPatientRecordById(patientId) {
 }
 
 export async function patientExists(patientId) {
-  const [existing] = await pool.query("SELECT id FROM users WHERE id = ? LIMIT 1", [patientId]);
+  const [existing] = await pool.query("SELECT id FROM users WHERE id = ? AND role = 'patient' LIMIT 1", [patientId]);
   return existing.length > 0;
 }
 
 export async function updatePatientBasic(patientId, { fullName, phone }) {
-  await pool.query("UPDATE users SET full_name = ?, phone = ? WHERE id = ?", [fullName, phone, patientId]);
+  await updateUserAccount(patientId, { fullName, phone, profilePhotoUrl: null });
 }

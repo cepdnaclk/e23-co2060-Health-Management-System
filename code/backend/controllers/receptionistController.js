@@ -61,7 +61,7 @@ export async function receptionistOverview(req, res) {
   if (parsed.error) return res.status(400).json({ error: parsed.error });
 
   try {
-    const doctors = listDoctorsPublic();
+    const doctors = await listDoctorsPublic();
     const patients = await listPatientsBasic(300);
     const appointments = await listAppointmentsInRange({
       startIso: parsed.startIso,
@@ -94,7 +94,7 @@ export async function receptionistCreateAppointment(req, res) {
   if (!doctorUsername) return res.status(400).json({ error: "doctorUsername is required" });
   if (!scheduledAtRaw) return res.status(400).json({ error: "scheduledAt is required" });
 
-  const doctor = findDoctorByUsername(doctorUsername);
+  const doctor = await findDoctorByUsername(doctorUsername);
   if (!doctor) return res.status(404).json({ error: "Doctor not found" });
 
   const appointmentDate = new Date(scheduledAtRaw);

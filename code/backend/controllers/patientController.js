@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import {
   findUserById,
   findUserByPatientUid,
@@ -5,9 +6,9 @@ import {
   getPatientFamilyTree,
   listPatientDiagnosisLogs,
   normalizePatientUid,
-  updateUserAccount,
   upsertPatientProfile
 } from "../models/patientModel.js";
+import { updateUserAccount, updateUserPassword } from "../models/accountModel.js";
 import { normalizeAuthProfile, normalizeProfile } from "../models/profileModel.js";
 import { createAppointment, getPatientAppointmentById, listAppointmentsForPatient, listPatientReportsWithData, markAppointmentPaid } from "../models/appointmentModel.js";
 import { predictHereditaryRisks } from "../services/hereditaryRiskService.js";
@@ -111,6 +112,28 @@ export async function updateAuthMe(req, res) {
   }
 }
 
+export async function updatePatientPassword(req, res) {
+  const password = String(req.body?.password || "");
+  if (!password) {
+    return res.status(400).json({ error: "password is required" });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters" });
+  }
+
+  try {
+    const currentUser = await findUserById(req.userId);
+    if (!currentUser) return res.status(404).json({ error: "User not found" });
+
+    const hashed = await bcrypt.hash(password, 10);
+    await updateUserPassword(req.userId, hashed);
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error("Update password error:", error);
+    return res.status(500).json({ error: "Could not update password" });
+  }
+}
+
 export async function updatePatientMe(req, res) {
   const profile = normalizeProfile(req.body || {});
 
@@ -197,7 +220,7 @@ export async function requestPatientAppointment(req, res) {
 
   if (!doctorUsername) return res.status(400).json({ error: "doctorUsername is required" });
   if (!scheduledAtRaw) return res.status(400).json({ error: "scheduledAt is required" });
-  if (!findDoctorByUsername(doctorUsername)) return res.status(404).json({ error: "Doctor not found" });
+  if (!(await findDoctorByUsername(doctorUsername))) return res.status(404).json({ error: "Doctor not found" });
 
   const appointmentDate = new Date(scheduledAtRaw);
   if (Number.isNaN(appointmentDate.getTime())) {

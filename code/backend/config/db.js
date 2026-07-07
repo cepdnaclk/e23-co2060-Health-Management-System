@@ -34,7 +34,7 @@ function demoAvatarDataUri(label, background, foreground = "#ffffff") {
 }
 
 function canUseLocalDb(error) {
-  return ["ECONNREFUSED", "ER_ACCESS_DENIED_ERROR", "ENOTFOUND", "ETIMEDOUT"].includes(error?.code);
+  return ["ECONNREFUSED", "ER_ACCESS_DENIED_ERROR", "ENOTFOUND", "ETIMEDOUT", "EPERM"].includes(error?.code);
 }
 
 export function getDbMode() {
@@ -78,16 +78,29 @@ export async function initDb() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      role VARCHAR(20) NOT NULL DEFAULT 'patient',
       username VARCHAR(64) NULL UNIQUE,
       patient_uid VARCHAR(24) NULL UNIQUE,
       full_name VARCHAR(120) NOT NULL,
       email VARCHAR(190) NOT NULL UNIQUE,
       phone VARCHAR(40) NOT NULL,
       profile_photo_url MEDIUMTEXT NULL,
+      role_profile MEDIUMTEXT NULL,
       password_hash VARCHAR(255) NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  for (const statement of [
+    "ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'patient'",
+    "ALTER TABLE users ADD COLUMN role_profile MEDIUMTEXT NULL"
+  ]) {
+    try {
+      await pool.query(statement);
+    } catch (error) {
+      if (error?.code !== "ER_DUP_FIELDNAME") throw error;
+    }
+  }
 
   try {
     await pool.query("ALTER TABLE users ADD COLUMN profile_photo_url MEDIUMTEXT NULL");
@@ -244,7 +257,8 @@ async function seedDefaultPatient() {
     return;
   }
 
-  const [created] = await pool.query("INSERT INTO users (full_name, email, phone, password_hash) VALUES (?, ?, ?, ?)", [
+  const [created] = await pool.query("INSERT INTO users (role, full_name, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)", [
+    "patient",
     "Patient One",
     DEFAULT_PATIENT_LOGIN,
     "0000000000",
@@ -313,13 +327,13 @@ async function seedDemoPatient({
   let userId = existing[0]?.id;
   if (userId) {
     await pool.query(
-      "UPDATE users SET full_name = ?, username = ?, email = ?, phone = ?, profile_photo_url = ?, patient_uid = ?, password_hash = ? WHERE id = ?",
-      [fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash, userId]
+      "UPDATE users SET role = ?, full_name = ?, username = ?, email = ?, phone = ?, profile_photo_url = ?, patient_uid = ?, password_hash = ? WHERE id = ?",
+      ["patient", fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash, userId]
     );
   } else {
     const [created] = await pool.query(
-      "INSERT INTO users (full_name, username, email, phone, profile_photo_url, patient_uid, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash]
+      "INSERT INTO users (role, full_name, username, email, phone, profile_photo_url, patient_uid, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      ["patient", fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash]
     );
     userId = created.insertId;
   }

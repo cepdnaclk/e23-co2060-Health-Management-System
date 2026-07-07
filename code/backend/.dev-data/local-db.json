@@ -1,7 +1,7 @@
 {
   "nextIds": {
-    "users": 9,
-    "patient_profiles": 5,
+    "users": 18,
+    "patient_profiles": 11,
     "appointments": 9,
     "patient_reports": 5,
     "patient_diagnosis_logs": 2
@@ -16,7 +16,9 @@
       "password_hash": "$2a$10$gT4Lyiw408HleS7JvDSXKeA5ECukXpjbIUMjsUajzb.hEN4/oHk06",
       "created_at": "2026-04-27T06:18:10.587Z",
       "username": null,
-      "patient_uid": "PT-000001"
+      "patient_uid": "PT-000001",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 2,
@@ -27,7 +29,9 @@
       "password_hash": "$2a$10$5O4kNNwEkFAuGRsu64eGJe6agaOkMRMjmdyipFekTigcEaWdnt2w6",
       "created_at": "2026-04-27T06:20:38.724Z",
       "username": null,
-      "patient_uid": "PT-000002"
+      "patient_uid": "PT-000002",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 3,
@@ -38,7 +42,9 @@
       "password_hash": "$2a$10$KT8mh9SK.DsA0Jn0KLAz8.4BN/.L/lfvPyme7/swwunVY2Qk0Yw5m",
       "created_at": "2026-04-27T06:22:05.834Z",
       "username": null,
-      "patient_uid": "PT-000003"
+      "patient_uid": "PT-000003",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 4,
@@ -46,10 +52,12 @@
       "email": "patient1",
       "phone": "0000000000",
       "profile_photo_url": null,
-      "password_hash": "$2a$10$Z9.CVhwtqtFBk4hma4RwQuZh2SxdfH0LaEYx5.oo/HAVv6j9aGNAK",
+      "password_hash": "$2a$10$Z26hF5p7gSC.Rq1N2bcwOu89whRdFlvtXpSWjGj/NF5i4LcrBZ2xi",
       "created_at": "2026-04-28T16:52:09.221Z",
       "username": null,
-      "patient_uid": "PT-000004"
+      "patient_uid": "PT-000004",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 5,
@@ -60,7 +68,9 @@
       "password_hash": "$2a$10$BTAR17Ul4qv5eu2cWgY8eO4p8wDj/EOGa9UCM29paCLmIWkG89EE6",
       "created_at": "2026-04-29T10:12:25.635Z",
       "username": null,
-      "patient_uid": "PT-000005"
+      "patient_uid": "PT-000005",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 6,
@@ -70,8 +80,10 @@
       "email": "dad@demo.local",
       "phone": "0700000001",
       "profile_photo_url": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%20viewBox%3D%220%200%20160%20160%22%3E%20%3Crect%20width%3D%22160%22%20height%3D%22160%22%20rx%3D%2242%22%20fill%3D%22%230a4b84%22%2F%3E%20%3Ccircle%20cx%3D%2280%22%20cy%3D%2262%22%20r%3D%2228%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.88%22%2F%3E%20%3Cpath%20d%3D%22M36%20142c6-31%2025-47%2044-47s38%2016%2044%2047%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.88%22%2F%3E%20%3Ctext%20x%3D%2280%22%20y%3D%2290%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2232%22%20font-weight%3D%22800%22%20fill%3D%22%230a4b84%22%3EDD%3C%2Ftext%3E%20%3C%2Fsvg%3E",
-      "password_hash": "$2a$10$84jKaPVZ8QsI5lFNLlW7b.3wYLxO0FNGzKiWI9PHVPvKZx4FbXpci",
-      "created_at": "2026-05-02T13:21:31.753Z"
+      "password_hash": "$2a$10$AF.5s0nGPFqprZf1quzlK.AL5z80oITXhhGyg5pms6/pagmf5uv.W",
+      "created_at": "2026-05-02T13:21:31.753Z",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 7,
@@ -81,8 +93,10 @@
       "email": "mom@demo.local",
       "phone": "0700000002",
       "profile_photo_url": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%20viewBox%3D%220%200%20160%20160%22%3E%20%3Crect%20width%3D%22160%22%20height%3D%22160%22%20rx%3D%2242%22%20fill%3D%22%23ef4b67%22%2F%3E%20%3Ccircle%20cx%3D%2280%22%20cy%3D%2262%22%20r%3D%2228%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.88%22%2F%3E%20%3Cpath%20d%3D%22M36%20142c6-31%2025-47%2044-47s38%2016%2044%2047%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.88%22%2F%3E%20%3Ctext%20x%3D%2280%22%20y%3D%2290%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2232%22%20font-weight%3D%22800%22%20fill%3D%22%23ef4b67%22%3EMM%3C%2Ftext%3E%20%3C%2Fsvg%3E",
-      "password_hash": "$2a$10$84jKaPVZ8QsI5lFNLlW7b.3wYLxO0FNGzKiWI9PHVPvKZx4FbXpci",
-      "created_at": "2026-05-02T13:21:31.760Z"
+      "password_hash": "$2a$10$AF.5s0nGPFqprZf1quzlK.AL5z80oITXhhGyg5pms6/pagmf5uv.W",
+      "created_at": "2026-05-02T13:21:31.760Z",
+      "role": "patient",
+      "role_profile": null
     },
     {
       "id": 8,
@@ -92,8 +106,127 @@
       "email": "son@demo.local",
       "phone": "0700000003",
       "profile_photo_url": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%20viewBox%3D%220%200%20160%20160%22%3E%20%3Crect%20width%3D%22160%22%20height%3D%22160%22%20rx%3D%2242%22%20fill%3D%22%23087f8c%22%2F%3E%20%3Ccircle%20cx%3D%2280%22%20cy%3D%2262%22%20r%3D%2228%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.88%22%2F%3E%20%3Cpath%20d%3D%22M36%20142c6-31%2025-47%2044-47s38%2016%2044%2047%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.88%22%2F%3E%20%3Ctext%20x%3D%2280%22%20y%3D%2290%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2232%22%20font-weight%3D%22800%22%20fill%3D%22%23087f8c%22%3EDS%3C%2Ftext%3E%20%3C%2Fsvg%3E",
-      "password_hash": "$2a$10$84jKaPVZ8QsI5lFNLlW7b.3wYLxO0FNGzKiWI9PHVPvKZx4FbXpci",
-      "created_at": "2026-05-02T13:21:31.767Z"
+      "password_hash": "$2a$10$AF.5s0nGPFqprZf1quzlK.AL5z80oITXhhGyg5pms6/pagmf5uv.W",
+      "created_at": "2026-05-02T13:21:31.767Z",
+      "role": "patient",
+      "role_profile": null
+    },
+    {
+      "id": 9,
+      "username": null,
+      "patient_uid": "PT-000009",
+      "full_name": "S.A.W FERNANDO",
+      "email": "e23100@eng.pdn.ac.lk",
+      "phone": "",
+      "profile_photo_url": null,
+      "password_hash": "https://lh3.googleusercontent.com/a/ACg8ocITiJGfV36WoaGpdKWgJrhvckpL3Y56vCxgv4L18Sc81POqJQ=s96-c",
+      "created_at": "2026-07-03T16:42:05.242Z",
+      "role": "patient",
+      "role_profile": null
+    },
+    {
+      "id": 10,
+      "role": "doctor",
+      "username": "Dr Sandbox",
+      "patient_uid": "$2a$10$r0h5ASFE7Dw8EnCCrWPKee45m.RAc2GIrEGpXWqcfffSyvGfAJvQi",
+      "full_name": "dr-sandbox",
+      "email": "dr-sandbox@example.com",
+      "phone": "0710000000",
+      "profile_photo_url": null,
+      "role_profile": "{\"specialty\":\"General Practice\",\"qualification\":\"MBBS\",\"experienceYears\":5,\"registrationId\":\"REG-100\",\"availableDays\":[\"Monday\",\"Wednesday\"],\"workingHours\":\"09:00 - 17:00\",\"bio\":\"Test doctor\"}",
+      "password_hash": "{\"specialty\":\"General Practice\",\"qualification\":\"MBBS\",\"experienceYears\":5,\"registrationId\":\"REG-100\",\"availableDays\":[\"Monday\",\"Wednesday\"],\"workingHours\":\"09:00 - 17:00\",\"bio\":\"Test doctor\"}",
+      "created_at": "2026-07-07T08:48:54.726Z"
+    },
+    {
+      "id": 11,
+      "role": "doctor",
+      "username": "dr-sandbox-2",
+      "patient_uid": "PT-000011",
+      "full_name": "Dr Sandbox Two",
+      "email": "dr-sandbox-2@example.com",
+      "phone": "0710000002",
+      "profile_photo_url": null,
+      "role_profile": "{\"specialty\":\"General Practice\",\"qualification\":\"MBBS\",\"experienceYears\":5,\"registrationId\":\"REG-200\",\"availableDays\":[\"Monday\",\"Wednesday\"],\"workingHours\":\"09:00 - 17:00\",\"bio\":\"Test doctor 2\"}",
+      "password_hash": "$2a$10$FunwZ5AVyCACUlZyGDPefOIbMFNdyqj0fLNzjxJpUCkCEj2XptpYS",
+      "created_at": "2026-07-07T08:50:03.507Z"
+    },
+    {
+      "id": 12,
+      "role": "receptionist",
+      "username": "rec-sandbox-2",
+      "patient_uid": "PT-000012",
+      "full_name": "Rec Sandbox Two",
+      "email": "rec-sandbox-2@example.com",
+      "phone": "0710000003",
+      "profile_photo_url": null,
+      "role_profile": "{}",
+      "password_hash": "$2a$10$aLu/8.wW4CvadDoiAnqg5eVxoiDnNxL.756sWCRUjqF8MK0Wq5gbm",
+      "created_at": "2026-07-07T08:50:03.632Z"
+    },
+    {
+      "id": 13,
+      "role": "patient",
+      "username": null,
+      "patient_uid": "PT-000013",
+      "full_name": "Patient Sandbox",
+      "email": "patient-sandbox@example.com",
+      "phone": "0701234567",
+      "profile_photo_url": null,
+      "role_profile": null,
+      "password_hash": "$2a$10$QGg4RJYm4cqq6UJodpTeceZ37QugF3l20azwGAthZDKYl8AWSqk8e",
+      "created_at": "2026-07-07T08:50:11.245Z"
+    },
+    {
+      "id": 14,
+      "username": null,
+      "patient_uid": "PT-000014",
+      "full_name": "Apoorwa Fernando",
+      "email": "fernandoapoorwa@gmail.com",
+      "phone": "",
+      "profile_photo_url": null,
+      "password_hash": "https://lh3.googleusercontent.com/a/ACg8ocIxmCXH5pWNElH6ItkiK3r4wwq4Wp9Xq9zh2yswrgQPyxtGg4s=s96-c",
+      "created_at": "2026-07-07T09:24:32.436Z",
+      "role": "patient",
+      "role_profile": null
+    },
+    {
+      "id": 15,
+      "username": null,
+      "patient_uid": "PT-000015",
+      "full_name": "Apurwa Fernando",
+      "email": "apurwa.fernando@aiesec.net",
+      "phone": "0768450570",
+      "profile_photo_url": null,
+      "password_hash": "$2a$10$g3Ovut3cWt/te6gW3I9hS.DF1QK4D5.MIoY8ItNnOkcrBs2DFR/yu",
+      "created_at": "2026-07-07T09:32:57.041Z",
+      "role": "patient",
+      "role_profile": null
+    },
+    {
+      "id": 16,
+      "username": null,
+      "patient_uid": "PT-000016",
+      "full_name": "Ryan",
+      "email": "orangepeelcrust@gmail.com",
+      "phone": "0715712336",
+      "profile_photo_url": null,
+      "password_hash": null,
+      "created_at": "2026-07-07T09:35:54.563Z",
+      "role": "patient",
+      "role_profile": null
+    },
+    {
+      "id": 17,
+      "role": "patient",
+      "username": null,
+      "patient_uid": "PT-000017",
+      "full_name": "example_login387",
+      "email": "examplelogin38@gmail.com",
+      "phone": "",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocJt_Zg4jdo4WsfDGYTpYKVNGIg_0pCUa8zHNV4uw1fzFsrGdA=s96-c",
+      "role_profile": null,
+      "password_hash": "",
+      "created_at": "2026-07-07T14:32:04.968Z"
     }
   ],
   "patient_profiles": [
@@ -125,7 +258,7 @@
       "known_conditions": "Type 2 Diabetes",
       "mother_patient_uid": null,
       "father_patient_uid": null,
-      "updated_at": "2026-05-03T05:50:12.078Z"
+      "updated_at": "2026-07-03T16:27:36.495Z"
     },
     {
       "id": 3,
@@ -140,7 +273,7 @@
       "known_conditions": "Familial Hypercholesterolemia",
       "mother_patient_uid": null,
       "father_patient_uid": null,
-      "updated_at": "2026-05-03T05:50:12.085Z"
+      "updated_at": "2026-07-03T16:27:36.501Z"
     },
     {
       "id": 4,
@@ -155,7 +288,97 @@
       "known_conditions": null,
       "mother_patient_uid": "PT-DEMO-MOM",
       "father_patient_uid": "PT-DEMO-DAD",
-      "updated_at": "2026-05-03T05:50:12.091Z"
+      "updated_at": "2026-07-03T16:27:36.507Z"
+    },
+    {
+      "id": 5,
+      "user_id": 9,
+      "created_at": "2026-07-03T16:42:05.262Z",
+      "dob": null,
+      "gender": null,
+      "address": null,
+      "emergency_contact": null,
+      "blood_group": null,
+      "allergies": null,
+      "known_conditions": null,
+      "mother_patient_uid": null,
+      "father_patient_uid": null,
+      "updated_at": "2026-07-03T16:42:05.262Z"
+    },
+    {
+      "id": 6,
+      "user_id": 13,
+      "created_at": "2026-07-07T08:50:11.263Z",
+      "dob": null,
+      "gender": null,
+      "address": null,
+      "emergency_contact": null,
+      "blood_group": null,
+      "allergies": null,
+      "known_conditions": null,
+      "mother_patient_uid": null,
+      "father_patient_uid": null,
+      "updated_at": "2026-07-07T08:50:11.263Z"
+    },
+    {
+      "id": 7,
+      "user_id": 14,
+      "created_at": "2026-07-07T09:24:32.481Z",
+      "dob": null,
+      "gender": null,
+      "address": null,
+      "emergency_contact": null,
+      "blood_group": null,
+      "allergies": null,
+      "known_conditions": null,
+      "mother_patient_uid": null,
+      "father_patient_uid": null,
+      "updated_at": "2026-07-07T09:24:32.481Z"
+    },
+    {
+      "id": 8,
+      "user_id": 15,
+      "created_at": "2026-07-07T09:32:57.060Z",
+      "dob": null,
+      "gender": null,
+      "address": null,
+      "emergency_contact": null,
+      "blood_group": null,
+      "allergies": null,
+      "known_conditions": null,
+      "mother_patient_uid": null,
+      "father_patient_uid": null,
+      "updated_at": "2026-07-07T09:32:57.060Z"
+    },
+    {
+      "id": 9,
+      "user_id": 16,
+      "created_at": "2026-07-07T09:35:54.580Z",
+      "dob": null,
+      "gender": "Female",
+      "address": null,
+      "emergency_contact": null,
+      "blood_group": "C-",
+      "allergies": null,
+      "known_conditions": null,
+      "mother_patient_uid": null,
+      "father_patient_uid": null,
+      "updated_at": "2026-07-07T09:37:23.378Z"
+    },
+    {
+      "id": 10,
+      "user_id": 17,
+      "created_at": "2026-07-07T14:32:04.982Z",
+      "dob": null,
+      "gender": null,
+      "address": null,
+      "emergency_contact": null,
+      "blood_group": null,
+      "allergies": null,
+      "known_conditions": null,
+      "mother_patient_uid": null,
+      "father_patient_uid": null,
+      "updated_at": "2026-07-07T14:32:04.982Z"
     }
   ],
   "appointments": [
@@ -251,14 +474,14 @@
       "scheduled_at": "2026-05-03 10:30:00",
       "status": "Confirmed",
       "reason": "General",
-      "payment_status": "Unpaid",
+      "payment_status": "Paid",
       "payment_amount": 2500,
       "payment_currency": "LKR",
-      "payment_reference": null,
-      "paid_at": null,
+      "payment_reference": "PAY-1783435142280-8",
+      "paid_at": "2026-07-07T14:39:02.281Z",
       "created_by": "receptionist1",
       "created_at": "2026-05-03T05:35:10.562Z",
-      "updated_at": "2026-05-03T05:35:10.562Z"
+      "updated_at": "2026-07-07T14:39:02.281Z"
     }
   ],
   "patient_reports": [
