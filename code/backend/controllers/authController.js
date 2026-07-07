@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
-import { findDoctorByUsername, doctorToPublicProfile } from "../models/doctorModel.js";
+import { findDoctorByUsername, doctorToPublicProfile, findHardcodedDoctorByEmail } from "../models/doctorModel.js";
 import {
   createUser,
   findUserByEmail,
@@ -12,7 +12,7 @@ import {
 import { formatRoleSessionUser, createRoleAccount, findUserByEmail as findAnyUserByEmail, findUserByLoginIdentifier as findAnyUserByLoginIdentifier, findUserByUsername as findAnyUserByUsername, updateRoleAccount, updateUserAccount, updateUserPassword } from "../models/accountModel.js";
 import { normalizeAuthProfile, normalizeDoctorSelfProfile, normalizeProfile } from "../models/profileModel.js";
 import { signToken } from "../middlewares/auth.js";
-import { findReceptionistByUsername, receptionistToPublicProfile } from "../models/receptionistModel.js";
+import { findReceptionistByUsername, receptionistToPublicProfile, findHardcodedReceptionistByEmail } from "../models/receptionistModel.js";
 import { GOOGLE_CLIENT_ID } from "../config/env.js";
 
 const googleAuthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -195,28 +195,72 @@ export async function googleSignIn(req, res) {
     });
     const payload = ticket.getPayload();
     const email = String(payload?.email || "").trim().toLowerCase();
-    const fullName = String(payload?.name || email.split("@")[0] || "").trim();
-    const profilePhotoUrl = String(payload?.picture || "").trim();
 
     if (!email) {
       return res.status(400).json({ error: "Google account did not provide an email" });
     }
 
-    const existingAccount = await findAnyUserByEmail(email);
-    if (existingAccount && existingAccount.role !== "patient") {
-      return res.status(409).json({ error: "Email already in use" });
+    // 1. Search database users (Patient, Doctor, or Receptionist)
+    const dbUser = await findAnyUserByEmail(email);
+
+    // 2. Search hardcoded doctor/receptionist lists if not in database
+    let hardcodedDoc = null;
+    let hardcodedRec = null;
+
+    if (!dbUser) {
+      hardcodedDoc = findHardcodedDoctorByEmail(email);
+      if (!hardcodedDoc) {
+        hardcodedRec = findHardcodedReceptionistByEmail(email);
+      }
     }
 
-    let user = await findUserByEmail(email);
-    if (!user) {
-      return res.status(400).json({ error: "No account found with this Google email. Please sign up first." });
+    // 3. Resolve role, user ID and session data structure
+    let role = null;
+    let userId = null;
+    let sessionUser = null;
+
+    if (dbUser) {
+      role = dbUser.role;
+      userId = dbUser.id;
+      if (role === "patient") {
+        sessionUser = patientSessionUser(dbUser);
+      } else {
+        sessionUser = roleSessionUser(dbUser);
+      }
+    } else if (hardcodedDoc) {
+      role = "doctor";
+      userId = hardcodedDoc.id;
+      sessionUser = doctorToPublicProfile(hardcodedDoc);
+    } else if (hardcodedRec) {
+      role = "receptionist";
+      userId = hardcodedRec.id;
+      sessionUser = receptionistToPublicProfile(hardcodedRec);
     }
 
-    const token = signToken({ id: user.id, email: user.email, role: "patient" });
+    // 4. Block login if no matching account exists
+    if (!role || !userId || !sessionUser) {
+      return res.status(400).json({
+        error: "No account found with this Google email. Please register or contact your administrator."
+      });
+    }
+
+    // 5. Ensure resolved role matches the intended login role tab
+    const intendedRole = String(req.body?.intendedRole || "patient").trim().toLowerCase();
+    if (role !== intendedRole) {
+      let roleLabel = "patient";
+      if (intendedRole === "doctor") roleLabel = "doctor";
+      if (intendedRole === "receptionist") roleLabel = "receptionist";
+      return res.status(400).json({
+        error: `No ${roleLabel} account found with this Google email.`
+      });
+    }
+
+    // 6. Generate role-specific token and response
+    const token = signToken({ id: userId, email, role });
     return res.json({
       token,
-      role: "patient",
-      user: patientSessionUser(user)
+      role,
+      user: sessionUser
     });
   } catch (error) {
     console.error("Google sign in error:", error);

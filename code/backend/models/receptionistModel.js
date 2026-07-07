@@ -35,3 +35,9 @@ export function receptionistToPublicProfile(receptionist) {
     email: receptionist.email
   };
 }
+
+export function findHardcodedReceptionistByEmail(email) {
+  return HARD_CODED_RECEPTIONISTS.find(
+    (item) => String(item.email || "").trim().toLowerCase() === String(email || "").trim().toLowerCase()
+  ) || null;
+}

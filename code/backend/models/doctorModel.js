@@ -229,3 +229,10 @@ export async function updateDoctorByUsername(username, data) {
 
   return doctorToPublicProfile(doctor);
 }
+
+export function findHardcodedDoctorByEmail(email) {
+  const hardcoded = HARD_CODED_DOCTORS.find(
+    (item) => String(item.email || "").trim().toLowerCase() === String(email || "").trim().toLowerCase()
+  );
+  return hardcodedDoctorToProfile(hardcoded);
+}

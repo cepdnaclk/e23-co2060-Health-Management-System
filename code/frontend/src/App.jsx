@@ -230,17 +230,28 @@ export default function App() {
       const res = await fetch(`${API_BASE}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential })
+        body: JSON.stringify({ credential, intendedRole: authRole })
       });
       const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || "Google login failed");
 
-      const next = { token: data.token, role: data.role || "patient", user: data.user };
+      const role = data.role || "patient";
+      const next = { token: data.token, role, user: data.user };
       sessionStorage.setItem(AUTH_STORE_KEY, JSON.stringify(next));
       setSession(next);
-      setDoctorProfile(null);
+      
+      if (role === "doctor") {
+        setDoctorProfile(data.user || null);
+        setScreen("workspace");
+      } else if (role === "receptionist") {
+        setDoctorProfile(null);
+        setScreen("workspace");
+      } else {
+        setDoctorProfile(null);
+        setScreen("home");
+      }
+
       setActiveView("dashboard");
-      setScreen("home");
       setSuccess("Google sign-in successful.");
     } catch (err) {
       setErrorNetworkAware(err, setError);
