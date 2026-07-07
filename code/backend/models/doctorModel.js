@@ -153,6 +153,7 @@ function hardcodedDoctorToProfile(doctor) {
   return {
     id: doctor.id,
     username: doctor.username,
+    password: doctor.password,
     fullName: doctor.fullName,
     specialty: doctor.specialty,
     qualification: doctor.qualification,
