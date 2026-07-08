@@ -65,6 +65,7 @@ export async function doctorAppointments(_req, res) {
         time: `${dateText} ${timeText}`,
         status: row.status,
         reason: row.reason || "General consultation",
+        consultationType: row.consultation_type || "In-Person",
         patient: {
           id: row.patient_id,
           fullName: row.full_name,

@@ -185,6 +185,7 @@ export async function initDb() {
       payment_reference VARCHAR(80) NULL,
       paid_at DATETIME NULL,
       created_by VARCHAR(64) NOT NULL,
+      consultation_type VARCHAR(32) NOT NULL DEFAULT 'In-Person',
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       CONSTRAINT fk_appointments_patient
@@ -201,7 +202,8 @@ export async function initDb() {
     "ALTER TABLE appointments ADD COLUMN payment_amount DECIMAL(10,2) NOT NULL DEFAULT 2500.00",
     "ALTER TABLE appointments ADD COLUMN payment_currency VARCHAR(8) NOT NULL DEFAULT 'LKR'",
     "ALTER TABLE appointments ADD COLUMN payment_reference VARCHAR(80) NULL",
-    "ALTER TABLE appointments ADD COLUMN paid_at DATETIME NULL"
+    "ALTER TABLE appointments ADD COLUMN paid_at DATETIME NULL",
+    "ALTER TABLE appointments ADD COLUMN consultation_type VARCHAR(32) NOT NULL DEFAULT 'In-Person'"
   ]) {
     try {
       await pool.query(statement);

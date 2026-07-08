@@ -40,7 +40,7 @@ const initialDoctorSignupForm = {
   bio: ""
 };
 const initialReceptionistSignupForm = { username: "", fullName: "", email: "", phone: "", password: "" };
-const initialBookingForm = { doctorUsername: "", scheduledAt: "", reason: "" };
+const initialBookingForm = { doctorUsername: "", scheduledAt: "", reason: "", consultationType: "In-Person" };
 const initialAccountForm = { fullName: "", phone: "", profilePhotoUrl: "" };
 const initialProfileForm = {
   dob: "",
@@ -871,6 +871,19 @@ function BookingModal({ form, setForm, doctors, loading, error, onSubmit, onClos
             onChange={(e) => setForm((value) => ({ ...value, scheduledAt: e.target.value }))}
             required
           />
+        </label>
+
+        <label className="block text-sm font-medium text-slate-700">
+          Consultation Type
+          <select
+            className="field mt-1 w-full"
+            value={form.consultationType || "In-Person"}
+            onChange={(e) => setForm((value) => ({ ...value, consultationType: e.target.value }))}
+            required
+          >
+            <option value="In-Person">🏥 In-Person (At Clinic)</option>
+            <option value="Video Consultation">📹 Video Consultation (Telemedicine)</option>
+          </select>
         </label>
 
         <label className="block text-sm font-medium text-slate-700">

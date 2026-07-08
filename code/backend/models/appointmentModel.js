@@ -27,6 +27,7 @@ export async function listAppointmentsInRange({ startIso, endIso, doctorUsername
         a.payment_currency,
         a.payment_reference,
         a.paid_at,
+        a.consultation_type,
         u.full_name,
         p.blood_group,
         p.allergies
@@ -34,8 +35,8 @@ export async function listAppointmentsInRange({ startIso, endIso, doctorUsername
       INNER JOIN users u ON u.id = a.patient_id
       LEFT JOIN patient_profiles p ON p.user_id = a.patient_id
       WHERE a.scheduled_at >= ? AND a.scheduled_at < ?
-      ${whereDoctor}
-      AND a.status IN (${statusClause})
+      \${whereDoctor}
+      AND a.status IN (\${statusClause})
       ORDER BY a.scheduled_at ASC
     `,
     params
@@ -43,13 +44,13 @@ export async function listAppointmentsInRange({ startIso, endIso, doctorUsername
   return rows;
 }
 
-export async function createAppointment({ patientId, doctorUsername, scheduledAt, reason, createdBy, status = "Confirmed" }) {
+export async function createAppointment({ patientId, doctorUsername, scheduledAt, reason, createdBy, status = "Confirmed", consultationType = "In-Person" }) {
   const [result] = await pool.query(
     `
-      INSERT INTO appointments (patient_id, doctor_username, scheduled_at, status, reason, created_by)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO appointments (patient_id, doctor_username, scheduled_at, status, reason, created_by, consultation_type)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
-    [patientId, doctorUsername, scheduledAt, status, reason || "General consultation", createdBy]
+    [patientId, doctorUsername, scheduledAt, status, reason || "General consultation", createdBy, consultationType]
   );
   return result.insertId;
 }
@@ -69,6 +70,7 @@ export async function listPendingAppointmentRequests(limit = 100) {
         a.payment_currency,
         a.payment_reference,
         a.paid_at,
+        a.consultation_type,
         u.full_name,
         p.blood_group,
         p.allergies
@@ -159,7 +161,8 @@ export async function listAppointmentsForPatient(patientId, limit = 200) {
         a.payment_amount,
         a.payment_currency,
         a.payment_reference,
-        a.paid_at
+        a.paid_at,
+        a.consultation_type
       FROM appointments a
       WHERE a.patient_id = ?
       ORDER BY a.scheduled_at DESC
@@ -184,7 +187,8 @@ export async function getPatientAppointmentById(patientId, appointmentId) {
         payment_amount,
         payment_currency,
         payment_reference,
-        paid_at
+        paid_at,
+        consultation_type
       FROM appointments
       WHERE patient_id = ? AND id = ?
       LIMIT 1

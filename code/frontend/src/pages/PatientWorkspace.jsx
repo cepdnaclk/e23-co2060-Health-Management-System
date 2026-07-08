@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
+import TelehealthRoom from "../components/TelehealthRoom";
 import SymptomChecker from "../components/SymptomChecker";
 import { API_BASE, makeInitials, normalizeDateForInput, readJson, titleForPatientView } from "../lib/appShared";
 
@@ -34,6 +35,22 @@ function PatientWorkspace({
   onLogout
 }) {
   const [profilePhotoFileName, setProfilePhotoFileName] = useState("");
+  const [activeCall, setActiveCall] = useState(null);
+  const [appointmentsVersion, setAppointmentsVersion] = useState(0);
+
+  if (activeCall) {
+    return (
+      <TelehealthRoom
+        appointment={activeCall}
+        token={session.token}
+        isDoctor={false}
+        onClose={() => {
+          setActiveCall(null);
+          setAppointmentsVersion((v) => v + 1);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="workspace-layout mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
@@ -191,7 +208,13 @@ function PatientWorkspace({
         ) : null}
 
         {activeView === "family" ? <FamilyRiskView token={session.token} refreshKey={familyRiskVersion} /> : null}
-        {activeView === "appointments" ? <AppointmentsView token={session.token} /> : null}
+        {activeView === "appointments" ? (
+          <AppointmentsView
+            token={session.token}
+            onJoinCall={setActiveCall}
+            refreshKey={appointmentsVersion}
+          />
+        ) : null}
         {activeView === "medical-log" ? <MedicalLogView token={session.token} /> : null}
         {activeView === "symptom" ? <SymptomView token={session.token} /> : null}
         {activeView === "reports" ? <ReportsView token={session.token} /> : null}
@@ -743,7 +766,7 @@ function DashboardView({ user, profile, token, setActiveView }) {
   );
 }
 
-function AppointmentsView({ token }) {
+function AppointmentsView({ token, onJoinCall, refreshKey }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [paying, setPaying] = useState(false);
@@ -777,7 +800,7 @@ function AppointmentsView({ token }) {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, refreshKey]);
 
   async function submitPayment(e) {
     e.preventDefault();
@@ -859,23 +882,37 @@ function AppointmentsView({ token }) {
             <p className="font-semibold text-slate-900">
               {String(item.scheduledAt).replace("T", " ").slice(0, 16)} - Dr. {item.doctorUsername}
             </p>
-            <p>Reason: {item.reason}</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Type: {item.consultationType === "Video Consultation" ? "📹 Video Consultation" : "🏥 In-Person"}
+            </p>
+            <p className="my-1">Reason: {item.reason}</p>
             <StatusBadge status={item.status} />
-            <div className="payment-row">
+            <div className="payment-row flex items-center justify-between gap-3 mt-3">
               <div>
-                <p className="payment-label">Payment</p>
-                <p className={item.paymentStatus === "Paid" ? "payment-status payment-paid" : "payment-status"}>
+                <p className="payment-label text-xs uppercase text-slate-400 font-semibold">Payment</p>
+                <p className={item.paymentStatus === "Paid" ? "payment-status payment-paid font-medium text-emerald-600" : "payment-status font-medium"}>
                   {item.paymentStatus || "Unpaid"} · {item.paymentCurrency || "LKR"} {Number(item.paymentAmount || 2500).toFixed(2)}
                 </p>
-                {item.paymentReference ? <p className="payment-reference">Ref: {item.paymentReference}</p> : null}
+                {item.paymentReference ? <p className="payment-reference text-xs opacity-75">Ref: {item.paymentReference}</p> : null}
               </div>
-              {item.status === "Confirmed" && item.paymentStatus !== "Paid" ? (
-                <button type="button" className="btn-primary payment-button" onClick={() => openPayment(item)}>
-                  Pay Now
-                </button>
-              ) : item.status === "Pending" ? (
-                <span className="text-xs font-semibold uppercase text-slate-500">Waiting for receptionist approval</span>
-              ) : null}
+              <div className="flex items-center gap-2">
+                {item.status === "Confirmed" && item.consultationType === "Video Consultation" && (
+                  <button
+                    type="button"
+                    className="btn-primary py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm text-xs flex items-center gap-1.5"
+                    onClick={() => onJoinCall(item)}
+                  >
+                    📹 Join Video Call
+                  </button>
+                )}
+                {item.status === "Confirmed" && item.paymentStatus !== "Paid" ? (
+                  <button type="button" className="btn-primary payment-button" onClick={() => openPayment(item)}>
+                    Pay Now
+                  </button>
+                ) : item.status === "Pending" ? (
+                  <span className="text-xs font-semibold uppercase text-slate-500">Waiting for receptionist approval</span>
+                ) : null}
+              </div>
             </div>
           </div>
         ))}

@@ -82,6 +82,13 @@ function migrateDataShape(data) {
     }
   }
 
+  for (const appointment of data.appointments) {
+    if (!Object.prototype.hasOwnProperty.call(appointment, "consultation_type")) {
+      appointment.consultation_type = "In-Person";
+      changed = true;
+    }
+  }
+
   return { data, changed };
 }
 
@@ -162,7 +169,8 @@ function appointmentView(data, appointment) {
     paid_at: appointment.paid_at || null,
     full_name: user?.full_name || "Unknown patient",
     blood_group: profile.blood_group || null,
-    allergies: profile.allergies || null
+    allergies: profile.allergies || null,
+    consultation_type: appointment.consultation_type || "In-Person"
   };
 }
 
@@ -513,10 +521,23 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.startsWith("insert into appointments")) {
-    const hasStatus = params.length === 6;
-    const [patientId, doctorUsername, scheduledAt, status, reason, createdBy] = hasStatus
-      ? params
-      : [params[0], params[1], params[2], "Confirmed", params[3], params[4]];
+    let patientId, doctorUsername, scheduledAt, status, reason, createdBy, consultationType;
+    if (params.length === 7) {
+      [patientId, doctorUsername, scheduledAt, status, reason, createdBy, consultationType] = params;
+    } else if (params.length === 6) {
+      const param3Lower = String(params[3] || "").toLowerCase();
+      if (["confirmed", "pending", "completed", "cancelled"].includes(param3Lower)) {
+        [patientId, doctorUsername, scheduledAt, status, reason, createdBy] = params;
+        consultationType = "In-Person";
+      } else {
+        [patientId, doctorUsername, scheduledAt, reason, createdBy, consultationType] = params;
+        status = "Confirmed";
+      }
+    } else {
+      [patientId, doctorUsername, scheduledAt, status, reason, createdBy] = params;
+      consultationType = "In-Person";
+    }
+
     const id = data.nextIds.appointments++;
     data.appointments.push({
       id,
@@ -524,13 +545,14 @@ export async function localQuery(sql, params = []) {
       doctor_username: doctorUsername,
       scheduled_at: scheduledAt,
       status: status || "Confirmed",
-      reason,
+      reason: reason || "General consultation",
       payment_status: "Unpaid",
       payment_amount: 2500,
       payment_currency: "LKR",
       payment_reference: null,
       paid_at: null,
       created_by: createdBy,
+      consultation_type: consultationType || "In-Person",
       created_at: now(),
       updated_at: now()
     });
@@ -610,7 +632,8 @@ export async function localQuery(sql, params = []) {
         payment_amount: item.payment_amount ?? 2500,
         payment_currency: item.payment_currency || "LKR",
         payment_reference: item.payment_reference || null,
-        paid_at: item.paid_at || null
+        paid_at: item.paid_at || null,
+        consultation_type: item.consultation_type || "In-Person"
       }));
     return [rows];
   }
@@ -630,7 +653,8 @@ export async function localQuery(sql, params = []) {
       payment_amount: appointment.payment_amount ?? 2500,
       payment_currency: appointment.payment_currency || "LKR",
       payment_reference: appointment.payment_reference || null,
-      paid_at: appointment.paid_at || null
+      paid_at: appointment.paid_at || null,
+      consultation_type: appointment.consultation_type || "In-Person"
     }]];
   }
 

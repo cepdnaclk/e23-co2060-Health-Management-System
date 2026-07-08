@@ -2,7 +2,7 @@
   "nextIds": {
     "users": 18,
     "patient_profiles": 12,
-    "appointments": 10,
+    "appointments": 11,
     "patient_reports": 5,
     "patient_diagnosis_logs": 2
   },
@@ -52,7 +52,7 @@
       "email": "patient1",
       "phone": "0000000000",
       "profile_photo_url": null,
-      "password_hash": "$2a$10$l7jFWMuWD58Wo993TAUZIOe/Ge3EVkTTUII7loNT1XKTo77pKo5qe",
+      "password_hash": "$2a$10$l3AFvXTU.2U4wAZdijW1YubaLXE7V3b.b51stMpLQdH7.gG2wUbGu",
       "created_at": "2026-04-28T16:52:09.221Z",
       "username": null,
       "patient_uid": "PT-000004",
@@ -430,14 +430,14 @@
       "emergency_contact": null,
       "blood_group": null,
       "allergies": "peanut",
-      "known_conditions": "diabetes",
+      "known_conditions": "heart disease",
       "mother_patient_uid": null,
       "father_patient_uid": null,
       "weight": "70",
       "height": "175",
-      "dietary_preference": "Vegetarian",
-      "activity_level": "Sedentary",
-      "updated_at": "2026-07-07T18:55:37.015Z"
+      "dietary_preference": "Kosher",
+      "activity_level": "Very Active",
+      "updated_at": "2026-07-08T04:54:26.650Z"
     }
   ],
   "appointments": [
@@ -450,7 +450,8 @@
       "reason": "general",
       "created_by": "receptionist1",
       "created_at": "2026-04-28T16:39:56.528Z",
-      "updated_at": "2026-04-29T10:11:03.764Z"
+      "updated_at": "2026-04-29T10:11:03.764Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 2,
@@ -461,7 +462,8 @@
       "reason": "general",
       "created_by": "receptionist1",
       "created_at": "2026-04-28T16:47:46.554Z",
-      "updated_at": "2026-04-28T16:47:46.554Z"
+      "updated_at": "2026-04-28T16:47:46.554Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 3,
@@ -472,7 +474,8 @@
       "reason": "Hmm",
       "created_by": "receptionist1",
       "created_at": "2026-04-28T17:18:51.090Z",
-      "updated_at": "2026-04-29T16:40:07.926Z"
+      "updated_at": "2026-04-29T16:40:07.926Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 4,
@@ -483,7 +486,8 @@
       "reason": "General consultation",
       "created_by": "receptionist1",
       "created_at": "2026-04-29T10:15:43.343Z",
-      "updated_at": "2026-04-29T10:15:43.343Z"
+      "updated_at": "2026-04-29T10:15:43.343Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 5,
@@ -494,7 +498,8 @@
       "reason": "fever",
       "created_by": "receptionist1",
       "created_at": "2026-04-29T10:18:28.852Z",
-      "updated_at": "2026-04-29T10:18:28.852Z"
+      "updated_at": "2026-04-29T10:18:28.852Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 6,
@@ -508,7 +513,8 @@
       "updated_at": "2026-04-30T15:46:11.413Z",
       "payment_status": "Paid",
       "payment_reference": "PAY-1777563971411-6",
-      "paid_at": "2026-04-30T15:46:11.413Z"
+      "paid_at": "2026-04-30T15:46:11.413Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 7,
@@ -524,7 +530,8 @@
       "paid_at": null,
       "created_by": "receptionist1",
       "created_at": "2026-05-03T05:23:59.123Z",
-      "updated_at": "2026-05-03T05:35:06.726Z"
+      "updated_at": "2026-05-03T05:35:06.726Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 8,
@@ -540,7 +547,8 @@
       "paid_at": "2026-07-07T14:39:02.281Z",
       "created_by": "receptionist1",
       "created_at": "2026-05-03T05:35:10.562Z",
-      "updated_at": "2026-07-07T14:39:02.281Z"
+      "updated_at": "2026-07-07T14:39:02.281Z",
+      "consultation_type": "In-Person"
     },
     {
       "id": 9,
@@ -556,7 +564,25 @@
       "paid_at": null,
       "created_by": "patient:4",
       "created_at": "2026-07-07T18:57:26.662Z",
-      "updated_at": "2026-07-07T18:57:51.316Z"
+      "updated_at": "2026-07-07T18:57:51.316Z",
+      "consultation_type": "In-Person"
+    },
+    {
+      "id": 10,
+      "patient_id": 4,
+      "doctor_username": "doctor1",
+      "scheduled_at": "2026-07-08 05:12:00",
+      "status": "Confirmed",
+      "reason": "I have a headache",
+      "payment_status": "Unpaid",
+      "payment_amount": 2500,
+      "payment_currency": "LKR",
+      "payment_reference": null,
+      "paid_at": null,
+      "created_by": "patient:4",
+      "consultation_type": "Video Consultation",
+      "created_at": "2026-07-08T05:11:23.710Z",
+      "updated_at": "2026-07-08T05:11:55.443Z"
     }
   ],
   "patient_reports": [

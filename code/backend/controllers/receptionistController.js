@@ -46,6 +46,7 @@ function toAppointmentView(row) {
     status: row.status,
     reason: row.reason || "General consultation",
     doctorUsername: row.doctor_username,
+    consultationType: row.consultation_type || "In-Person",
     patient: {
       id: row.patient_id,
       fullName: row.full_name,
@@ -89,6 +90,7 @@ export async function receptionistCreateAppointment(req, res) {
   const doctorUsername = String(req.body?.doctorUsername || "").trim();
   const scheduledAtRaw = String(req.body?.scheduledAt || "").trim();
   const reason = String(req.body?.reason || "").trim();
+  const consultationType = String(req.body?.consultationType || "In-Person").trim();
 
   if (!Number.isFinite(patientId) || patientId <= 0) return res.status(400).json({ error: "Valid patientId is required" });
   if (!doctorUsername) return res.status(400).json({ error: "doctorUsername is required" });
@@ -111,7 +113,8 @@ export async function receptionistCreateAppointment(req, res) {
       doctorUsername,
       scheduledAt: appointmentDate.toISOString().slice(0, 19).replace("T", " "),
       reason,
-      createdBy: String(req.auth?.username || req.auth?.sub || "reception")
+      createdBy: String(req.auth?.username || req.auth?.sub || "reception"),
+      consultationType
     });
 
     return res.status(201).json({ ok: true, appointmentId: createdId });

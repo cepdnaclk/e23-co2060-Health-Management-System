@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } from "../components/DashboardKit";
 import Field from "../components/Field";
+import TelehealthRoom from "../components/TelehealthRoom";
 import {
   API_BASE,
   makeInitials,
@@ -20,6 +21,22 @@ const doctorNav = [
 
 function DoctorWorkspace({ doctor, activeView, setActiveView, onLogout, dataLoading, token, onDoctorUpdate }) {
   const initials = makeInitials(doctor?.fullName || doctor?.username || "DR");
+  const [activeCall, setActiveCall] = useState(null);
+  const [appointmentsVersion, setAppointmentsVersion] = useState(0);
+
+  if (activeCall) {
+    return (
+      <TelehealthRoom
+        appointment={activeCall}
+        token={token}
+        isDoctor={true}
+        onClose={() => {
+          setActiveCall(null);
+          setAppointmentsVersion((v) => v + 1);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="workspace-layout mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
@@ -41,7 +58,14 @@ function DoctorWorkspace({ doctor, activeView, setActiveView, onLogout, dataLoad
 
         {activeView === "dashboard" ? <DoctorDashboardView doctor={doctor} /> : null}
         {activeView === "profile" ? <DoctorProfileView doctor={doctor} token={token} onDoctorUpdate={onDoctorUpdate} /> : null}
-        {activeView === "appointments" ? <DoctorAppointmentsView token={token} onFinishAppointment={() => setActiveView("profile")} /> : null}
+        {activeView === "appointments" ? (
+          <DoctorAppointmentsView
+            token={token}
+            onJoinCall={setActiveCall}
+            refreshKey={appointmentsVersion}
+            onFinishAppointment={() => setActiveView("profile")}
+          />
+        ) : null}
         {activeView === "diagnosis" ? <DoctorDiagnosisView token={token} /> : null}
         {activeView === "prescriptions" ? <DoctorPrescriptionsView /> : null}
       </section>
@@ -221,7 +245,7 @@ function DoctorProfileView({ doctor, token, onDoctorUpdate }) {
   );
 }
 
-function DoctorAppointmentsView({ token, onFinishAppointment }) {
+function DoctorAppointmentsView({ token, onJoinCall, refreshKey, onFinishAppointment }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingPatient, setLoadingPatient] = useState(false);
@@ -255,7 +279,7 @@ function DoctorAppointmentsView({ token, onFinishAppointment }) {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, refreshKey]);
 
   async function openPatient(appointment) {
     setLoadingPatient(true);
@@ -460,13 +484,30 @@ function DoctorAppointmentsView({ token, onFinishAppointment }) {
             key={slot.appointmentId}
             type="button"
             onClick={() => openPatient(slot)}
-            className="glass w-full rounded-2xl p-4 text-left text-sm text-slate-700 transition hover:bg-sky-50"
+            className="glass w-full rounded-2xl p-4 text-left text-sm text-slate-700 transition hover:bg-sky-50 block"
           >
             <p className="font-semibold text-slate-900">
               {slot.time} - {slot.patient?.fullName || "Patient"}
             </p>
-            <p>{slot.reason}</p>
-            <StatusBadge status={slot.status} />
+            <p className="text-xs text-slate-500 mt-0.5">
+              Type: {slot.consultationType === "Video Consultation" ? "📹 Video Consultation" : "🏥 In-Person"}
+            </p>
+            <p className="my-1">{slot.reason}</p>
+            <div className="flex items-center justify-between gap-3">
+              <StatusBadge status={slot.status} />
+              {slot.consultationType === "Video Consultation" && slot.status === "Confirmed" && (
+                <span
+                  role="button"
+                  className="btn-primary py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onJoinCall(slot);
+                  }}
+                >
+                  📹 Join Video Call
+                </span>
+              )}
+            </div>
           </button>
         ))}
       </div>

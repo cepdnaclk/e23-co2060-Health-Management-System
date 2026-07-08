@@ -204,6 +204,7 @@ export async function getPatientAppointments(req, res) {
       scheduledAt: row.scheduled_at,
       status: row.status,
       reason: row.reason || "General consultation",
+      consultationType: row.consultation_type || "In-Person",
       ...appointmentPaymentFields(row)
     }));
     return res.json({ appointments });
@@ -217,6 +218,7 @@ export async function requestPatientAppointment(req, res) {
   const doctorUsername = String(req.body?.doctorUsername || "").trim();
   const scheduledAtRaw = String(req.body?.scheduledAt || "").trim();
   const reason = String(req.body?.reason || "").trim();
+  const consultationType = String(req.body?.consultationType || "In-Person").trim();
 
   if (!doctorUsername) return res.status(400).json({ error: "doctorUsername is required" });
   if (!scheduledAtRaw) return res.status(400).json({ error: "scheduledAt is required" });
@@ -234,7 +236,8 @@ export async function requestPatientAppointment(req, res) {
       scheduledAt: appointmentDate.toISOString().slice(0, 19).replace("T", " "),
       reason,
       createdBy: `patient:${req.userId}`,
-      status: "Pending"
+      status: "Pending",
+      consultationType
     });
 
     return res.status(201).json({

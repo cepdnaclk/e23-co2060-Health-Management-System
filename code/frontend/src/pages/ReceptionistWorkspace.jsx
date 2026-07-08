@@ -64,7 +64,8 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
     patientId: "",
     doctorUsername: "",
     scheduledAt: "",
-    reason: ""
+    reason: "",
+    consultationType: "In-Person"
   });
 
   const token = session?.token;
@@ -208,13 +209,14 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
           patientId: Number(appointmentForm.patientId),
           doctorUsername: appointmentForm.doctorUsername,
           scheduledAt: appointmentForm.scheduledAt,
-          reason: appointmentForm.reason
+          reason: appointmentForm.reason,
+          consultationType: appointmentForm.consultationType
         })
       });
       const data = await readJson(res);
       if (!res.ok) throw new Error(data.error || "Could not create appointment");
       setSuccess("Appointment created.");
-      setAppointmentForm((v) => ({ ...v, scheduledAt: "", reason: "" }));
+      setAppointmentForm((v) => ({ ...v, scheduledAt: "", reason: "", consultationType: "In-Person" }));
       const appointmentDate = String(appointmentForm.scheduledAt || "").slice(0, 10);
       if (appointmentDate && appointmentDate !== date) {
         setDate(appointmentDate);
@@ -434,6 +436,18 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
                   onChange={(e) => setAppointmentForm((v) => ({ ...v, scheduledAt: e.target.value }))}
                   required
                 />
+              </label>
+              <label className="block text-sm font-medium text-slate-700">
+                Consultation Type
+                <select
+                  className="field mt-1 w-full"
+                  value={appointmentForm.consultationType || "In-Person"}
+                  onChange={(e) => setAppointmentForm((v) => ({ ...v, consultationType: e.target.value }))}
+                  required
+                >
+                  <option value="In-Person">🏥 In-Person (At Clinic)</option>
+                  <option value="Video Consultation">📹 Video Consultation (Telemedicine)</option>
+                </select>
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 Reason
