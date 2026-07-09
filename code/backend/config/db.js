@@ -62,22 +62,22 @@ export async function initDb() {
   if (FORCE_LOCAL_DB) {
     activeDb = "local";
     await initLocalDb();
-    return;
-  }
-  try {
-    const conn = await mysql.createConnection({
-      host: DB_HOST,
-      port: DB_PORT,
-      user: DB_USER,
-      password: DB_PASSWORD
-    });
-    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
-    await conn.end();
-    activeDb = "mysql";
-  } catch (error) {
-    if (!canUseLocalDb(error)) throw error;
-    activeDb = "local";
-    await initLocalDb();
+  } else {
+    try {
+      const conn = await mysql.createConnection({
+        host: DB_HOST,
+        port: DB_PORT,
+        user: DB_USER,
+        password: DB_PASSWORD
+      });
+      await conn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
+      await conn.end();
+      activeDb = "mysql";
+    } catch (error) {
+      if (!canUseLocalDb(error)) throw error;
+      activeDb = "local";
+      await initLocalDb();
+    }
   }
 
   await pool.query(`
@@ -333,7 +333,7 @@ async function seedDemoPatient({
   motherPatientUid = null,
   fatherPatientUid = null
 }) {
-  const [existing] = await pool.query("SELECT id FROM users WHERE username = ? OR email = ? OR patient_uid = ? LIMIT 1", [
+  const [existing] = await pool.query("SELECT id, profile_photo_url FROM users WHERE username = ? OR email = ? OR patient_uid = ? LIMIT 1", [
     username,
     email,
     patientUid
@@ -341,9 +341,12 @@ async function seedDemoPatient({
 
   let userId = existing[0]?.id;
   if (userId) {
+    const currentPhoto = existing[0].profile_photo_url;
+    const isDefaultPhoto = !currentPhoto || currentPhoto.includes("image/svg+xml");
+    const photoToSet = isDefaultPhoto ? profilePhotoUrl : currentPhoto;
     await pool.query(
       "UPDATE users SET role = ?, full_name = ?, username = ?, email = ?, phone = ?, profile_photo_url = ?, patient_uid = ?, password_hash = ? WHERE id = ?",
-      ["patient", fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash, userId]
+      ["patient", fullName, username, email, phone, photoToSet, patientUid, passwordHash, userId]
     );
   } else {
     const [created] = await pool.query(
