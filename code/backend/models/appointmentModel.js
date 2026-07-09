@@ -35,8 +35,8 @@ export async function listAppointmentsInRange({ startIso, endIso, doctorUsername
       INNER JOIN users u ON u.id = a.patient_id
       LEFT JOIN patient_profiles p ON p.user_id = a.patient_id
       WHERE a.scheduled_at >= ? AND a.scheduled_at < ?
-      \${whereDoctor}
-      AND a.status IN (\${statusClause})
+      ${whereDoctor}
+      AND a.status IN (${statusClause})
       ORDER BY a.scheduled_at ASC
     `,
     params

@@ -15,3 +15,5 @@ export const DB_PORT = Number(process.env.MYSQL_PORT || 3306);
 export const DB_USER = process.env.MYSQL_USER || "root";
 export const DB_PASSWORD = process.env.MYSQL_PASSWORD || "";
 export const DB_NAME = process.env.MYSQL_DATABASE || "patient_portal";
+export const FORCE_LOCAL_DB = process.env.FORCE_LOCAL_DB === "true";
+

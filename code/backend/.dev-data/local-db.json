@@ -429,15 +429,15 @@
       "address": null,
       "emergency_contact": null,
       "blood_group": null,
-      "allergies": "peanut",
+      "allergies": "peanut and olive",
       "known_conditions": "heart disease",
       "mother_patient_uid": null,
       "father_patient_uid": null,
-      "weight": "70",
-      "height": "175",
-      "dietary_preference": "Kosher",
-      "activity_level": "Very Active",
-      "updated_at": "2026-07-08T04:54:26.650Z"
+      "weight": null,
+      "height": null,
+      "dietary_preference": null,
+      "activity_level": null,
+      "updated_at": "2026-07-09T02:35:05.700Z"
     }
   ],
   "appointments": [

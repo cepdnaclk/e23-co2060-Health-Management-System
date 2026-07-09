@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
-import { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DEFAULT_PATIENT_LOGIN, DEFAULT_PATIENT_PASSWORD } from "./env.js";
+import { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DEFAULT_PATIENT_LOGIN, DEFAULT_PATIENT_PASSWORD, FORCE_LOCAL_DB } from "./env.js";
 import { initLocalDb, localQuery } from "./localDb.js";
 
 const mysqlPool = mysql.createPool({
@@ -43,7 +43,7 @@ export function getDbMode() {
 
 export const pool = {
   async query(sql, params) {
-    if (activeDb === "local") {
+    if (activeDb === "local" || FORCE_LOCAL_DB) {
       return localQuery(sql, params);
     }
 
@@ -59,6 +59,11 @@ export const pool = {
 };
 
 export async function initDb() {
+  if (FORCE_LOCAL_DB) {
+    activeDb = "local";
+    await initLocalDb();
+    return;
+  }
   try {
     const conn = await mysql.createConnection({
       host: DB_HOST,
