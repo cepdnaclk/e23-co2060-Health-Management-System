@@ -82,7 +82,11 @@ export async function getPatientMe(req, res) {
         allergies: row.allergies,
         knownConditions: row.known_conditions,
         motherPatientId: row.mother_patient_uid,
-        fatherPatientId: row.father_patient_uid
+        fatherPatientId: row.father_patient_uid,
+        weight: row.weight,
+        height: row.height,
+        dietaryPreference: row.dietary_preference,
+        activityLevel: row.activity_level
       }
     });
   } catch (error) {
