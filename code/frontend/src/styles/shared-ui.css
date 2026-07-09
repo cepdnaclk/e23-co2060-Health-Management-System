@@ -41,7 +41,8 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-:root.dark-mode .field {
+:root.dark .field,
+.dark .field {
   border-color: var(--border);
   background: var(--surface-strong);
   color: var(--ink);

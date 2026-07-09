@@ -363,7 +363,8 @@
   text-align: center;
 }
 
-:root.dark-mode .family-node {
+:root.dark .family-node,
+.dark .family-node {
   background: color-mix(in srgb, var(--surface) 88%, black);
 }
 

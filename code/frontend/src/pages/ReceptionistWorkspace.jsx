@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardStat, EmptyState, LoadingState, StatusBadge } from "../components/DashboardKit";
 import { API_BASE, readJson } from "../lib/appShared";
+import { useTheme } from "../context/ThemeContext";
 
 function toDateOnly(dateText) {
   const d = new Date(`${dateText}T00:00:00`);
@@ -52,6 +53,7 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { isDarkMode, toggleTheme } = useTheme();
   const [savingAppointment, setSavingAppointment] = useState(false);
   const [uploadingReport, setUploadingReport] = useState(false);
   const [reports, setReports] = useState([]);
@@ -316,14 +318,24 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
   return (
     <div className="workspace-layout mx-auto grid w-full max-w-7xl gap-6">
       <section className="workspace-main rounded-3xl p-5 sm:p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-sky-100 pb-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Receptionist Dashboard</h1>
-            <p className="text-sm text-slate-600">Logged in as {session?.user?.username || "receptionist"}</p>
+            <p className="text-sm text-slate-600 font-medium">Logged in as {session?.user?.username || "receptionist"}</p>
           </div>
-          <button type="button" onClick={() => onLogout()} className="btn-secondary">
-            Logout
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="theme-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-lg"
+              onClick={toggleTheme}
+              title={isDarkMode ? "Light Mode" : "Dark Mode"}
+            >
+              {isDarkMode ? "☀️" : "🌙"}
+            </button>
+            <button type="button" onClick={() => onLogout()} className="btn-secondary !m-0">
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-3 md:grid-cols-4">

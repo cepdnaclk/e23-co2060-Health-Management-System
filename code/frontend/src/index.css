@@ -33,7 +33,8 @@ body {
     linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
 }
 
-:root.dark-mode body {
+:root.dark body,
+.dark body {
   background:
     radial-gradient(circle at top left, rgba(77, 213, 219, 0.05), transparent 24%),
     radial-gradient(circle at top right, rgba(122, 165, 224, 0.05), transparent 28%),
@@ -45,8 +46,10 @@ textarea::placeholder {
   color: var(--ink-soft);
 }
 
-:root.dark-mode input::placeholder,
-:root.dark-mode textarea::placeholder {
+:root.dark input::placeholder,
+.dark input::placeholder,
+:root.dark textarea::placeholder,
+.dark textarea::placeholder {
   color: rgba(184, 197, 214, 0.7);
 }
 
@@ -270,11 +273,13 @@ button {
   transform: scale(1.1);
 }
 
-:root.dark-mode .theme-toggle {
+:root.dark .theme-toggle,
+.dark .theme-toggle {
   background: rgba(255, 255, 255, 0.1);
 }
 
-:root.dark-mode .theme-toggle:hover {
+:root.dark .theme-toggle:hover,
+.dark .theme-toggle:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
@@ -598,7 +603,8 @@ h3 {
   color: var(--ink);
 }
 
-:root.dark-mode .service-card {
+:root.dark .service-card,
+.dark .service-card {
   background: var(--surface-strong);
   color: var(--ink);
 }
@@ -636,11 +642,16 @@ h3 {
   color: var(--ink);
 }
 
-:root.dark-mode .finder-shell,
-:root.dark-mode .module-card,
-:root.dark-mode .nf-card,
-:root.dark-mode .topic-card,
-:root.dark-mode .related-card {
+:root.dark .finder-shell,
+.dark .finder-shell,
+:root.dark .module-card,
+.dark .module-card,
+:root.dark .nf-card,
+.dark .nf-card,
+:root.dark .topic-card,
+.dark .topic-card,
+:root.dark .related-card,
+.dark .related-card {
   background: var(--surface);
   color: var(--ink);
 }
@@ -674,7 +685,8 @@ h3 {
   color: var(--ink);
 }
 
-:root.dark-mode .finder-input input {
+:root.dark .finder-input input,
+.dark .finder-input input {
   border-color: var(--border);
   background: var(--surface-strong);
   color: var(--ink);

@@ -1,4 +1,8 @@
+import { useTheme } from "../context/ThemeContext";
+
 export function RoleSidebar({ title, subtitle, initials, photoUrl, navItems, activeView, onSelectView, onLogout }) {
+  const { isDarkMode, toggleTheme } = useTheme();
+
   return (
     <aside className="workspace-sidebar role-sidebar rounded-3xl p-4">
       <div className="role-profile-card">
@@ -27,9 +31,19 @@ export function RoleSidebar({ title, subtitle, initials, photoUrl, navItems, act
         ))}
       </nav>
 
-      <button type="button" onClick={onLogout} className="btn-secondary role-logout">
-        Logout
-      </button>
+      <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+        <button type="button" onClick={onLogout} className="btn-secondary role-logout grow !m-0">
+          Logout
+        </button>
+        <button
+          type="button"
+          className="theme-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-lg"
+          onClick={toggleTheme}
+          title={isDarkMode ? "Light Mode" : "Dark Mode"}
+        >
+          {isDarkMode ? "☀️" : "🌙"}
+        </button>
+      </div>
     </aside>
   );
 }

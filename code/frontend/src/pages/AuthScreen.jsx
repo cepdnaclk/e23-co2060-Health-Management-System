@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Field from "../components/Field";
 import { API_BASE, readJson } from "../lib/appShared";
 import { authDoctorImage, authPatientImage } from "../lib/landingAssets";
+import { useTheme } from "../context/ThemeContext";
 
 const roleTabs = [
   { id: "patient", label: "Patient" },
@@ -116,6 +117,7 @@ export default function AuthScreen(props) {
     onReceptionistSignup,
     onSignup
   } = props;
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const authVisual = authRole === "doctor" ? authDoctorImage : authPatientImage;
 
@@ -123,9 +125,19 @@ export default function AuthScreen(props) {
     <section className="auth-page">
       <div className="auth-shell">
         <div className="auth-panel">
-          <button type="button" className="back-link" onClick={onBack}>
-            &larr; Back To Home
-          </button>
+          <div className="flex items-center justify-between">
+            <button type="button" className="back-link" onClick={onBack}>
+              &larr; Back To Home
+            </button>
+            <button
+              type="button"
+              className="theme-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-lg"
+              onClick={toggleTheme}
+              title={isDarkMode ? "Light Mode" : "Dark Mode"}
+            >
+              {isDarkMode ? "☀️" : "🌙"}
+            </button>
+          </div>
 
           <div className="auth-header">
             <h1>{mode === "signup" ? "Sign up" : "Login"}</h1>
