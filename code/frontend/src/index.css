@@ -28,17 +28,21 @@ body {
   font-family: "Calibri", "ui-sans-serif", "system-ui", "sans-serif";
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(73, 213, 219, 0.2), transparent 24%),
-    radial-gradient(circle at top right, rgba(151, 167, 220, 0.22), transparent 28%),
+    radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(244, 63, 94, 0.06) 0%, transparent 50%),
     linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+  background-attachment: fixed;
 }
 
 :root.dark body,
 .dark body {
   background:
-    radial-gradient(circle at top left, rgba(77, 213, 219, 0.05), transparent 24%),
-    radial-gradient(circle at top right, rgba(122, 165, 224, 0.05), transparent 28%),
+    radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(255, 0, 127, 0.08) 0%, transparent 50%),
     linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+  background-attachment: fixed;
 }
 
 input::placeholder,
