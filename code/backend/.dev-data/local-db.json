@@ -52,7 +52,7 @@
       "email": "patient1",
       "phone": "0000000000",
       "profile_photo_url": null,
-      "password_hash": "$2a$10$OyqZlNcQC0hZfDrDelStVOC1XbDbKBOCezUl8QrwWoB3faUqJguOm",
+      "password_hash": "$2a$10$eFuGTrmYdpS8eIALsy1UxuCY7wsZwsX1O7YPspZN7h9EneDBAAFme",
       "created_at": "2026-04-28T16:52:09.221Z",
       "username": null,
       "patient_uid": "PT-000004",

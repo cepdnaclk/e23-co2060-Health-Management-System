@@ -9,6 +9,7 @@ import doctorRoutes from "./routes/doctorRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import receptionistRoutes from "./routes/receptionistRoutes.js";
+import { initBackupScheduler } from "./services/backupService.js";
 
 const app = express();
 let dbInitialized = false;
@@ -88,6 +89,8 @@ function scheduleDatabaseRetry() {
 async function startServer() {
   await initializeDatabase();
   if (!dbInitialized) scheduleDatabaseRetry();
+
+  initBackupScheduler();
 
   app.listen(PORT, "127.0.0.1", () => {
     console.log(`Server running on http://localhost:${PORT}`);
