@@ -1,56 +1,78 @@
-___
 # Health Management System
 
-# Team 18
-___
+**Team 18**
+CO2060 Second Year Project
 
-# e23-co2060-project: Second Year Project.
+## Overview
 
-This project is a web-based Health Management System built using the  stack (My Sql, Express, React, and Node.js). It aims to simplify hospital operations by providing a single platform for patients, doctors, lab technicians, and administrators. Each user role has a separate interface with clear permissions to ensure secure and organized access to data.
+This project is a web-based Health Management System developed using the MERN stack (MySQL, Express, React, Node.js). It is designed to streamline hospital operations by integrating multiple user roles into a single, secure platform.
 
-Patients, can book appointments, view medical records, prescriptions, and lab results. Doctors can manage patient diagnoses, prescriptions, and request lab tests. Lab technicians upload and manage test results, while administrators handle scheduling and overall system management. The backend uses REST APIs with JWT-based authentication and role-based access control to protect sensitive data.
+The system provides dedicated interfaces for:
 
-An AI support feature is included to assist doctors by providing suggestions based on patient history and symptoms, while all final medical decisions remain with healthcare professionals.
+* Patients
+* Doctors
+* Receptionists
 
+Each role operates with clearly defined permissions to ensure secure, organized, and efficient data management.
 
+## Key Features
 
-```
-{
-    "team": [
-        {
-            "name": "Apurwa Fernando",
-            "email": "e23100@eng.pdn.ac.lk",
-            "eNumber": "E/23/100"
-        },
-        {
-            "name": "Ryan Fernando",
-            "email": "e23098@eng.pdn.ac.lk",
-            "eNumber": "E/23/098"
-        },
-        {
-            "name": "Dimal Alagiyawanna",
-            "email": "e23012@eng.pdn.ac.lk",
-            "eNumber": "E/23/012"
-        },
-        {
-            "name": " Kavidu Kalhara",
-            "email": "e23098@eng.pdn.ac.lk",
-            "eNumber": "E/23/093"
-        }
-        
-    ],
-    "supervisors": [
-        {
-            "name": "Dr. Asitha Bandaranayake",
-            "email": "asithab@eng.pdn.ac.lk"
-        },
-        {
-            "name": "Kaveesha Madhushan ",
-            "email": "e21245@eng.pdn.ac.lk"
-        }
-    ],
-    "tags": ["Web", "Software Systems", "CO2060"],
-    "image":"cover_page.jpg",
-    "thumbnail":"thumbnail.jpg"
-}
-```
+### Patient Portal
+
+* Book and manage appointments
+* View medical records and prescriptions
+* Access lab test results
+
+### Doctor Portal
+
+* Manage patient diagnoses
+* Issue prescriptions
+* Request laboratory tests
+
+### Receptionist Portal
+
+* Manage appointment scheduling
+* Handle patient records and coordination
+* Upload and manage lab results
+* Oversee general system operations
+
+## Security and Architecture
+
+* RESTful API-based backend
+* JWT-based authentication
+* Role-based access control
+* Structured data management using MySQL
+
+## AI Support Feature
+
+The system includes an AI-assisted support module that helps doctors by providing suggestions based on patient symptoms and history. All final medical decisions remain with healthcare professionals.
+
+## Team Members
+
+### Apurwa Fernando
+
+* Email: [e23100@eng.pdn.ac.lk](mailto:e23100@eng.pdn.ac.lk)
+* Registration Number: E/23/100
+
+### Ryan Fernando
+
+* Email: [e23098@eng.pdn.ac.lk](mailto:e23098@eng.pdn.ac.lk)
+* Registration Number: E/23/098
+
+### Dimal Alagiyawanna
+
+* Email: [e23012@eng.pdn.ac.lk](mailto:e23012@eng.pdn.ac.lk)
+* Registration Number: E/23/012
+
+### Kavidu Kalhara
+
+* Email: [e23093@eng.pdn.ac.lk](mailto:e23093@eng.pdn.ac.lk)
+* Registration Number: E/23/093
+
+## Supervisors
+
+* Dr. Asitha Bandaranayake
+  [asithab@eng.pdn.ac.lk](mailto:asithab@eng.pdn.ac.lk)
+
+* Kaveesha Madhushan
+  [e21245@eng.pdn.ac.lk](mailto:e21245@eng.pdn.ac.lk)
