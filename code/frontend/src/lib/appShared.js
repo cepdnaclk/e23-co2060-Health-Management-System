@@ -2,6 +2,37 @@ export const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3
 export const AUTH_STORE_KEY = "patient_auth_v1";
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
+export const COUNTRY_OPTIONS = [
+  ["Sri Lankan", "LK", "Sri Lanka"],
+  ["Indian", "IN", "India"],
+  ["Bangladeshi", "BD", "Bangladesh"],
+  ["Pakistani", "PK", "Pakistan"],
+  ["Nepali", "NP", "Nepal"],
+  ["Maldivian", "MV", "Maldives"],
+  ["British", "GB", "United Kingdom"],
+  ["American", "US", "United States"],
+  ["Canadian", "CA", "Canada"],
+  ["Australian", "AU", "Australia"],
+  ["Other", "", "Other"]
+];
+
+export function getCountryFlag(nationality) {
+  const option = COUNTRY_OPTIONS.find(([label]) => label.toLowerCase() === String(nationality || "").trim().toLowerCase());
+  if (!option?.[1]) return "🌍";
+  return option[1].replace(/[A-Z]/g, (letter) => String.fromCodePoint(letter.charCodeAt(0) + 127397));
+}
+
+export function getAgeFromDob(dob) {
+  if (!dob) return null;
+  const birth = new Date(dob);
+  if (Number.isNaN(birth.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDelta = today.getMonth() - birth.getMonth();
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birth.getDate())) age -= 1;
+  return age >= 0 && age <= 130 ? age : null;
+}
+
 export function loadGoogleIdentityScript() {
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined") {

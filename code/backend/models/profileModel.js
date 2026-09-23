@@ -5,6 +5,7 @@ export function normalizeProfile(input = {}) {
   return {
     dob: trimmed(input.dob) || null,
     gender: trimmed(input.gender) || null,
+    nationality: trimmed(input.nationality) || null,
     address: trimmed(input.address) || null,
     emergencyContact: trimmed(input.emergencyContact) || null,
     bloodGroup: trimmed(input.bloodGroup) || null,
@@ -85,6 +86,7 @@ export function mapPatientRecord(row) {
     profile: {
       dob: row.dob,
       gender: row.gender,
+      nationality: row.nationality,
       address: row.address,
       emergencyContact: row.emergency_contact,
       bloodGroup: row.blood_group,

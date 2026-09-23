@@ -74,7 +74,7 @@ function migrateDataShape(data) {
   }
 
   for (const profile of data.patient_profiles) {
-    for (const key of ["known_conditions", "mother_patient_uid", "father_patient_uid", "weight", "height", "dietary_preference", "activity_level"]) {
+    for (const key of ["nationality", "known_conditions", "mother_patient_uid", "father_patient_uid", "weight", "height", "dietary_preference", "activity_level"]) {
       if (!Object.prototype.hasOwnProperty.call(profile, key)) {
         profile[key] = null;
         changed = true;
@@ -138,6 +138,7 @@ function userWithProfileRow(data, user) {
     ...userPublicRow(user),
     dob: profile.dob || null,
     gender: profile.gender || null,
+    nationality: profile.nationality || null,
     address: profile.address || null,
     emergency_contact: profile.emergency_contact || null,
     blood_group: profile.blood_group || null,
@@ -313,6 +314,12 @@ export async function localQuery(sql, params = []) {
     return [[userPublicRow(user)].filter(Boolean)];
   }
 
+  if (normalized.startsWith("select id from users where id = ? and role = 'patient'")) {
+    const [id] = params;
+    const user = data.users.find((item) => item.id === Number(id) && item.role === "patient");
+    return [[user ? { id: user.id } : null].filter(Boolean)];
+  }
+
   if (normalized.includes("from users where patient_uid = ? and role = ?")) {
     const [patientUid, role] = params;
     const user = data.users.find(
@@ -365,6 +372,24 @@ export async function localQuery(sql, params = []) {
     const user = data.users.find((item) => item.id === Number(id));
     if (!user) return [{ affectedRows: 0 }];
     user.patient_uid = patientUid;
+    await writeData(data);
+    return [{ affectedRows: 1 }];
+  }
+
+  if (normalized.startsWith("update users set role = ?, full_name = ?, username = ?, email = ?, phone = ?, profile_photo_url = ?, patient_uid = ?, password_hash = ?")) {
+    const [role, fullName, username, email, phone, profilePhotoUrl, patientUid, passwordHash, id] = params;
+    const user = data.users.find((item) => item.id === Number(id));
+    if (!user) return [{ affectedRows: 0 }];
+    Object.assign(user, {
+      role,
+      full_name: fullName,
+      username: username || null,
+      email,
+      phone,
+      profile_photo_url: profilePhotoUrl || null,
+      patient_uid: patientUid || null,
+      password_hash: passwordHash
+    });
     await writeData(data);
     return [{ affectedRows: 1 }];
   }
@@ -457,22 +482,9 @@ export async function localQuery(sql, params = []) {
   }
 
   if (normalized.startsWith("insert into patient_profiles")) {
-    const [
-      userId,
-      dob,
-      gender,
-      address,
-      emergencyContact,
-      bloodGroup,
-      allergies,
-      knownConditions,
-      motherPatientUid,
-      fatherPatientUid,
-      weight,
-      height,
-      dietaryPreference,
-      activityLevel
-    ] = params;
+    const [userId, dob, gender, nationality, address, emergencyContact, bloodGroup, allergies, knownConditions, motherPatientUid, fatherPatientUid, weight, height, dietaryPreference, activityLevel] = params.length === 15
+      ? params
+      : [params[0], params[1], params[2], null, params[3], params[4], params[5], params[6], params[7], params[8], params[9], null, null, null, null];
     let profile = data.patient_profiles.find((item) => item.user_id === Number(userId));
     if (!profile) {
       profile = { id: data.nextIds.patient_profiles++, user_id: Number(userId), created_at: now() };
@@ -481,6 +493,7 @@ export async function localQuery(sql, params = []) {
     Object.assign(profile, {
       dob: dob || null,
       gender: gender || null,
+      nationality: nationality || null,
       address: address || null,
       emergency_contact: emergencyContact || null,
       blood_group: bloodGroup || null,

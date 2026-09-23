@@ -45,6 +45,7 @@ const initialAccountForm = { fullName: "", phone: "", profilePhotoUrl: "" };
 const initialProfileForm = {
   dob: "",
   gender: "",
+  nationality: "",
   address: "",
   emergencyContact: "",
   bloodGroup: "",
@@ -166,6 +167,7 @@ export default function App() {
         setProfileForm({
           dob: normalizeDateForInput(data.profile?.dob),
           gender: data.profile?.gender || "",
+          nationality: data.profile?.nationality || "",
           address: data.profile?.address || "",
           emergencyContact: data.profile?.emergencyContact || "",
           bloodGroup: data.profile?.bloodGroup || "",
@@ -862,16 +864,34 @@ function BookingModal({ form, setForm, doctors, loading, error, onSubmit, onClos
           </select>
         </label>
 
-        <label className="block text-sm font-medium text-slate-700">
-          Preferred Date & Time
-          <input
-            className="field mt-1 w-full"
-            type="datetime-local"
-            value={form.scheduledAt}
-            onChange={(e) => setForm((value) => ({ ...value, scheduledAt: e.target.value }))}
-            required
-          />
-        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block text-sm font-medium text-slate-700">
+            Preferred Date
+            <input
+              className="field mt-1 w-full"
+              type="date"
+              value={String(form.scheduledAt || "").slice(0, 10)}
+              onChange={(e) => {
+                const time = String(form.scheduledAt || "").slice(11, 16) || "09:00";
+                setForm((value) => ({ ...value, scheduledAt: `${e.target.value}T${time}` }));
+              }}
+              required
+            />
+          </label>
+          <label className="block text-sm font-medium text-slate-700">
+            Preferred Time
+            <input
+              className="field mt-1 w-full"
+              type="time"
+              value={String(form.scheduledAt || "").slice(11, 16)}
+              onChange={(e) => {
+                const date = String(form.scheduledAt || "").slice(0, 10);
+                setForm((value) => ({ ...value, scheduledAt: `${date}T${e.target.value}` }));
+              }}
+              required
+            />
+          </label>
+        </div>
 
         <label className="block text-sm font-medium text-slate-700">
           Consultation Type

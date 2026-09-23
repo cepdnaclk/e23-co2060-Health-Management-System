@@ -1,0 +1,56 @@
+
+> test
+> node ./scripts/test-api.mjs && npm --prefix frontend run build
+
+PASS health endpoint
+PASS patient signup
+PASS profile update
+PASS profile persistence
+PASS public symptom chat
+PASS protected symptom chat
+PASS wellness advice
+
+7 API checks passed.
+
+> health-management-frontend@1.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 70 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                  0.40 kB │ gzip:  0.27 kB
+dist/assets/malithgunasekara-BqMoIVho.webp       6.95 kB
+dist/assets/samadhiranasinghe-B6Q_N8mm.webp      7.81 kB
+dist/assets/isurufernando-B3d8zHc4.jpg           9.13 kB
+dist/assets/anjaliwijeratne-CpxTXU9M.jpg        11.86 kB
+dist/assets/defaultone-C_7CKtZf.jpg             12.62 kB
+dist/assets/doctor_log_sign-DY3YOzDi.avif       13.09 kB
+dist/assets/kavindujayasinghe-C11TDHxP.jpg      13.15 kB
+dist/assets/tharushisilva-B6M9LyhH.webp         19.60 kB
+dist/assets/nethmiperera-BPMA2TuT.webp          19.86 kB
+dist/assets/background-fade-DsdTY2hH.avif       25.61 kB
+dist/assets/background 1 -C8-iFlW4.jpeg         34.09 kB
+dist/assets/patient_log_sign-B9_GHRlD.jpg    1,974.91 kB
+dist/assets/index-doVwMTpm.css                  64.68 kB │ gzip: 13.16 kB
+dist/assets/index-D6MNOKN5.js                  301.95 kB │ gzip: 84.57 kB
+✓ built in 1.09s
+
+✨ [36m[vite-plugin-image-optimizer][39m - optimized images successfully: 
+[2mdist[22m/[94massets/background-fade-DsdTY2hH.avif[39m    [90m[32m-1%[39m[90m    [39m [33m[1mcached[22m[39m [2moriginal: 25.03 kB; cached: 25.01 kB[22m
+[2mdist[22m/[94massets/background 1 -C8-iFlW4.jpeg[39m      [90m[32m-17%[39m[90m   [39m [33m[1mcached[22m[39m [2moriginal: 39.80 kB; cached: 33.29 kB[22m
+[2mdist[22m/[94massets/defaultone-C_7CKtZf.jpg[39m          [90m[32m-5%[39m[90m    [39m [33m[1mcached[22m[39m [2moriginal: 12.89 kB; cached: 12.32 kB[22m
+[2mdist[22m/[94massets/nethmiperera-BPMA2TuT.webp[39m       [90m[31m+2%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 19.40 kB <= optimized: 19.96 kB[22m
+[2mdist[22m/[94massets/doctor_log_sign-DY3YOzDi.avif[39m    [90m[31m+11%[39m[90m    [39m [33m[1mskipped[22m[39m [2moriginal: 12.78 kB <= optimized: 14.23 kB[22m
+[2mdist[22m/[94massets/kavindujayasinghe-C11TDHxP.jpg[39m   [90m[32m-5%[39m[90m    [39m [33m[1mcached[22m[39m [2moriginal: 13.41 kB; cached: 12.84 kB[22m
+[2mdist[22m/[94massets/isurufernando-B3d8zHc4.jpg[39m       [90m[32m-54%[39m[90m   [39m [33m[1mcached[22m[39m [2moriginal: 18.98 kB; cached: 8.91 kB[22m
+[2mdist[22m/[94massets/anjaliwijeratne-CpxTXU9M.jpg[39m     [90m[31m+11%[39m[90m    [39m [33m[1mskipped[22m[39m [2moriginal: 11.58 kB <= optimized: 12.90 kB[22m
+[2mdist[22m/[94massets/malithgunasekara-BqMoIVho.webp[39m   [90m[32m-49%[39m[90m   [39m [33m[1mcached[22m[39m [2moriginal: 13.29 kB; cached: 6.79 kB[22m
+[2mdist[22m/[94massets/tharushisilva-B6M9LyhH.webp[39m      [90m[31m+2%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 19.14 kB <= optimized: 19.70 kB[22m
+[2mdist[22m/[94massets/samadhiranasinghe-B6Q_N8mm.webp[39m  [90m[32m-49%[39m[90m   [39m [33m[1mcached[22m[39m [2moriginal: 14.85 kB; cached: 7.63 kB[22m
+[2mdist[22m/[94massets/patient_log_sign-B9_GHRlD.jpg[39m    [90m[32m-3%[39m[90m    [39m [33m[1mcached[22m[39m [2moriginal: 1975.28 kB; cached: 1928.63 kB[22m
+
+💰 total savings = [32m78.11kB[39m/[32m2113.52kB[39m ≈ [32m4%[39m
+
+

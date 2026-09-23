@@ -33,10 +33,18 @@ function parseRangeInput(range, dateText) {
   return { safeRange, startIso: start.toISOString().slice(0, 19).replace("T", " "), endIso: end.toISOString().slice(0, 19).replace("T", " ") };
 }
 
+function normalizeAppointmentDateTime(value) {
+  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})(?::\d{2})?$/);
+  if (!match) return null;
+  const candidate = new Date(`${match[1]}T${match[2]}:00`);
+  if (Number.isNaN(candidate.getTime())) return null;
+  return `${match[1]} ${match[2]}:00`;
+}
+
 function toAppointmentView(row) {
-  const when = new Date(row.scheduled_at);
-  const dateText = Number.isNaN(when.getTime()) ? String(row.scheduled_at).slice(0, 10) : when.toISOString().slice(0, 10);
-  const timeText = Number.isNaN(when.getTime()) ? String(row.scheduled_at).slice(11, 16) : when.toISOString().slice(11, 16);
+  const scheduledAtText = String(row.scheduled_at || "");
+  const dateText = scheduledAtText.slice(0, 10);
+  const timeText = scheduledAtText.slice(11, 16);
   return {
     appointmentId: `APT-${row.id}`,
     id: row.id,
@@ -99,8 +107,8 @@ export async function receptionistCreateAppointment(req, res) {
   const doctor = await findDoctorByUsername(doctorUsername);
   if (!doctor) return res.status(404).json({ error: "Doctor not found" });
 
-  const appointmentDate = new Date(scheduledAtRaw);
-  if (Number.isNaN(appointmentDate.getTime())) {
+  const scheduledAt = normalizeAppointmentDateTime(scheduledAtRaw);
+  if (!scheduledAt) {
     return res.status(400).json({ error: "Invalid scheduledAt date-time" });
   }
 
@@ -111,7 +119,7 @@ export async function receptionistCreateAppointment(req, res) {
     const createdId = await createAppointment({
       patientId,
       doctorUsername,
-      scheduledAt: appointmentDate.toISOString().slice(0, 19).replace("T", " "),
+      scheduledAt,
       reason,
       createdBy: String(req.auth?.username || req.auth?.sub || "reception"),
       consultationType

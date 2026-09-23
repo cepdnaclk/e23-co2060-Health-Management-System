@@ -167,6 +167,12 @@ function hardcodedDoctorToProfile(doctor) {
   };
 }
 
+function isSandboxDoctor(doctor) {
+  const values = [doctor?.username, doctor?.fullName, doctor?.full_name, doctor?.email]
+    .map((value) => String(value || "").toLowerCase());
+  return values.some((value) => value.includes("sandbox"));
+}
+
 export async function findDoctorByUsername(username) {
   const account = await findAccountByUsername(username, "doctor");
   if (account) return normalizeDoctorProfile(account);
@@ -176,7 +182,8 @@ export async function findDoctorByUsername(username) {
 
 export async function listDoctorsPublic() {
   const accounts = await findUsersByRole("doctor", 200);
-  const profiles = [...HARD_CODED_DOCTORS.map(hardcodedDoctorToProfile), ...accounts.map(normalizeDoctorProfile)];
+  const profiles = [...HARD_CODED_DOCTORS.map(hardcodedDoctorToProfile), ...accounts.map(normalizeDoctorProfile)]
+    .filter((doctor) => !isSandboxDoctor(doctor));
   return profiles.filter(Boolean).filter((doctor, index, list) => list.findIndex((item) => item.username === doctor.username) === index);
 }
 

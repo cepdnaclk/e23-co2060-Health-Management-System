@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS patient_profiles (
   user_id BIGINT UNSIGNED NOT NULL UNIQUE,
   dob DATE NULL,
   gender VARCHAR(30) NULL,
+  nationality VARCHAR(80) NULL,
   address TEXT NULL,
   emergency_contact VARCHAR(120) NULL,
   blood_group VARCHAR(10) NULL,

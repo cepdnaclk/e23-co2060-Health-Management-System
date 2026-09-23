@@ -363,7 +363,12 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
             </select>
           </label>
           <div className="flex items-end">
-            <p className="w-full rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700">{calendarTitle(range, date)}</p>
+            <div className="flex w-full items-center gap-2">
+              <p className="min-w-0 flex-1 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700">{calendarTitle(range, date)}</p>
+              <button type="button" className="btn-secondary shrink-0 !m-0" onClick={() => loadOverview()} disabled={loading}>
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
 
@@ -439,16 +444,34 @@ export default function ReceptionistWorkspace({ session, onLogout }) {
                   ))}
                 </datalist>
               </label>
-              <label className="block text-sm font-medium text-slate-700">
-                Date & Time
-                <input
-                  className="field mt-1 w-full"
-                  type="datetime-local"
-                  value={appointmentForm.scheduledAt}
-                  onChange={(e) => setAppointmentForm((v) => ({ ...v, scheduledAt: e.target.value }))}
-                  required
-                />
-              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block text-sm font-medium text-slate-700">
+                  Date
+                  <input
+                    className="field mt-1 w-full"
+                    type="date"
+                    value={String(appointmentForm.scheduledAt || "").slice(0, 10)}
+                    onChange={(e) => {
+                      const time = String(appointmentForm.scheduledAt || "").slice(11, 16) || "09:00";
+                      setAppointmentForm((v) => ({ ...v, scheduledAt: `${e.target.value}T${time}` }));
+                    }}
+                    required
+                  />
+                </label>
+                <label className="block text-sm font-medium text-slate-700">
+                  Time
+                  <input
+                    className="field mt-1 w-full"
+                    type="time"
+                    value={String(appointmentForm.scheduledAt || "").slice(11, 16)}
+                    onChange={(e) => {
+                      const selectedDate = String(appointmentForm.scheduledAt || "").slice(0, 10);
+                      setAppointmentForm((v) => ({ ...v, scheduledAt: `${selectedDate}T${e.target.value}` }));
+                    }}
+                    required
+                  />
+                </label>
+              </div>
               <label className="block text-sm font-medium text-slate-700">
                 Consultation Type
                 <select

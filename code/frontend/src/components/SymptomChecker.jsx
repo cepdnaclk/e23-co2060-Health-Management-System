@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { API_BASE, readJson } from "../lib/appShared";
+import { API_BASE, getAgeFromDob, getCountryFlag, readJson } from "../lib/appShared";
 
-export default function SymptomChecker({ token, className = "" }) {
+export default function SymptomChecker({ token, profile = null, endpoint = "/api/symptom-chat", className = "" }) {
   const initialWelcome = {
     sender: "ai",
     text: "Hello! I am your AI Health Assistant. Please describe the symptoms you are experiencing today, and I will guide you to the right medical specialist."
@@ -44,10 +44,10 @@ export default function SymptomChecker({ token, className = "" }) {
       const headers = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await fetch(`${API_BASE}/api/symptom-chat`, {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ messages: updatedMessages })
+        body: JSON.stringify({ messages: updatedMessages, profile })
       });
 
       const data = await readJson(res);
@@ -80,6 +80,9 @@ export default function SymptomChecker({ token, className = "" }) {
           <div>
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">AI Wellness Chat Coach</h3>
             <p className="text-[10px] text-slate-500">Conversational symptom triage & doctor recommendation</p>
+            <p className="text-[10px] font-semibold text-sky-700 dark:text-sky-300">
+              {profile?.nationality ? `${getCountryFlag(profile.nationality)} Tailored for a ${profile.nationality} patient, ${getAgeFromDob(profile.dob) ?? "age not provided"}${getAgeFromDob(profile.dob) !== null ? " years old" : ""}, gender: ${profile.gender || "not provided"}.` : "General guidance until a patient profile is provided."}
+            </p>
           </div>
         </div>
         <button

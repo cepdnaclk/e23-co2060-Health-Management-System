@@ -6,6 +6,7 @@ const router = Router();
 
 router.get("/models", listModels);
 router.post("/api/public/analyzeSymptoms", analyzeSymptoms);
+router.post("/api/public/symptom-chat", handleSymptomChat);
 router.post("/api/analyzeSymptoms", authRequired, requireRole("patient"), analyzeSymptoms);
 router.get("/api/patient/ai-advice", authRequired, requireRole("patient"), getAiAdvice);
 router.post("/api/symptom-chat", authRequired, requireRole("patient"), handleSymptomChat);

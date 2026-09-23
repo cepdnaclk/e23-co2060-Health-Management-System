@@ -1,16 +1,16 @@
 import { useTheme } from "../context/ThemeContext";
+import { getCountryFlag } from "../lib/appShared";
 
-export function RoleSidebar({ title, subtitle, initials, photoUrl, navItems, activeView, onSelectView, onLogout }) {
+export function RoleSidebar({ title, subtitle, initials, photoUrl, nationality, navItems, activeView, onSelectView, onLogout }) {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
     <aside className="workspace-sidebar role-sidebar rounded-3xl p-4">
       <div className="role-profile-card">
-        {photoUrl ? (
-          <img src={photoUrl} alt={title} className="role-avatar-img" />
-        ) : (
-          <div className="role-avatar">{initials}</div>
-        )}
+        <div className="relative shrink-0">
+          {photoUrl ? <img src={photoUrl} alt={title} className="role-avatar-img" /> : <div className="role-avatar">{initials}</div>}
+          {nationality ? <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-white bg-white text-base shadow" title={`${nationality} nationality`}>{getCountryFlag(nationality)}</span> : null}
+        </div>
         <div>
           <p className="role-title">{title}</p>
           <p className="role-subtitle">{subtitle}</p>

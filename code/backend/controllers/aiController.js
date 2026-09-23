@@ -223,7 +223,7 @@ function parseJsonSafeAdvice(text) {
   }
 }
 
-function getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, height, dietaryPreference, activityLevel) {
+function getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, height, dietaryPreference, activityLevel, nationality = "") {
   const isDiabetic = /diabet/i.test(knownConditions);
   const isHypertensive = /hypertens|bp|pressure/i.test(knownConditions);
   const isVeg = /vegetar|vegan/i.test(dietaryPreference);
@@ -248,6 +248,10 @@ function getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, heigh
     foodsToEat = ["Fatty fish (salmon)", "Avocados", "Eggs", "Grass-fed beef", "Olive oil", "Leafy Greens"];
   } else {
     foodsToEat = ["Lean proteins (chicken breast, fish)", "Leafy green vegetables", "Healthy fats (olive oil, avocados)"];
+  }
+
+  if (/sri\s*lanka|sri\s*lankan/i.test(nationality)) {
+    foodsToEat.push("Red rice, dhal, and leafy mallung prepared with less oil and salt");
   }
 
   let foodsToAvoid = [];
@@ -308,6 +312,13 @@ function getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, heigh
     recipeInstructions = ["Preheat oven to 400°F (200°C).", "Place salmon and asparagus on a baking sheet, drizzle with olive oil and garlic.", "Bake for 12-15 minutes until salmon flakes easily. Garnish with lemon and dill."];
   }
 
+  if (/sri\s*lanka|sri\s*lankan/i.test(nationality) && !isKeto) {
+    recipeTitle = "Balanced Sri Lankan Red Rice and Dhal Plate";
+    recipeDescription = "A familiar, fiber-rich meal with measured portions and vegetables; adjust ingredients for allergies and medical advice.";
+    recipeIngredients = ["1/2 cup cooked red rice", "3/4 cup dhal", "1 cup leafy mallung", "Cucumber and tomato", "1 tsp coconut or olive oil"];
+    recipeInstructions = ["Cook the red rice and dhal with minimal added salt.", "Serve with leafy mallung and fresh vegetables, keeping portions appropriate for your personal goals."];
+  }
+
   const lifestyle = [
     "Stay hydrated: drink 2-3 liters of water daily.",
     "Aim for 7-8 hours of quality sleep to support hormonal and physical restoration."
@@ -353,6 +364,7 @@ export async function getAiAdvice(req, res) {
     const knownConditions = patient.known_conditions || "None recorded";
     const allergies = patient.allergies || "None recorded";
     const gender = patient.gender || "Not set";
+    const nationality = patient.nationality || "Not set";
     const dob = patient.dob || "";
     const weight = patient.weight || "";
     const height = patient.height || "";
@@ -387,7 +399,7 @@ export async function getAiAdvice(req, res) {
     }
 
     if (!API_KEY || !genAI) {
-      return res.json(getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, height, dietaryPreference, activityLevel));
+      return res.json(getFallbackAdvice(bloodGroup, knownConditions, allergies, weight, height, dietaryPreference, activityLevel, nationality));
     }
 
     const prompt = `
@@ -414,6 +426,7 @@ You are an expert AI clinical nutritionist and wellness coach. Based on the pati
 Patient Profile:
 - Age: ${ageText}
 - Gender: ${gender}
+- Nationality: ${nationality}
 - Weight: ${weight ? weight + " kg" : "Not set"}
 - Height: ${height ? height + " cm" : "Not set"}
 - BMI: ${bmiText} ${bmiCategory ? "(" + bmiCategory + ")" : ""}
@@ -425,6 +438,7 @@ Patient Profile:
 
 Rules:
 - Keep the response strictly tailored to all of their profile constraints:
+  * Use nationality only to make food examples, ingredients, measurements, language, and practical lifestyle suggestions culturally familiar. Do not infer disease risk, biology, or treatment from nationality alone.
   * Align with their Dietary Preference (e.g. Vegetarian/Vegan means NO animal products, Keto means high fat/very low carb).
   * Strictly avoid their Food Allergies.
   * Limit sugar/carbs if diabetic. Limit sodium if hypertensive.
@@ -452,10 +466,11 @@ Rules:
         patient?.weight,
         patient?.height,
         patient?.dietary_preference,
-        patient?.activity_level
+        patient?.activity_level,
+        patient?.nationality
       ));
     } catch {
-      return res.json(getFallbackAdvice("Not set", "None", "None"));
+      return res.json(getFallbackAdvice("Not set", "None", "None", "", "", "", "", ""));
     }
   }
 }
@@ -482,13 +497,16 @@ function parseChatResponseSafe(text) {
   }
 }
 
-function handleFallbackSymptomChat(messages) {
+function handleFallbackSymptomChat(messages, profile = {}) {
   const userMessages = messages.filter(m => m.sender === "user");
+  const nationalityContext = profile.nationality
+    ? ` I will keep examples relevant to your ${String(profile.nationality).slice(0, 80)} context without making assumptions about your health.`
+    : "";
 
   if (userMessages.length <= 1) {
     return {
       finished: false,
-      aiResponse: "Thank you for explaining your symptoms. To help me recommend the best specialist, could you please tell me how long you have had this, and if you are experiencing any other symptoms (like fever, pain, or nausea)?"
+      aiResponse: `Thank you for explaining your symptoms.${nationalityContext} To help me recommend the best specialist, could you please tell me how long you have had this, and if you are experiencing any other symptoms (like fever, pain, or nausea)?`
     };
   }
 
@@ -511,8 +529,26 @@ export async function handleSymptomChat(req, res) {
     return res.status(400).json({ error: "messages array is required" });
   }
 
+  const profile = req.body?.profile || {};
+  let ageText = "";
+  if (profile.dob) {
+    const birth = new Date(profile.dob);
+    if (!Number.isNaN(birth.getTime())) {
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDelta = today.getMonth() - birth.getMonth();
+      if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birth.getDate())) age--;
+      if (age >= 0 && age <= 130) ageText = `Age: ${age}`;
+    }
+  }
+  const patientContext = [
+    profile.nationality && `Nationality: ${String(profile.nationality).slice(0, 80)}`,
+    profile.gender && `Gender: ${String(profile.gender).slice(0, 40)}`,
+    ageText
+  ].filter(Boolean).join("\n");
+
   if (!API_KEY || !genAI) {
-    return res.json(handleFallbackSymptomChat(messages));
+    return res.json(handleFallbackSymptomChat(messages, profile));
   }
 
   const prompt = `
@@ -521,12 +557,16 @@ You are a highly skilled medical triage assistant. Your goal is to converse with
 Conversation history:
 ${messages.map(m => `${m.sender === "user" ? "Patient" : "Assistant"}: ${m.text}`).join("\n")}
 
+Patient-provided demographic context (use only when relevant):
+${patientContext || "Not provided"}
+
 Rules:
 1. Analyze the symptoms mentioned by the patient.
 2. If you need more information to suggest the correct specialties (such as onset, duration, severity, location of pain, associated symptoms), return "finished": false and ask ONE concise, polite clarifying question in "aiResponse". Do not diagnose or prescribe treatment.
 3. If you have enough information to confidently select the most suitable medical specialties, return "finished": true, provide a polite summary of your advice in "aiResponse", and fill in the "primarySpecialty" and "secondarySpecialty" fields.
 4. Choose the specialties strictly from this list: "Cardiology", "Neurology", "General Surgery", "Pulmonology", "Gastroenterology", "Orthopedics", "Dermatology", "Urology", "OB-GYN", "Psychiatry", "Ophthalmology", "ENT", "General Practice", "Internal Medicine", "Pediatrics".
-5. Return ONLY a valid JSON object matching this schema:
+5. Do not infer a diagnosis, disease risk, or treatment from nationality, gender, or age alone. Use demographic context only to clarify communication or relevant local/cultural context, and recommend professional evaluation when needed.
+6. Return ONLY a valid JSON object matching this schema:
 {
   "finished": true/false,
   "aiResponse": "Your reply or question to the patient",

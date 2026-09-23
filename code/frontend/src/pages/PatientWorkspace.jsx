@@ -3,7 +3,7 @@ import { DashboardStat, EmptyState, LoadingState, RoleSidebar, StatusBadge } fro
 import Field from "../components/Field";
 import TelehealthRoom from "../components/TelehealthRoom";
 import SymptomChecker from "../components/SymptomChecker";
-import { API_BASE, makeInitials, normalizeDateForInput, readJson, titleForPatientView } from "../lib/appShared";
+import { API_BASE, COUNTRY_OPTIONS, getAgeFromDob, getCountryFlag, makeInitials, normalizeDateForInput, readJson, titleForPatientView } from "../lib/appShared";
 
 const patientNav = [
   { id: "dashboard", label: "Dashboard", icon: "D" },
@@ -59,6 +59,7 @@ function PatientWorkspace({
         subtitle={session.user?.email || "Patient account"}
         initials={initials}
         photoUrl={accountForm.profilePhotoUrl}
+        nationality={profileForm.nationality}
         navItems={patientNav}
         activeView={activeView}
         onSelectView={setActiveView}
@@ -80,11 +81,14 @@ function PatientWorkspace({
               <div>
                 <p className="mb-2 text-sm text-slate-700">Profile Photo</p>
                 <div className="flex items-center gap-3">
-                  {accountForm.profilePhotoUrl ? (
-                    <img src={accountForm.profilePhotoUrl} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
-                  ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sky-100 text-sky-700">{initials}</div>
-                  )}
+                  <div className="relative shrink-0">
+                    {accountForm.profilePhotoUrl ? (
+                      <img src={accountForm.profilePhotoUrl} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sky-100 text-sky-700">{initials}</div>
+                    )}
+                    {profileForm.nationality ? <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-white bg-white text-base shadow" title={`${profileForm.nationality} nationality`}>{getCountryFlag(profileForm.nationality)}</span> : null}
+                  </div>
                   <div className="field flex min-h-[52px] w-full items-center justify-between gap-2 px-3 py-2">
                     <label htmlFor="patient-photo-input" className="btn-secondary inline-flex cursor-pointer items-center px-4 py-2 text-xs sm:text-sm">
                       Add Profile Picture
@@ -116,6 +120,22 @@ function PatientWorkspace({
               <h2 className="text-lg font-semibold text-slate-900">Medical Profile</h2>
               <Field label="Date of Birth" type="date" value={profileForm.dob} onChange={(e) => setProfileForm((v) => ({ ...v, dob: e.target.value }))} />
               <Field label="Gender" type="text" value={profileForm.gender} onChange={(e) => setProfileForm((v) => ({ ...v, gender: e.target.value }))} />
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Nationality</span>
+                <div className="field flex items-center gap-2 px-3">
+                  <span className="text-lg" aria-hidden="true">{getCountryFlag(profileForm.nationality)}</span>
+                  <select
+                    value={profileForm.nationality || ""}
+                    onChange={(e) => setProfileForm((v) => ({ ...v, nationality: e.target.value }))}
+                    className="w-full bg-transparent text-sm text-slate-800 outline-none border-0 dark:text-slate-200"
+                  >
+                    <option value="">Select nationality</option>
+                    {COUNTRY_OPTIONS.map(([label, code, country]) => (
+                      <option key={code || label} value={label}>{country} ({label})</option>
+                    ))}
+                  </select>
+                </div>
+              </label>
               <Field label="Address" type="text" value={profileForm.address} onChange={(e) => setProfileForm((v) => ({ ...v, address: e.target.value }))} />
               <Field
                 label="Emergency Contact"
@@ -216,7 +236,7 @@ function PatientWorkspace({
           />
         ) : null}
         {activeView === "medical-log" ? <MedicalLogView token={session.token} /> : null}
-        {activeView === "symptom" ? <SymptomView token={session.token} /> : null}
+        {activeView === "symptom" ? <SymptomView token={session.token} profile={profileForm} /> : null}
         {activeView === "reports" ? <ReportsView token={session.token} /> : null}
         {activeView === "settings" ? <SettingsView token={session.token} /> : null}
       </section>
@@ -483,6 +503,9 @@ function DashboardView({ user, profile, token, setActiveView }) {
     };
   }, [
     token,
+    profile.dob,
+    profile.gender,
+    profile.nationality,
     profile.bloodGroup,
     profile.knownConditions,
     profile.allergies,
@@ -664,6 +687,7 @@ function DashboardView({ user, profile, token, setActiveView }) {
             <div>
               <h3 className="text-base font-semibold text-slate-900 font-display">Your AI Wellness Coach</h3>
               <p className="text-xs text-slate-500">Customized diet, recipes, and lifestyle tips tailored to your profile</p>
+              <p className="mt-1 text-xs font-semibold text-sky-700">{getCountryFlag(profile.nationality)} Tailored for a {profile.nationality || "patient with your profile"}, {getAgeFromDob(profile.dob) ?? "age not provided"}{getAgeFromDob(profile.dob) !== null ? " years old" : ""}, gender: {profile.gender || "not provided"}</p>
             </div>
           </div>
           {aiLoading ? (
@@ -1171,11 +1195,11 @@ function SettingsView({ token }) {
   );
 }
 
-function SymptomView({ token }) {
+function SymptomView({ token, profile }) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-slate-900">AI Symptom Checker</h2>
-      <SymptomChecker token={token} />
+      <SymptomChecker token={token} profile={profile} />
     </div>
   );
 }

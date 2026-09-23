@@ -14,6 +14,14 @@ import { createAppointment, getPatientAppointmentById, listAppointmentsForPatien
 import { predictHereditaryRisks } from "../services/hereditaryRiskService.js";
 import { findDoctorByUsername } from "../models/doctorModel.js";
 
+function normalizeAppointmentDateTime(value) {
+  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})(?::\d{2})?$/);
+  if (!match) return null;
+  const candidate = new Date(`${match[1]}T${match[2]}:00`);
+  if (Number.isNaN(candidate.getTime())) return null;
+  return `${match[1]} ${match[2]}:00`;
+}
+
 function appointmentPaymentFields(row) {
   return {
     paymentStatus: row.payment_status || "Unpaid",
@@ -76,6 +84,7 @@ export async function getPatientMe(req, res) {
       profile: {
         dob: row.dob,
         gender: row.gender,
+        nationality: row.nationality,
         address: row.address,
         emergencyContact: row.emergency_contact,
         bloodGroup: row.blood_group,
@@ -228,8 +237,8 @@ export async function requestPatientAppointment(req, res) {
   if (!scheduledAtRaw) return res.status(400).json({ error: "scheduledAt is required" });
   if (!(await findDoctorByUsername(doctorUsername))) return res.status(404).json({ error: "Doctor not found" });
 
-  const appointmentDate = new Date(scheduledAtRaw);
-  if (Number.isNaN(appointmentDate.getTime())) {
+  const scheduledAt = normalizeAppointmentDateTime(scheduledAtRaw);
+  if (!scheduledAt) {
     return res.status(400).json({ error: "Invalid scheduledAt date-time" });
   }
 
@@ -237,7 +246,7 @@ export async function requestPatientAppointment(req, res) {
     const appointmentId = await createAppointment({
       patientId: req.userId,
       doctorUsername,
-      scheduledAt: appointmentDate.toISOString().slice(0, 19).replace("T", " "),
+      scheduledAt,
       reason,
       createdBy: `patient:${req.userId}`,
       status: "Pending",

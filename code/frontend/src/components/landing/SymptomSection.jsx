@@ -28,7 +28,7 @@ export default function SymptomSection() {
 
       {isOpen ? (
         <Reveal className="symptom-home-panel" variant="up">
-          <SymptomChecker endpoint="/api/public/analyzeSymptoms" submitLabel="Check Symptoms" />
+          <SymptomChecker endpoint="/api/public/symptom-chat" />
         </Reveal>
       ) : null}
     </section>

@@ -141,6 +141,7 @@ export async function initDb() {
       user_id BIGINT UNSIGNED NOT NULL UNIQUE,
       dob DATE NULL,
       gender VARCHAR(30) NULL,
+      nationality VARCHAR(80) NULL,
       address TEXT NULL,
       emergency_contact VARCHAR(120) NULL,
       blood_group VARCHAR(10) NULL,
@@ -161,6 +162,7 @@ export async function initDb() {
   `);
 
   for (const statement of [
+    "ALTER TABLE patient_profiles ADD COLUMN nationality VARCHAR(80) NULL",
     "ALTER TABLE patient_profiles ADD COLUMN known_conditions TEXT NULL",
     "ALTER TABLE patient_profiles ADD COLUMN mother_patient_uid VARCHAR(24) NULL",
     "ALTER TABLE patient_profiles ADD COLUMN father_patient_uid VARCHAR(24) NULL",
