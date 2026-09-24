@@ -44,7 +44,7 @@ export default function TelehealthRoom({ appointment, token, isDoctor, onClose }
     // Auto opponent simulated greeting
     const timer = setTimeout(() => {
       if (active) {
-        const greeting = isDoctor 
+        const greeting = isDoctor
           ? `Hello, I'm ready. Let's start the consultation.`
           : `Hello Dr. ${appointment.doctorUsername || "Consultant"}. I am here.`;
         setChatLog((log) => [
@@ -161,8 +161,8 @@ export default function TelehealthRoom({ appointment, token, isDoctor, onClose }
     }
   }
 
-  const opponentName = isDoctor 
-    ? appointment.patient?.fullName || "Patient" 
+  const opponentName = isDoctor
+    ? appointment.patient?.fullName || "Patient"
     : `Dr. ${appointment.doctorUsername || "Consultant"}`;
 
   return (

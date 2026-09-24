@@ -51,6 +51,26 @@ app.use(patientRoutes);
 app.use(aiRoutes);
 app.use(receptionistRoutes);
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path === "/health" || req.path === "/models") {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
+      if (err) next();
+    });
+  });
+}
+
 app.use((error, _req, res, next) => {
   if (error?.type === "entity.too.large") {
     return res.status(413).json({ error: "Request too large. Please upload an image under 1MB." });
@@ -92,11 +112,12 @@ async function startServer() {
 
   initBackupScheduler();
 
-  app.listen(PORT, "127.0.0.1", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Health: http://localhost:${PORT}/health`);
-    console.log(`Models: http://localhost:${PORT}/models`);
+  const host = process.env.HOST || "0.0.0.0";
+  app.listen(PORT, host, () => {
+    console.log(`Server running on http://${host}:${PORT}`);
+    console.log(`Health: http://${host}:${PORT}/health`);
   });
 }
 
 startServer();
+
