@@ -146,7 +146,7 @@ export async function upsertPatientProfile(userId, profile) {
         dietary_preference,
         activity_level
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         dob = VALUES(dob),
         gender = VALUES(gender),
