@@ -32,7 +32,7 @@ app.use(
   cors({
     origin(origin, callback) {
       if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.has(origin)) return callback(null, true);
+      if (ALLOWED_ORIGINS.has("*") || ALLOWED_ORIGINS.has(origin)) return callback(null, true);
       return callback(null, false);
     },
     credentials: true

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
-const API_BASE = "http://localhost:3000";
+import { API_BASE } from "../lib/appShared";
 
 export default function TelehealthRoom({ appointment, token, isDoctor, onClose }) {
   const [localStream, setLocalStream] = useState(null);

@@ -100,7 +100,7 @@ export function readStoredSession() {
 
 export function setErrorNetworkAware(err, setError) {
   if (err instanceof TypeError) {
-    setError("Cannot reach server. Start backend on http://localhost:3000.");
+    setError("Cannot reach server. Please check your connection or server status.");
   } else {
     setError(err.message || "Request failed.");
   }

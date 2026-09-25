@@ -10,10 +10,10 @@ export const HARDCODED_RECEPTIONIST_PASSWORD = process.env.RECEPTIONIST1_PASSWOR
 export const DEFAULT_PATIENT_LOGIN = process.env.PATIENT1_LOGIN || "patient1";
 export const DEFAULT_PATIENT_PASSWORD = process.env.PATIENT1_PASSWORD || "1234";
 
-export const DB_HOST = process.env.MYSQL_HOST || "127.0.0.1";
-export const DB_PORT = Number(process.env.MYSQL_PORT || 3306);
-export const DB_USER = process.env.MYSQL_USER || "root";
-export const DB_PASSWORD = process.env.MYSQL_PASSWORD || "";
-export const DB_NAME = process.env.MYSQL_DATABASE || "patient_portal";
+export const DB_HOST = process.env.MYSQL_HOST || process.env.MYSQLHOST || "127.0.0.1";
+export const DB_PORT = Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306);
+export const DB_USER = process.env.MYSQL_USER || process.env.MYSQLUSER || "root";
+export const DB_PASSWORD = process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || "";
+export const DB_NAME = process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || "patient_portal";
 export const FORCE_LOCAL_DB = process.env.FORCE_LOCAL_DB === "true";
 
