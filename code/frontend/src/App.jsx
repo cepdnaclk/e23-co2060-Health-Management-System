@@ -291,7 +291,20 @@ export default function App() {
 
     try {
       await initializeGoogleSignIn();
-      window.google.accounts.id.prompt();
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          setLoading(false);
+          const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.() || "";
+          console.warn("Google One Tap prompt skipped/not displayed:", reason);
+          if (reason === "unregistered_origin") {
+            setError("Google sign-in error: Domain 'https://medicarehms.up.railway.app' must be added under 'Authorized JavaScript origins' in Google Cloud Console.");
+          } else if (reason === "suppressed_by_user" || reason === "opt_out_or_returning_user") {
+            setError("Google prompt was suppressed by browser. Please clear cookies or sign in manually.");
+          } else {
+            setError(`Google sign-in prompt could not be displayed (${reason || "blocked by browser"}). Please check Google Cloud Console setup.`);
+          }
+        }
+      });
     } catch (err) {
       setLoading(false);
       setErrorNetworkAware(err, setError);
