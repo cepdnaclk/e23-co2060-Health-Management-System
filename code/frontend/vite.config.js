@@ -4,10 +4,10 @@ import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 export default defineConfig({
   preview: {
-    allowedHosts: true
+    allowedHosts: [".railway.app", "medicarehms.up.railway.app"]
   },
   server: {
-    allowedHosts: true
+    allowedHosts: [".railway.app", "medicarehms.up.railway.app"]
   },
   plugins: [
     react(),
