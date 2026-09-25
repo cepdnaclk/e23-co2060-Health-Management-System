@@ -811,6 +811,7 @@ export default function App() {
           onBack={() => setScreen("home")}
           onPatientLogin={handlePatientLogin}
           onGoogleLogin={handleGoogleLogin}
+          onGoogleResponse={handleGoogleResponse}
           onDoctorLogin={handleDoctorLogin}
           onDoctorSignup={handleDoctorSignup}
           onReceptionistLogin={handleReceptionistLogin}

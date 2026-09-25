@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Field from "../components/Field";
-import { API_BASE, readJson } from "../lib/appShared";
+import { API_BASE, GOOGLE_CLIENT_ID, loadGoogleIdentityScript, readJson } from "../lib/appShared";
 import { authDoctorImage, authPatientImage } from "../lib/landingAssets";
 import { useTheme } from "../context/ThemeContext";
 
@@ -68,19 +68,57 @@ function ParentIdField({ label, value, onChange }) {
   );
 }
 
-function GoogleAuthButton({ loading, onGoogleLogin, compact = false }) {
+function GoogleAuthButton({ loading, onGoogleLogin, onGoogleResponse, compact = false }) {
+  const googleBtnRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+    async function initGoogleRender() {
+      try {
+        if (!GOOGLE_CLIENT_ID) return;
+        await loadGoogleIdentityScript();
+        if (!active || !googleBtnRef.current || !window.google?.accounts?.id) return;
+
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: (response) => {
+            if (onGoogleResponse) onGoogleResponse(response);
+          }
+        });
+
+        googleBtnRef.current.innerHTML = "";
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          width: "320",
+          text: "continue_with"
+        });
+      } catch (e) {
+        console.warn("Google button render:", e);
+      }
+    }
+
+    initGoogleRender();
+    return () => {
+      active = false;
+    };
+  }, [onGoogleResponse]);
+
   return (
     <div className={compact ? "auth-social-row auth-social-row-compact" : "auth-social-row"}>
-      <button type="button" disabled={loading} className="cta-button auth-google-button" onClick={onGoogleLogin}>
-        <span className="google-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21.35 11.1H12v2.8h5.4c-.24 1.5-1.6 4.4-5.4 4.4-3.24 0-5.9-2.68-5.9-6s2.66-6 5.9-6c1.85 0 3.1.8 3.82 1.5l2.6-2.5C17.8 3.4 15.33 2.2 12 2.2 6.58 2.2 2 6.78 2 12.2s4.58 10 10 10c5.74 0 9.5-4 9.5-9.7 0-.65-.07-1.3-.15-1.4z" fill="#EA4335" />
-            <path d="M3.47 7.7l2.8 2.05C7.05 8.02 9.4 6.2 12 6.2c1.86 0 3.1.8 3.82 1.5l2.6-2.5C17.8 3.4 15.33 2.2 12 2.2c-3.34 0-6.12 1.45-8.53 3.5z" fill="#FBBC05" />
-            <path d="M12 21.8c3.26 0 5.97-1.08 7.96-2.92l-3.68-3.02C14.68 15.6 13.4 16.2 12 16.2c-3.8 0-5.92-2.9-6.9-4.4l-2.82 2.18C4.1 19.4 7.48 21.8 12 21.8z" fill="#34A853" />
-          </svg>
-        </span>
-        {loading ? "Please wait..." : "Continue with Google"}
-      </button>
+      <div ref={googleBtnRef} className="google-official-btn-container" style={{ width: "100%", display: "flex", justifyContent: "center", minHeight: "44px" }}>
+        <button type="button" disabled={loading} className="cta-button auth-google-button" onClick={onGoogleLogin}>
+          <span className="google-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21.35 11.1H12v2.8h5.4c-.24 1.5-1.6 4.4-5.4 4.4-3.24 0-5.9-2.68-5.9-6s2.66-6 5.9-6c1.85 0 3.1.8 3.82 1.5l2.6-2.5C17.8 3.4 15.33 2.2 12 2.2 6.58 2.2 2 6.78 2 12.2s4.58 10 10 10c5.74 0 9.5-4 9.5-9.7 0-.65-.07-1.3-.15-1.4z" fill="#EA4335" />
+              <path d="M3.47 7.7l2.8 2.05C7.05 8.02 9.4 6.2 12 6.2c1.86 0 3.1.8 3.82 1.5l2.6-2.5C17.8 3.4 15.33 2.2 12 2.2c-3.34 0-6.12 1.45-8.53 3.5z" fill="#FBBC05" />
+              <path d="M12 21.8c3.26 0 5.97-1.08 7.96-2.92l-3.68-3.02C14.68 15.6 13.4 16.2 12 16.2c-3.8 0-5.92-2.9-6.9-4.4l-2.82 2.18C4.1 19.4 7.48 21.8 12 21.8z" fill="#34A853" />
+            </svg>
+          </span>
+          {loading ? "Please wait..." : "Continue with Google"}
+        </button>
+      </div>
     </div>
   );
 }
