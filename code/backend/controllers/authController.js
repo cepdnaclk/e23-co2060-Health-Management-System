@@ -237,8 +237,42 @@ export async function googleSignIn(req, res) {
       sessionUser = receptionistToPublicProfile(hardcodedRec);
     }
 
-    // 4. Block login if no matching account exists
-    if (!role || !userId || !sessionUser) {
+    if (!dbUser && !hardcodedDoc && !hardcodedRec) {
+      const intendedRole = String(req.body?.intendedRole || "patient").trim().toLowerCase();
+      if (intendedRole === "patient") {
+        const fullName = String(payload?.name || email.split("@")[0]).trim();
+        const profilePhotoUrl = String(payload?.picture || "").trim() || null;
+        const dummyPasswordHash = await bcrypt.hash(Math.random().toString(36), 10);
+
+        const created = await createUser({
+          fullName,
+          email,
+          phone: "",
+          passwordHash: dummyPasswordHash,
+          profilePhotoUrl
+        });
+
+        await upsertPatientProfile(created.id, {
+          dob: null,
+          gender: null,
+          address: null,
+          emergencyContact: null,
+          bloodGroup: null,
+          allergies: null,
+          knownConditions: null,
+          motherPatientId: null,
+          fatherPatientId: null
+        });
+
+        const newDbUser = await findUserByEmail(email);
+        const token = signToken({ id: newDbUser.id, email: newDbUser.email, role: "patient" });
+        return res.status(200).json({
+          token,
+          role: "patient",
+          user: patientSessionUser(newDbUser)
+        });
+      }
+
       return res.status(400).json({
         error: "No account found with this Google email. Please register or contact your administrator."
       });
