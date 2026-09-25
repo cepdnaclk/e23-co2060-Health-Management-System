@@ -18,13 +18,22 @@ const MIME_TYPES = {
   ".jpeg": "image/jpeg",
   ".gif": "image/gif",
   ".svg": "image/svg+xml",
+  ".avif": "image/avif",
+  ".webp": "image/webp",
   ".ico": "image/x-icon",
   ".woff": "font/woff",
-  ".woff2": "font/woff2"
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf"
 };
 
 const server = http.createServer((req, res) => {
-  const reqUrl = req.url.split("?")[0];
+  let reqUrl = "/";
+  try {
+    reqUrl = decodeURIComponent(req.url.split("?")[0]);
+  } catch {
+    reqUrl = req.url.split("?")[0];
+  }
+
   let filePath = path.join(distDir, reqUrl === "/" ? "index.html" : reqUrl);
 
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
