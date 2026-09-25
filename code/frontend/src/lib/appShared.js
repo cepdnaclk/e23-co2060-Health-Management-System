@@ -1,6 +1,6 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "" : "http://localhost:3000");
 export const AUTH_STORE_KEY = "patient_auth_v1";
-export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "685818386228-vcoigkc8rp38hijrr1ghk3uknl11htb1.apps.googleusercontent.com";
 
 export const COUNTRY_OPTIONS = [
   ["Sri Lankan", "LK", "Sri Lanka"],
