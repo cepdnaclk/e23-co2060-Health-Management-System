@@ -6,7 +6,7 @@ export default function HeroSection({ onLogin, onSignup, onBookAppointment, onWo
 
   return (
     <section id="home" className="hero-section">
-      <div className="hero-media" style={{ backgroundImage: `url(${landingHero})` }}>
+      <div className="hero-media" style={{ backgroundImage: `url("${landingHero}")` }}>
         <div className="hero-overlay" />
         <Reveal className="hero-card" variant="right">
           <p className="eyebrow">Advanced Clinical Programmes</p>
