@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0 --allowed-hosts all",
+    "preview": "node server.js",
     "start": "node server.js"
   },
   "dependencies": {
