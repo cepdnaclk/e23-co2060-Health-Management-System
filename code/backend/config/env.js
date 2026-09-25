@@ -4,8 +4,15 @@ export const PORT = Number(process.env.PORT || 3000);
 export const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173,http://127.0.0.1:5173";
 export const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-env";
 export const API_KEY = process.env.GEMINI_API_KEY || "";
-const RAW_GOOGLE_CLIENT_ID = String(process.env.GOOGLE_CLIENT_ID || "").trim();
-export const GOOGLE_CLIENT_ID = RAW_GOOGLE_CLIENT_ID || "685818386228-vcoigkc8rp38hijrr1ghk3uknl11htb1.apps.googleusercontent.com";
+const FALLBACK_GOOGLE_CLIENT_ID = "685818386228-vcoigkc8rp38hijrr1ghk3uknl11htb1.apps.googleusercontent.com";
+function resolveGoogleClientId() {
+  const envVal = String(process.env.GOOGLE_CLIENT_ID || "").trim();
+  if (!envVal || envVal === "undefined" || envVal === "null" || envVal === '""') {
+    return FALLBACK_GOOGLE_CLIENT_ID;
+  }
+  return envVal;
+}
+export const GOOGLE_CLIENT_ID = resolveGoogleClientId();
 export const HARDCODED_DOCTOR_PASSWORD = process.env.DOCTOR1_PASSWORD || "1234";
 export const HARDCODED_RECEPTIONIST_PASSWORD = process.env.RECEPTIONIST1_PASSWORD || "1234";
 export const DEFAULT_PATIENT_LOGIN = process.env.PATIENT1_LOGIN || "patient1";

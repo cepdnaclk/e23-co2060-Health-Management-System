@@ -1,7 +1,14 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "" : "http://localhost:3000");
 export const AUTH_STORE_KEY = "patient_auth_v1";
-const RAW_VITE_GOOGLE_CLIENT_ID = String(import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
-export const GOOGLE_CLIENT_ID = RAW_VITE_GOOGLE_CLIENT_ID || "685818386228-vcoigkc8rp38hijrr1ghk3uknl11htb1.apps.googleusercontent.com";
+const FALLBACK_GOOGLE_CLIENT_ID = "685818386228-vcoigkc8rp38hijrr1ghk3uknl11htb1.apps.googleusercontent.com";
+function resolveGoogleClientId() {
+  const envVal = String(import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
+  if (!envVal || envVal === "undefined" || envVal === "null" || envVal === '""') {
+    return FALLBACK_GOOGLE_CLIENT_ID;
+  }
+  return envVal;
+}
+export const GOOGLE_CLIENT_ID = resolveGoogleClientId();
 
 export const COUNTRY_OPTIONS = [
   ["Sri Lankan", "LK", "Sri Lanka"],
