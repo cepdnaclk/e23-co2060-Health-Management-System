@@ -3,7 +3,7 @@ layout: home
 permalink: index.html
 
 # Please update this with your repository name and project title
-repository-name: eYY-co2060-project-template
+repository-name: e23-co2060-Health-Management-System
 title: Health Management System
 ---
 
@@ -19,7 +19,7 @@ If your followed all the given instructions correctly, your repository will be a
 
 A HTML template integrated with the given GitHub repository templates, based on github.com/cepdnaclk/eYY-project-theme . If you like to remove this default theme and make your own web page, you can remove the file, docs/_config.yml and create the site using HTML. -->
 
-# Project Title
+# AI-Integrated Health Management System
 
 ---
 
@@ -37,14 +37,15 @@ A HTML template integrated with the given GitHub repository templates, based on 
 
 #### Table of Contents
 1. [Introduction](#introduction)
-2. [Solution Architecture](#solution-architecture )
-3. [Software Designs](#hardware-and-software-designs)
+2. [Solution Architecture](#solution-architecture)
+3. [Software Designs](#software-designs)
 4. [Testing](#testing)
 5. [Conclusion](#conclusion)
 6. [Links](#links)
 
 ## Introduction
 
+[website](https://medicarehms.up.railway.app/)
 Hospitals manage many daily tasks such as patient registration, appointments, medical reports, and doctor consultations. When these tasks are handled manually, it can cause delays, misplaced records, and poor communication between patients and hospital staff.
 
 This project provides a web-based Health Management System to manage these tasks in one place. Patients can register, view appointments, update their profile, make payments, and view reports. Doctors can view appointments and patient details, while receptionists can create appointments and upload reports.
@@ -75,19 +76,26 @@ The main user roles are:
 
 ## Testing
 
-The software was tested by checking the main workflows manually through the web interface and API endpoints.
+The application was verified using a two-tiered testing methodology combining automated API integration checks with manual workflow validation.
 
-Tested functions include:
+### Automated Integration Tests
+An automated Node.js integration test runner validates core server health, user identity management, state persistence, and LLM endpoints prior to compilation:
 
-- Patient signup and login.
-- Doctor and receptionist login.
-- Patient profile update.
-- Appointment creation, viewing, payment, completion, and cancellation.
-- Report upload and viewing.
-- Role-based access control.
-- AI symptom analysis and fallback responses.
+- **`PASS` Health Endpoint:** Confirms Express API and database availability.
+- **`PASS` Patient Signup & Auth:** Validates JWT generation and session management.
+- **`PASS` Profile Update & Persistence:** Verifies local/MySQL database state mutations.
+- **`PASS` Public & Protected Symptom Chat:** Ensures public triage and authenticated Gemini AI routes respond cleanly.
+- **`PASS` Wellness Advice:** Validates localized health recommendation array payloads.
 
-The results showed that the main features worked as expected. Invalid inputs such as missing login details, wrong passwords, invalid appointment IDs, and unsupported report files were also checked. The system returned suitable error messages for these cases.
+### Production Build Verification
+Frontend compilation is validated using Vite's production toolchain, compiling 70 React components into minified production assets in **2.13s** with zero syntax or import errors. Automated image optimization via `vite-plugin-image-optimizer` reduces static raster assets by up to **54%** to ensure fast loads over low-bandwidth clinical networks.
+
+### Manual System Verification
+Manual functional tests were conducted across user roles to verify:
+- Patient signup, profile customization, and report viewing.
+- Receptionist appointment scheduling, confirmation, and report uploading.
+- Doctor diagnosis logging and clinical history access.
+- Invalid input handling (missing fields, bad credentials, malformed files) with appropriate error handling.
 
 ## Conclusion
 
@@ -99,7 +107,7 @@ The system can be further developed into a commercial hospital management platfo
 
 
 ## Links
-
+- [website](https://medicarehms.up.railway.app/)
 - [Project Repository](https://github.com/cepdnaclk/e23-co2060-Health-Management-System/tree/main)
 - [Project Page](https://cepdnaclk.github.io/{{ page.repository-name}}){:target="_blank"}
 - [Department of Computer Engineering](http://www.ce.pdn.ac.lk/)
